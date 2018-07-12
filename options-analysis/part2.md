@@ -1,12 +1,12 @@
 # Работа с dhcp snooping
-	- описание
-	фича предотвращает использование DHCP серверов на недоверенных интерфейсах, помогает бороться с MITM и DHCP starvation
-	также при использовании DHCP snooping, свитч начинает хранить информацию о соответствии mac адресу ip адреса
-	- синтаксис
-	`(config-if)#ip dhcp snooping trust` - доверять данному интерфейсу (за ним DHCP сервер)
-	`(config-if)#ip dhcp snooping limit rate 10` - ограничение кол-ва клиентских запросов для недоверенных интерфейсов
-	`(config)#ip dhcp snooping vlan 13` - включение dhcp snooping для vlan 13
-	`(config)#ip dhcp snooping` - включение dhcp snooping глобально
+* описание
+фича предотвращает использование DHCP серверов на недоверенных интерфейсах, помогает бороться с MITM и DHCP starvation
+также при использовании DHCP snooping, свитч начинает хранить информацию о соответствии mac адресу ip адреса
+* синтаксис
+`(config-if)#ip dhcp snooping trust` - доверять данному интерфейсу (за ним DHCP сервер)
+`(config-if)#ip dhcp snooping limit rate 10` - ограничение кол-ва клиентских запросов для недоверенных интерфейсов
+`(config)#ip dhcp snooping vlan 13` - включение dhcp snooping для vlan 13
+`(config)#ip dhcp snooping` - включение dhcp snooping глобально
 # Защиты от arp spoofing
 	* arp inspection
 	- описание
