@@ -10,10 +10,18 @@
 # Защиты от arp spoofing
 * arp inspection
 	- описание  
+фича, привязывающая mac-ip к конкретному порту на свитче, использует таблицу dhcp snooping 
 	- синтаксис  
-* arp guard
+`(config)#ip arp inspection vlan 13` - включение arp inspection для vlan 13
+	- с использованием ACL вместо таблицы DHCP snooping  
+`(config)#arp access-list <name>`
+* source guard
 	- описание  
+фича, привязывающая mac-ip к конкретному порту на свитче, использует таблицу dhcp snooping 
 	- синтаксис  
+`(config-if)# ip verify source port-security`
+	- без таблицы DHCP snooping  
+`(config)# ip source binding <mac.add.ress> vlan <id> <IP.add.re.ss> interface <name>`
 # Port-security
 * описание  
 фича позволяет защищаться от атаки DHCP starvation (переполнение пула ip)
@@ -50,5 +58,7 @@ vlan hopping - атака, позволяющая злоумышленнику �
 	- синтаксис  
 `(config)#vlan dot1q tag native` - тегирование native vlan
 # best pratice по vlan/arp/dhcp
+* использовать arp inspection и source guard в связке с dhcp snooping
+* адекватно разделять сеть на vlan'ы
 * статически настраивать режимы trunk/access
 * не использовать native vlan
