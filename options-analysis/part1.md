@@ -99,34 +99,34 @@ Global configuration — режим глобальной конфигураци�
 
 * Пароль на консоль:  
 `line console 0`  
-` password MyPassword
-` login
+` password MyPassword`  
+` login`  
 
-* Пароль на Telnet и SSH:
-`line vty 0 4
-` password MyPassword
-` login
+* Пароль на Telnet и SSH:  
+`line vty 0 4`  
+` password MyPassword`  
+` login`  
 
-* Пароль на привилегированный режим:
-`enable password MyEnablePassword
-` или
-`enable secret SecretPassword
+* Пароль на привилегированный режим:  
+`enable password MyEnablePassword`  
+ или  
+`enable secret SecretPassword`  
 
-* Задание минимальной длины пароля:
-`security passwords min-length 6
+* Задание минимальной длины пароля:  
+`security passwords min-length 6`  
 
-* Хранение паролей в виде хеша:
-`service password-encryption 
+* Хранение паролей в виде хеша:  
+`service password-encryption`  
 
-* Отключение функции восстановления пароля:
-`no service password-recovery
+* Отключение функции восстановления пароля:  
+`no service password-recovery`  
 
-* Задание количества разрешенных неудачных попыток логина в минуту. При превышении будет сгенерировано лог-сообщение:
-`security authentication failure rate 3 log
+* Задание количества разрешенных неудачных попыток логина в минуту. При превышении будет сгенерировано лог-сообщение:  
+`security authentication failure rate 3 log`  
 
-* Задержка между попытками подключения (по умолчанию 1 секунда):
-`login delay <sec>
+* Задержка между попытками подключения (по умолчанию 1 секунда):  
+`login delay <sec>`  
 
-* Логирование попыток подключения:
-`login on-failure log [every <login-attempts>]
-`login on-success log [every <login-attempts>]
+* Логирование попыток подключения:  
+`login on-failure log [every <login-attempts>]`  
+`login on-success log [every <login-attempts>]`  
