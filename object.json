@@ -1,0 +1,18 @@
+#WIP
+
+iface{
+	int id;
+	<options>
+}
+
+metaconfig
+
+config{
+	global{
+		password
+	}
+
+	iface{
+
+	}
+}
