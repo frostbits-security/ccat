@@ -1,0 +1,3 @@
+critical_area: 1,5,7
+unknown_area: 3,2,4
+trusted_area: 8,9,10
