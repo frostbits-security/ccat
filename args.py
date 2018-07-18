@@ -1,24 +1,32 @@
 #!/usr/bin/env python3
-#на вход полный путь к папке с конфигами и картой сети, название файла с картой сети
+# input: full path of the directory with config[s]+ file name of vlanmap
 import argparse
 import os
 import re
-parser = argparse.ArgumentParser()
-parser.add_argument("-vl", "--vlanmap",type=str, help="file name of vlanmap")
-parser.add_argument("-c","--config",type=str, help="full path of the folder with config[s] and vlanmap")
-args = parser.parse_args()
-if args.vlanmap and args.config:
-    config_lst=[args.config+'/'+i for i in os.listdir(args.config)]
-    vlanmap=args.config+'/'+args.vlanmap
+
+def arg_parser(config_folder,vlanmap_name):
     try:
-        config_lst.remove(vlanmap)
-        for each in config_lst:
-            with open(each,'r') as f:
-                pass
-    except ValueError:
-        print('incorrect vlanmap name!')
+        config_lst = [config_folder + '/' + i for i in os.listdir(config_folder)]
+        vlanmap = config_folder + '/' + vlanmap_name
+        try:
+            config_lst.remove(vlanmap)
+            for each in config_lst:
+                with open(each, 'r') as f:
+                    pass
+        except ValueError:
+            print('Incorrect vlanmap name!')
+    except OSError:
+        print('The directory doesn`t exist!')
+
+parser = argparse.ArgumentParser()
+parser.add_argument("-vl",type=str, help="file name of vlanmap")
+parser.add_argument("-c",type=str, help="full path of the folder with config[s] and vlanmap")
+args = parser.parse_args()
+if args.vl and args.c:
+    arg_parser(args.c,args.vl)
 else:
-    print("you must load config[s] and vlanmap!")
+    print("You must load directory with config[s] and vlanmap! IT`S EXAMPLE:\n\npython arg.py -c example -vl vlmap.txt")
+    arg_parser('example','vlmap.txt')
 
 # let the parse begin!
 vmapf=open(vlanmap,"r")
