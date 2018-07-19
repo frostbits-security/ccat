@@ -31,19 +31,18 @@
 
 # Парсинг строк service происходит отдельно для включенных и выключенных служб
 #
-import sys
-sys.path.append(r"C:\\Program Files (x86)\\Python36-32\\Lib\\site-packages")
 
 from pyparsing import *
 active_service = Suppress('service ')
 disable_service = Suppress('no service ')
 service_name = restOfLine
+
 parse_active_service = (active_service + service_name)
 parse_disable_service = (disable_service + service_name)
 
 service_dict ={'active_service': [], 'disable_service': []}
 
-filenames = ['file1.txt']
+filenames = ['example\\10.164.132.1.conf']
 for fname in filenames:
     with open(fname) as config:
         for line in config:

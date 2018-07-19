@@ -1,8 +1,8 @@
 # Парсинг интерфесов из конфига
 #
 # (без явного указания пути модуль у меня не импортировался, пока оставил так)
-import sys
-sys.path.append(r"C:\\Program Files (x86)\\Python36-32\\Lib\\site-packages")
+#import sys
+#sys.path.append(r"C:\\Program Files (x86)\\Python36-32\\Lib\\site-packages")
 from pyparsing import *
 
 # Получение атрибутов для каждого интерфейса в виде списка
@@ -16,7 +16,7 @@ def get_iface_attributes ():
 
 parse_iface = (Suppress('interface ') + restOfLine)
 
-filenames = ['file1.txt', 'file3.txt']
+filenames = ['example\\10.164.132.1.conf']
 for fname in filenames:
     iface_dict = {fname: {}}
     with open(fname) as config:
@@ -29,7 +29,4 @@ for fname in filenames:
     print(fname, 'interfaces:')
     for key in iface_dict[fname]:
         print(key,iface_dict[fname][key])
-#
-#
-# В итоге создается словарь вида {'file_name1': {'iface 1':[attr], 'iface 2':[attr], ..., 'iface N':[attr]},
-#                                 'file_name2': {...}}
+
