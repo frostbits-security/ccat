@@ -134,8 +134,10 @@ def iface_attributes (config):
 #Storm-control option parsing
 
 def storm_check(storm,dct):
+
     parse_level = Word(alphas) + Suppress('level ') + restOfLine
     parse_action = Suppress('action ') + Word(alphas)
+    parse_type = Word(alphas) + Suppress(Optional("include")) + Word(alphas)
     try:
         return storm_parse(parse_level, storm, 'level', dct)
     except ParseException:
@@ -144,10 +146,15 @@ def storm_check(storm,dct):
         return storm_parse(parse_action, storm, 'action', dct)
     except ParseException:
         pass
+    try:
+        return storm_parse(parse_type, storm, 'type', dct)
+    except ParseException:
+        pass
 
 #Add value to the storm_dict
 
 def storm_parse(parse_meth,storm_str,name,storm_dict):
+
     value = parse_meth.parseString(storm_str).asList()
     storm_dict[name] = value
     return storm_dict
