@@ -6,7 +6,57 @@
 # import sys
 # sys.path.append(r"C:\\Program Files (x86)\\Python36-32\\Lib\\site-packages")
 
-from pyparsing import Suppress, Optional, restOfLine, ParseException, MatchFirst, Word, nums, ZeroOrMore, NotAny, White,alphas
+from pyparsing import Suppress, Optional, restOfLine, ParseException, MatchFirst, Word, nums, ZeroOrMore, NotAny, White,\
+                      Or, printables, oneOf, alphas
+
+					  
+# Parsing any attributes into list
+
+def get_attributes (config):
+    iface_list = []
+    x = config.readline()
+    while len(x) > 3:
+        iface_list.append(x[1:-1])
+        x = config.readline()
+    return (iface_list)
+
+
+# Username options parsing
+
+def username_attributes (line):
+    username_dict = {}
+    username       = (Word(printables))                             ('user')
+    privilege      = (Optional(Suppress('privilege') + Word(nums))) ('priv_num')
+    password_type  = (Suppress('secret') + Word(nums))              ('pass_type')
+    parse_username = (username + privilege + password_type + Suppress(restOfLine))
+    res = parse_username.parseString(line)
+
+    username_dict[res.user] = {}
+    username_dict[res.user]['password_type'] = res.pass_type.asList()[0]
+    try:
+        username_dict[res.user]['privilege'] = res.priv_num.asList()[0]
+    except AttributeError:
+        pass
+
+    return username_dict
+
+
+# Ssh options parsing
+
+def ssh_attributes(line):
+    ssh_dict = {}
+    option = (Word(alphas + '-'))('opt')
+    value  = (restOfLine)        ('val')
+    res    = (option + White() + value).parseString(line)
+
+    if res.opt == 'logging':
+        ssh_dict['logging-events'] = 'yes'
+    elif res.opt == 'port':
+        ssh_dict['port'] = res.val.split()[0]
+    else:
+        ssh_dict[res.opt] = res.val
+
+    return ssh_dict
 
 
 # Global options parsing
@@ -21,11 +71,11 @@ def global_parse():
     parse_ip_ssh          =                   Suppress('ip ssh ')     + restOfLine
     parse_line            =                   Suppress('line ')       + restOfLine
 
-    filenames = ['example\\10.164.132.1.conf']
+    filenames = ['file1.txt', 'file3.txt']
     for fname in filenames:
         with open(fname) as config:
-            iface_global = {fname: {'active_service': [], 'disable_service': [], 'username': [], 'aaa': [],
-                                    'ip_dhcp': [], 'ip_ssh': [], 'line': []}}
+            iface_global = {fname: {'active_service': [], 'disable_service': [], 'aaa': [], 'users': {},
+                                    'ip_dhcp': [], 'ip_ssh': {}, 'line': []}}
             for line in config:
                 try:
                     iface_global[fname]['active_service'].append(parse_active_service.parseString(line).asList()[-1])
@@ -38,7 +88,8 @@ def global_parse():
                 except ParseException:
                     pass
                 try:
-                    iface_global[fname]['username'].append(parse_username.parseString(line).asList()[-1])
+                    current_line = parse_username.parseString(line).asList()[-1]
+                    iface_global[fname]['users'].update(username_attributes(current_line))
                     continue
                 except ParseException:
                     pass
@@ -53,7 +104,8 @@ def global_parse():
                 except ParseException:
                     pass
                 try:
-                    iface_global[fname]['ip_ssh'].append(parse_ip_ssh.parseString(line).asList()[-1])
+                    current_line = parse_ip_ssh.parseString(line).asList()[-1]
+                    iface_global[fname]['ip_ssh'].update(ssh_attributes(current_line))
                     continue
                 except ParseException:
                     pass
@@ -66,18 +118,6 @@ def global_parse():
         print('\n', fname, 'global options:\n')
         for key in iface_global[fname]:
             print(key, iface_global[fname][key])
-
-
-# Parsing any attributes into list
-
-def get_attributes (config):
-    iface_list = []
-    x = config.readline()
-    while len(x) > 3:
-        iface_list.append(x[1:-1])
-        x = config.readline()
-    return (iface_list)
-
 
 # Parsing interface attributes into dictionary
 
@@ -93,7 +133,7 @@ def iface_attributes (config):
     parse_description = Suppress('description ')     + restOfLine
     parse_type        = Suppress('switchport mode ') + restOfLine
     parse_vlans       = Suppress('switchport ')      + Suppress(MatchFirst('access vlan ' +
-                                 ('trunk allowed vlan ' + Optional('add ')))) + vlan_num
+                        ('trunk allowed vlan ' + Optional('add ')))) + vlan_num
     parse_storm=Suppress('storm-control ') + restOfLine
 
     for option in iface_list:
@@ -135,9 +175,9 @@ def iface_attributes (config):
 
 def storm_check(storm,dct):
 
-    parse_level = Word(alphas) + Suppress('level ') + restOfLine
+    parse_level  = Word(alphas) + Suppress('level ') + restOfLine
     parse_action = Suppress('action ') + Word(alphas)
-    parse_type = Word(alphas) + Suppress(Optional("include")) + Word(alphas)
+    parse_type   = Word(alphas) + Suppress(Optional("include")) + Word(alphas)
     try:
         return storm_parse(parse_level, storm, 'level', dct)
     except ParseException:
@@ -187,10 +227,11 @@ interface_parse()
 # Creating 2 dictionaries with global and local options.
 #
 # Global dictionary
-# {'file1.txt': {'active_service': [...], 'disable_service': [...], 'username': [...], 'aaa': [...], 'ip_dhcp': [...],
-#                'ip_ssh': [...], 'line': [...]}
+# {'file1.txt': {'active_service': [...], 'disable_service': [...], 'username': {...}, 'aaa': [...], 'ip_dhcp': [...],
+#                'ip_ssh': {...}, 'line': [...]}
 #  'file2.txt': {...}}
 #
 # Interface dictionary
-# {'file1.txt': {'vlans': [1,2,3], 'shutdown': 'yes'/'no', 'description': '...', 'type': 'access'/'trunk'}
+# {'file1.txt': {'vlans': [1,2,3], 'shutdown': 'yes'/'no', 'description': '...', 'type': 'access'/'trunk',
+#                'storm-control': {'level': {'type', 'range'}, 'action': '...'}}
 #  'file2.txt': {...}}
