@@ -128,6 +128,8 @@ def iface_attributes (config):
 
     storm_dict = {}
 
+    port_sec_dct = {}
+
     vlan_num = Word(nums + '-') + ZeroOrMore(Suppress(',') + Word(nums + '-'))
 	
     parse_description = Suppress('description ')     + restOfLine
@@ -135,6 +137,7 @@ def iface_attributes (config):
     parse_vlans       = Suppress('switchport ')      + Suppress(MatchFirst('access vlan ' +
                         ('trunk allowed vlan ' + Optional('add ')))) + vlan_num
     parse_storm=Suppress('storm-control ') + restOfLine
+    parse_port_sec = Suppress('switchport port-security ') + restOfLine
 
     for option in iface_list:
         if option == 'shutdown':
@@ -169,6 +172,15 @@ def iface_attributes (config):
             continue
         except ParseException:
             pass
+        if option == 'switchport nonegotiate':
+            iface_dict['dtp'] = 'no'
+        if option == 'no cdp enable':
+            iface_dict['cdp'] = 'no'
+        try:
+            port_sec=parse_port_sec.parseString(option).asList()[-1]
+            iface_dict['port-security'] = port_sec_parse(port_sec, port_sec_dct)
+        except ParseException:
+            pass
     return iface_dict
 
 #Storm-control option parsing
@@ -179,25 +191,49 @@ def storm_check(storm,dct):
     parse_action = Suppress('action ') + Word(alphas)
     parse_type   = Word(alphas) + Suppress(Optional("include")) + Word(alphas)
     try:
-        return storm_parse(parse_level, storm, 'level', dct)
+        return int_dict_parse(parse_level, storm, 'level', dct)
     except ParseException:
         pass
     try:
-        return storm_parse(parse_action, storm, 'action', dct)
+        return int_dict_parse(parse_action, storm, 'action', dct)
     except ParseException:
         pass
     try:
-        return storm_parse(parse_type, storm, 'type', dct)
+        return int_dict_parse(parse_type, storm, 'type', dct)
     except ParseException:
         pass
 
-#Add value to the storm_dict
+#Add value to the feature interface_dict
 
-def storm_parse(parse_meth,storm_str,name,storm_dict):
+def int_dict_parse(parse_meth,featur_str,name,featur_dict):
 
-    value = parse_meth.parseString(storm_str).asList()
-    storm_dict[name] = value
-    return storm_dict
+    value = parse_meth.parseString(featur_str).asList()
+    featur_dict[name] = value
+    return featur_dict
+
+#Port-security option parsing
+
+def port_sec_parse(port,dct):
+    parse_aging=Suppress('aging type ')+restOfLine
+    parse_violat=Suppress('violation ')+restOfLine
+    parse_mac=Suppress('mac-address ')+Optional('sticky')+restOfLine
+    parse_max=Suppress('maximum ')
+    try:
+        return int_dict_parse(parse_aging, port, 'aging', dct)
+    except ParseException:
+        pass
+    try:
+        return int_dict_parse(parse_violat, port, 'violation', dct)
+    except ParseException:
+        pass
+    try:
+        return int_dict_parse(parse_mac, port, 'mac-address', dct)
+    except ParseException:
+        pass
+    try:
+        return int_dict_parse(parse_max, port, 'maximum', dct)
+    except ParseException:
+        pass
 
 # Interface options parsing
 
@@ -205,7 +241,7 @@ def interface_parse():
 
     parse_iface = Suppress('interface ') + restOfLine
 
-    filenames = ['example\\10.164.132.1.conf']
+    filenames = ['example\\172.17.135.196.conf']
     for fname in filenames:
         iface_local = {fname: {}}
         with open(fname) as config:
@@ -220,7 +256,7 @@ def interface_parse():
             print(key,iface_local[fname][key])
 
 			
-global_parse()
+#global_parse()
 interface_parse()
 
 
