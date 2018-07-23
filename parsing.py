@@ -13,8 +13,8 @@
 #
 #
 # FOR DEBUG
-import sys
-sys.path.append(r"C:\\Program Files (x86)\\Python36-32\\Lib\\site-packages")
+# import sys
+# sys.path.append(r"C:\\Program Files (x86)\\Python36-32\\Lib\\site-packages")
 
 from pyparsing import Suppress, Optional, restOfLine, ParseException, MatchFirst, Word, nums, ZeroOrMore, NotAny, White,\
                       Or, printables, oneOf, alphas
