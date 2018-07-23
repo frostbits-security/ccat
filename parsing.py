@@ -1,5 +1,15 @@
 # Cisco config parsing
+# Creating 2 dictionaries with global and local options.
 #
+# Global dictionary
+# {'file1.txt': {'active_service': [...], 'disable_service': [...], 'username': {...}, 'aaa': [...], 'ip_dhcp': [...],
+#                'ip_ssh': {...}, 'line': [...]}
+#  'file2.txt': {...}}
+#
+# Interface dictionary
+# {'file1.txt': {'vlans': [1,2,3], 'shutdown': 'yes'/'no', 'description': '...', 'type': 'access'/'trunk',
+#                'storm-control': {'level': {'type', 'range'}, 'action': '...'}}
+#  'file2.txt': {...}}
 #
 #
 # FOR DEBUG
@@ -257,17 +267,17 @@ def interface_parse():
 
 			
 #global_parse()
-interface_parse()
+#interface_parse()
 
+def parse_vlanmap(filename):
+    vmapf=open(filename,"r")
+    vlanmap=vmapf.read()
+    vmapf.close()
+    vlanpattern=re.compile('(.+): ([0-9,]+)')
+    vlanmap=re.findall(vlanpattern,vlanmap)
 
-# Creating 2 dictionaries with global and local options.
-#
-# Global dictionary
-# {'file1.txt': {'active_service': [...], 'disable_service': [...], 'username': {...}, 'aaa': [...], 'ip_dhcp': [...],
-#                'ip_ssh': {...}, 'line': [...]}
-#  'file2.txt': {...}}
-#
-# Interface dictionary
-# {'file1.txt': {'vlans': [1,2,3], 'shutdown': 'yes'/'no', 'description': '...', 'type': 'access'/'trunk',
-#                'storm-control': {'level': {'type', 'range'}, 'action': '...'}}
-#  'file2.txt': {...}}
+    critical_area=vlanmap[0].split(',')
+    unknown_area=vlanmap[1].split(',')
+    trusted_area=vlanmap[2].split(',')
+    return vlanmap
+
