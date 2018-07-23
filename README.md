@@ -302,5 +302,5 @@ trusted_area: 8,9,10
 # Usage  
 `ccat -c example -vl vlmap.txt`  
 # Installation  
-`pip3 -r requirements.txt
-python3 setup.py install`  
+`pip3 -r requirements.txt`  
+`python3 setup.py install`  
