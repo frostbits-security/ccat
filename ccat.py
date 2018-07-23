@@ -7,3 +7,14 @@ print(vlanmap)
 filenames.pop(0)
 interfaces=parsing.interface_parse(filenames)
 global_params=parsing.global_parse(filenames)
+
+# Output for debug
+#
+# for fname in filenames:
+#     print('\n', fname, 'global options:\n')
+#     for key in global_params[fname]:
+#         print(key, global_params[fname][key])
+#
+#     print('\n', fname, 'interface options:\n')
+#     for key in interfaces[fname]:
+#         print(key, interfaces[fname][key])
