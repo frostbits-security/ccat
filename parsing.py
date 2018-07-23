@@ -33,7 +33,7 @@ def get_attributes (config):
 
 # Username options parsing
 
-def username_attributes (line):
+def _globalparse___username_attributes (line):
     username_dict = {}
     username       = (Word(printables))                             ('user')
     privilege      = (Optional(Suppress('privilege') + Word(nums))) ('priv_num')
@@ -98,7 +98,7 @@ def global_parse(filenames):
                     pass
                 try:
                     current_line = parse_username.parseString(line).asList()[-1]
-                    iface_global[fname]['users'].update(username_attributes(current_line))
+                    iface_global[fname]['users'].update(_globalparse___username_attributes(current_line))
                     continue
                 except ParseException:
                     pass
