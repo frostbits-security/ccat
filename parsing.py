@@ -72,6 +72,7 @@ def ssh_attributes(line):
 # Global options parsing
 
 def global_parse(filenames):
+    iface_global = {}
 
     parse_active_service  =                   Suppress('service ')    + restOfLine
     parse_disable_service =                   Suppress('no service ') + restOfLine
@@ -83,8 +84,8 @@ def global_parse(filenames):
 
     for fname in filenames:
         with open(fname) as config:
-            iface_global = {fname: {'active_service': [], 'disable_service': [], 'aaa': [], 'users': {},
-                                    'ip_dhcp': [], 'ip_ssh': {}, 'line': []}}
+            iface_global.update({fname: {'active_service': [], 'disable_service': [], 'aaa': [], 'users': {},
+                                    'ip_dhcp': [], 'ip_ssh': {}, 'line': []}})
             for line in config:
                 try:
                     iface_global[fname]['active_service'].append(parse_active_service.parseString(line).asList()[-1])
@@ -123,10 +124,8 @@ def global_parse(filenames):
                     continue
                 except ParseException:
                     pass
+    return iface_global
 
-        print('\n', fname, 'global options:\n')
-        for key in iface_global[fname]:
-            print(key, iface_global[fname][key])
 
 # Parsing interface attributes into dictionary
 
@@ -247,11 +246,12 @@ def port_sec_parse(port,dct):
 # Interface options parsing
 
 def interface_parse(filenames):
+    iface_local = {}
 
     parse_iface = Suppress('interface ') + restOfLine
 
     for fname in filenames:
-        iface_local = {fname: {}}
+        iface_local.update({fname: {}})
         with open(fname) as config:
             for line in config:
                 try:
@@ -259,9 +259,7 @@ def interface_parse(filenames):
                     iface_local[fname][item] = iface_attributes(config)
                 except ParseException:
                     pass
-        print('\n', fname, 'interfaces:\n')
-        for key in iface_local[fname]:
-            print(key,iface_local[fname][key])
+    return iface_local
 
 			
 #global_parse()
