@@ -211,11 +211,11 @@ vlan hopping - атака, позволяющая злоумышленнику �
 * не использовать native vlan  
 
 ### IPv6 First Hop Security
-[Cisco wiki](http://docwiki.cisco.com/wiki/FHS)
+[Cisco wiki](http://docwiki.cisco.com/wiki/FHS)  
 * RA guard  
 Router Advertisement - DHCP для IPv6
 	- простой случай (Дропаются все RA на интерфейсе)  
-	`(config-if)#ipv6 nd raguard`
+	`(config-if)#ipv6 nd raguard`  
 	- сложный случай  
 ```
 	 !
