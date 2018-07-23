@@ -1,24 +1,11 @@
 # Девелоперский ридми #
 
-# Roadmap:  
-- Баннер
-- Доделать аргументы и парсинг
-- Начать делать проверки
-- Обернуть в установщик (setup.py)
-
-
-### Milestones:
-* Удобный объект, представляющий конфиг (vlan-interface)  
-* Парсинг глобальных настроек, цветной вывод результата (good, warning, bad)  
-* Cвязи - откуда, куда  
-* Парсинг настроек интерфейсов  
-
-### Логика
-* загрузка конфига и vlanmap  
-перед функциями указываем что она ест, после - что выплёвывает  
-	- модуль, загружающий конфиги через argparse (Наташа)  
-	- распарсить конфиг, состыковка iface и vlan (Никита+Миша)
-
+# Roadmap:
+- Сделать возвращение глобальных параметров и интерфейсов из parsing.py (сейчас они просто выводятся в консоль)
+- Проверки  
+- Цветной вывод результата (good, warning, bad)  
+- Обернуть в установщик (setup.py)  
+- Баннер  
 
 # Что мы проверяем  
 ### Разграничение привелегий:
@@ -224,7 +211,68 @@ vlan hopping - атака, позволяющая злоумышленнику �
 * не использовать native vlan  
 
 ### IPv6 First Hop Security
+[Cisco wiki](http://docwiki.cisco.com/wiki/FHS)
+* RA guard  
+Router Advertisement - DHCP для IPv6
+	- простой случай (Дропаются все RA на интерфейсе)  
+	`(config-if)#ipv6 nd raguard`
+	- сложный случай  
+```
+	 !
+  ipv6 nd raguard policy ONLY-DHCPv6-RAs
+    ! role 'router' allows the RAs through but triggers deep inspection
+     device-role router
+    ! The RAs that we let through have to have Managed flag set.
+     managed-config-flag on
+    ! The Other configuration flag also needs to be set.
+     other-config-flag on
+    ! Only allow the RAs that advertise the prefixes from our own address space
+    match ra prefix-list IPv6-SPACE
+  !
+  ! . . . 
+  !
+  interface Ethernet0/0
+     description connection to R1 from Sw3
+     switchport
+     switchport access vlan 100
+     switchport mode access
+     ! Attach the policy to the port connecting to the router
+     ipv6 nd raguard attach-policy ONLY-DHCPv6-RAs
+     spanning-tree portfast
+  !
+  ! . . . 
+  !
+  ipv6 prefix-list IPv6-SPACE permit 2001:db8:cafe::/48 ge 64 le 64
+```  
 
+* Фрагментация  
+Фрагментация пакетов [позволяет обходить](https://tools.ietf.org/html/draft-gont-v6ops-ra-guard-evasion-01) ra guard  
+Ниже приведена конфигурация, позволяющая защититься от этой атаки  
+```
+!
+interface GigabitEthernet1/0/1
+ ipv6 traffic-filter nofrags in
+!
+ipv6 access-list nofrags
+ deny ipv6 any FE80::/64 undetermined-transport
+ permit ipv6 any any
+!
+```  
+
+* IPv6 snooping
+Network Discovery (IPv6 ARP) Inspection + RA guard + IPv6 address gleaning  
+`(config)# ipv6 snooping policy ROUTER`  
+`(config-ipv6-snooping)# device-role router`  
+`(config)# ipv6 snooping policy HOST`  
+На интерфейсе с роутером:  
+`(config-if)#ipv6 nd raguard attach-policy ROUTER`  
+На интерфейсе с хостами:  
+`(config-if)#ipv6 nd raguard attach-policy HOST`  
+
+* IPv6 source guard  
+аналог ARP inspection
+`(config)# ipv6 source-guard policy SG`  
+`(config)# ipv6 source-guard attach-policy SG`  
 
 ### Фичи
 * VTP (default, global)
@@ -300,7 +348,7 @@ trusted_area: 8,9,10
 * возможнность указать default area, для vlan присутстующих в конфигах, но не описанных в списке зон. По умолчанию они заносятся в самую "опасную" зону  *
 
 # Ридми продакшена
-# CCAT - Cisco Config Anaysis tool #
+# CCAT - Cisco Config Anaysis Tool #
 
 # Usage  
 `ccat -c example -vl vlmap.txt`  
