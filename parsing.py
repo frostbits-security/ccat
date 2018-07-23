@@ -18,7 +18,7 @@
 
 from pyparsing import Suppress, Optional, restOfLine, ParseException, MatchFirst, Word, nums, ZeroOrMore, NotAny, White,\
                       Or, printables, oneOf, alphas
-
+import re
 					  
 # Parsing any attributes into list
 
@@ -71,7 +71,7 @@ def ssh_attributes(line):
 
 # Global options parsing
 
-def global_parse():
+def global_parse(filenames):
 
     parse_active_service  =                   Suppress('service ')    + restOfLine
     parse_disable_service =                   Suppress('no service ') + restOfLine
@@ -81,7 +81,6 @@ def global_parse():
     parse_ip_ssh          =                   Suppress('ip ssh ')     + restOfLine
     parse_line            =                   Suppress('line ')       + restOfLine
 
-    filenames = ['file1.txt', 'file3.txt']
     for fname in filenames:
         with open(fname) as config:
             iface_global = {fname: {'active_service': [], 'disable_service': [], 'aaa': [], 'users': {},
@@ -247,11 +246,10 @@ def port_sec_parse(port,dct):
 
 # Interface options parsing
 
-def interface_parse():
+def interface_parse(filenames):
 
     parse_iface = Suppress('interface ') + restOfLine
 
-    filenames = ['example\\172.17.135.196.conf']
     for fname in filenames:
         iface_local = {fname: {}}
         with open(fname) as config:
@@ -269,15 +267,27 @@ def interface_parse():
 #global_parse()
 #interface_parse()
 
-def parse_vlanmap(filename):
+# converts string list of numbers to list of ints with those numbers
+def intify(strlist):
+    res=[]
+    for i in strlist:
+        res.append(int(i))
+    return res
+
+# vlanmap parsing, returns list of three lists with ints
+def vlanmap_parse(filename):
     vmapf=open(filename,"r")
     vlanmap=vmapf.read()
     vmapf.close()
-    vlanpattern=re.compile('(.+): ([0-9,]+)')
+    vlanpattern=re.compile(': ([0-9,]+)')
     vlanmap=re.findall(vlanpattern,vlanmap)
-
-    critical_area=vlanmap[0].split(',')
-    unknown_area=vlanmap[1].split(',')
-    trusted_area=vlanmap[2].split(',')
-    return vlanmap
+    res=[]
+    try:
+        res.append(intify(vlanmap[0].split(','))) #critical
+        res.append(intify(vlanmap[1].split(','))) #unknown 
+        res.append(intify(vlanmap[2].split(','))) #trusted
+    except:
+        print("Error in vlanmap syntax")
+        exit()
+    return res
 
