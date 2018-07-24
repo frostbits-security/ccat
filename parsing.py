@@ -3,7 +3,7 @@
 #
 # Global dictionary
 # {'file1.txt': {'active_service': [...], 'disable_service': [...], 'username': {...}, 'aaa': [...], 'ip_dhcp': [...],
-#                'ip_ssh': {...}, 'line': [...]}
+#                'ip_ssh': {...}, 'line': {...}}
 #  'file2.txt': {...}}
 #
 # Interface dictionary
@@ -19,16 +19,24 @@
 from pyparsing import Suppress, Optional, restOfLine, ParseException, MatchFirst, Word, nums, ZeroOrMore, NotAny, White,\
                       Or, printables, oneOf, alphas
 import re
-					  
-# Parsing any attributes into list
+
+
+# Parse any attributes with whitespace as first symbol into list
 
 def get_attributes (config):
-    iface_list = []
-    x = config.readline()
-    while len(x) > 3:
-        iface_list.append(x[1:-1])
-        x = config.readline()
-    return (iface_list)
+    options_list = []
+    option = White(exact = 1) + Suppress(Optional(White())) + restOfLine
+    next_line = config.readline()
+    option_parse = option.parseString(next_line)
+    try:
+        while option_parse[0] == ' ':
+            options_list.append(option_parse[-1])
+            next_line = config.readline()
+            option_parse = option.parseString(next_line)
+    except:
+        pass
+
+    return options_list, next_line
 
 
 # Username options parsing
@@ -37,7 +45,7 @@ def _globalparse___username_attributes (line):
     username_dict = {}
     username       = (Word(printables))                             ('user')
     privilege      = (Optional(Suppress('privilege') + Word(nums))) ('priv_num')
-    password_type  = (Suppress('secret') + Word(nums))              ('pass_type')
+    password_type  = (Suppress('secret')             + Word(nums))  ('pass_type')
     parse_username = (username + privilege + password_type + Suppress(restOfLine))
     res = parse_username.parseString(line)
 
@@ -69,6 +77,71 @@ def ssh_attributes(line):
     return ssh_dict
 
 
+# Console and vty line options parsing
+
+def line_attributes(config):
+    line_list, next_line = get_attributes(config)
+    line_dict = {'log_syng': 'no', 'access-class': {}}
+
+    parse_exec_timeout = Suppress('exec-timeout ')     + restOfLine
+    parse_pass_type    = Suppress('password ')         + restOfLine
+    parse_privilege    = Suppress('privilege level ')  + restOfLine
+    parse_transp_in    = Suppress('transport input ')  + restOfLine
+    parse_transp_out   = Suppress('transport output ') + restOfLine
+    parse_rotary       = Suppress('rotary ')           + restOfLine
+    parse_access_class = Suppress('access-class')      + Word(alphas + '-') + MatchFirst(['in', 'out']) +\
+                         Suppress(Optional(restOfLine))
+
+    for option in line_list:
+        if option == 'logging synchronous':
+            line_dict['log_syng'] = 'yes'
+            continue
+        try:
+            item = parse_exec_timeout.parseString(option).asList()[-1]
+            item = item.split()
+            if len(item) == 2:
+                line_dict['exec_timeout'] = int(item[0]) + int(item[1])/60
+            else:
+                line_dict['exec_timeout'] = int(item[0])
+            continue
+        except ParseException:
+            pass
+        try:
+            line_dict['pass_type'] = parse_pass_type.parseString(option).asList()[-1]
+            continue
+        except ParseException:
+            pass
+        try:
+            line_dict['privilege'] = parse_privilege.parseString(option).asList()[-1]
+            continue
+        except ParseException:
+            pass
+        try:
+            line_dict['transp_in'] = parse_transp_in.parseString(option).asList()[-1]
+            continue
+        except ParseException:
+            pass
+        try:
+            line_dict['transp_out'] = parse_transp_out.parseString(option).asList()[-1]
+            continue
+        except ParseException:
+            pass
+        try:
+            line_dict['rotary'] = parse_rotary.parseString(option).asList()[-1]
+            continue
+        except ParseException:
+            pass
+        try:
+            item = parse_access_class.parseString(option).asList()
+            line_dict['access-class']['name'] = item[0]
+            line_dict['access-class']['type'] = item[-1]
+            continue
+        except ParseException:
+            pass
+
+    return line_dict, next_line
+
+
 # Global options parsing
 
 def global_parse(filenames):
@@ -85,7 +158,7 @@ def global_parse(filenames):
     for fname in filenames:
         with open(fname) as config:
             iface_global.update({fname: {'active_service': [], 'disable_service': [], 'aaa': [], 'users': {},
-                                    'ip_dhcp': [], 'ip_ssh': {}, 'line': []}})
+                                    'ip_dhcp': [], 'ip_ssh': {}, 'line': {}}})
             for line in config:
                 try:
                     iface_global[fname]['active_service'].append(parse_active_service.parseString(line).asList()[-1])
@@ -120,17 +193,20 @@ def global_parse(filenames):
                 except ParseException:
                     pass
                 try:
-                    iface_global[fname]['line'].append(parse_line.parseString(line).asList()[-1])
+                    while line != '!':
+                        item = parse_line.parseString(line).asList()[-1]
+                        iface_global[fname]['line'][item], next_line = line_attributes(config)
+                        line = next_line
                     continue
                 except ParseException:
                     pass
     return iface_global
 
 
-# Parsing interface attributes into dictionary
+# Interface attributes parsing
 
 def iface_attributes (config):
-    iface_list = get_attributes(config)
+    iface_list = get_attributes(config)[0]
 
     iface_dict = {'vlans':[], 'shutdown': 'no'}
 
@@ -143,7 +219,7 @@ def iface_attributes (config):
     parse_description = Suppress('description ')     + restOfLine
     parse_type        = Suppress('switchport mode ') + restOfLine
     parse_vlans       = Suppress('switchport ')      + Suppress(MatchFirst('access vlan ' +
-                        ('trunk allowed vlan ' + Optional('add ')))) + vlan_num
+                                                       ('trunk allowed vlan ' + Optional('add ')))) + vlan_num
     parse_storm=Suppress('storm-control ') + restOfLine
     parse_port_sec = Suppress('switchport port-security ') + restOfLine
 
@@ -191,6 +267,7 @@ def iface_attributes (config):
             pass
     return iface_dict
 
+
 #Storm-control option parsing
 
 def storm_check(storm,dct):
@@ -211,6 +288,7 @@ def storm_check(storm,dct):
     except ParseException:
         pass
 
+
 #Add value to the feature interface_dict
 
 def int_dict_parse(parse_meth,featur_str,name,featur_dict):
@@ -218,6 +296,7 @@ def int_dict_parse(parse_meth,featur_str,name,featur_dict):
     value = parse_meth.parseString(featur_str).asList()
     featur_dict[name] = value
     return featur_dict
+
 
 #Port-security option parsing
 
@@ -243,6 +322,7 @@ def port_sec_parse(port,dct):
     except ParseException:
         pass
 
+
 # Interface options parsing
 
 def interface_parse(filenames):
@@ -261,9 +341,25 @@ def interface_parse(filenames):
                     pass
     return iface_local
 
-			
-#global_parse()
-#interface_parse()
+
+# OUTPUT FOR DEBUG
+
+# filenames = ['example/10.164.132.1.conf', 'example/172.17.135.196.conf']
+# global_parse(filenames)
+# interface_parse(filenames)
+#
+# interfaces=interface_parse(filenames)
+# global_params=global_parse(filenames)
+#
+# for fname in filenames:
+#     print('\n', fname, 'global options:\n')
+#     for key in global_params[fname]:
+#         print(key, global_params[fname][key])
+#
+#     print('\n', fname, 'interface options:\n')
+#     for key in interfaces[fname]:
+#         print(key, interfaces[fname][key])
+
 
 # converts string list of numbers to list of ints with those numbers
 def intify(strlist):
