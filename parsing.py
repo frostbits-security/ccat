@@ -369,19 +369,23 @@ def intify(strlist):
     return res
 
 # vlanmap parsing, returns list of three lists with ints
+# returns 0 if no vlanmap given
 def vlanmap_parse(filename):
-    vmapf=open(filename,"r")
-    vlanmap=vmapf.read()
-    vmapf.close()
-    vlanpattern=re.compile(': ([0-9,]+)')
-    vlanmap=re.findall(vlanpattern,vlanmap)
-    res=[]
-    try:
-        res.append(intify(vlanmap[0].split(','))) #critical
-        res.append(intify(vlanmap[1].split(','))) #unknown 
-        res.append(intify(vlanmap[2].split(','))) #trusted
-    except:
-        print("Error in vlanmap syntax")
-        exit()
-    return res
-
+    if(filename):
+        vmapf=open(filename,"r")
+        vlanmap=vmapf.read()
+        vmapf.close()
+        vlanpattern=re.compile(': ([0-9,]+)')
+        vlanmap=re.findall(vlanpattern,vlanmap)
+        res=[]
+        try:
+            res.append(intify(vlanmap[0].split(','))) #critical
+            res.append(intify(vlanmap[1].split(','))) #unknown 
+            res.append(intify(vlanmap[2].split(','))) #trusted
+        except:
+            print("Error in vlanmap syntax")
+            exit()
+        return res
+    else:
+        return 0
+    exit()
