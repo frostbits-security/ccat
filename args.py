@@ -4,35 +4,37 @@
 import argparse
 import os
 
-def arg_parser(config_folder,vlanmap_name):
-    try:
-        config_lst = [config_folder + '/' + i for i in os.listdir(config_folder)]
-        vlanmap = config_folder + '/' + vlanmap_name
-        res=[]
-        res.append(vlanmap)
-        try:
-            config_lst.remove(vlanmap)
-            for each in config_lst:
-                with open(each, 'r') as f:
-                    res.append(each)
-                    pass
-        except ValueError:
+
+def arg_parser(config_folder, vlanmap):
+    res = []
+    if vlanmap:
+        if os.path.exists(vlanmap):
+            res.append(vlanmap)
+        else:
             print('Incorrect vlanmap name!')
             exit()
+    else:
+        res.append(0)
+    try:
+        config_lst = [config_folder + '/' + i for i in os.listdir(config_folder)]
+        if vlanmap in config_lst:
+            config_lst.remove(vlanmap)
+        res.append(config_lst)
     except OSError:
         print('The directory doesn`t exist!')
         exit()
     return res
 
+
 # module main, returns list of filepaths list[0] is vlanmap, others are configs
+
 def getargs():
-    parser = argparse.ArgumentParser()
-    parser.add_argument("-vl",type=str, help="file name of vlanmap")
-    parser.add_argument("-c",type=str, help="full path of the folder with config[s] and vlanmap")
+    parser = argparse.ArgumentParser(formatter_class=argparse.RawDescriptionHelpFormatter,
+                                     description="This is Cisco Configuration Analyzer Tool[CCAT].\nYou must load config to work. By default config is in example folder.",
+                                     epilog='Usage example:\n  ccat\n  ccat  smth/config_folder -vl smth/vlanmap_folder -v')
+    parser.add_argument("config", type=str, nargs='?', default="example", help="full path of the folder with config[s]")
+    parser.add_argument("-vl", type=str, help="full path of the folder with vlanmap")
+    parser.add_argument("-v", action='store_true', help="increase verbosity")
+    parser.add_argument("--noIPv6", action='store_true', help="turn off IPv6 check")
     args = parser.parse_args()
-    if args.vl and args.c:
-        return arg_parser(args.c,args.vl)
-    else:
-        print("You must load directory with config[s] and vlanmap! \n\nEXAMPLE: ccat -c example -vl vlmap.txt")
-        arg_parser('example','vlmap.txt')
-        exit()
+    return arg_parser(args.config, args.vl)
