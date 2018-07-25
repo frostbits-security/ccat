@@ -33,11 +33,14 @@ def _getargs___arg_parser(config_folder, vlanmap):
 def getfilenames():
     global args
     parser = argparse.ArgumentParser(formatter_class=argparse.RawDescriptionHelpFormatter,
-                                     description="This is Cisco Configuration Analyzer Tool[CCAT].\nYou must load config to work. By default config is in example folder.",
-                                     epilog='Usage example:\n  ccat\n  ccat  smth/config_folder -vl smth/vlanmap_folder -v')
-    parser.add_argument("config", type=str, nargs='?', default="example", help="full path of the folder with config[s]")
-    parser.add_argument("-vl", type=str, help="full path of the folder with vlanmap")
-    parser.add_argument("-v", action='store_true', help="increase verbosity")
-    parser.add_argument("--noIPv6", action='store_true', help="turn off IPv6 check")
+                                     description="Cisco Configuration Analysis Tool",
+                                     epilog='Usage example:\n  ccat  smth/config_folder -vl smth/vlanmap_folder -v')
+    parser.add_argument("config", type=str, nargs='?', default=0, help="full path to the folder with config(s)")
+    parser.add_argument("-vl", type=str, help="path to vlanmap (file that determine how critical is certain vlan, you can find example in 'example' folder)")
+    parser.add_argument("-v", action='store_true', help="show detailed info about found issues")
+    parser.add_argument("--no-ipv6", action='store_true', help="if you're not using IPv6")
     args = parser.parse_args()
+    if not(args.config):
+        print ('Usage example:\n  ccat  smth/config_folder -vl smth/vlanmap_folder -v\n\nFor more details try --help')
+        exit()
     return _getargs___arg_parser(args.config, args.vl)
