@@ -6,7 +6,6 @@ print (args.args)
 vlanmap=parsing.vlanmap_parse(filenames[0])
 print(vlanmap)
 filenames.pop(0)
-print(filenames)
 interfaces=parsing.interface_parse(filenames)
 global_params=parsing.global_parse(filenames)
 
