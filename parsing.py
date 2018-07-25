@@ -59,6 +59,29 @@ def _globalparse___username_attributes (line):
     return username_dict
 
 
+def aaa_attributes(line):
+    aaa_dict = {}
+    authentication = Suppress('authentication ') + restOfLine
+    authorization = Suppress('authorization ') + restOfLine
+    accounting = Suppress('accounting ') + restOfLine
+
+    try:
+        aaa_dict['authentication'] = authentication.parseString(line).asList()[-1]
+    except ParseException:
+        pass
+    try:
+        aaa_dict['authorization'] = authorization.parseString(line).asList()[-1]
+    except ParseException:
+        pass
+    try:
+        aaa_dict['accounting'] = accounting.parseString(line).asList()[-1]
+    except ParseException:
+        pass
+
+    return aaa_dict
+
+
+
 # Ssh options parsing
 
 def ssh_attributes(line):
@@ -157,7 +180,7 @@ def global_parse(filenames):
 
     for fname in filenames:
         with open(fname) as config:
-            iface_global.update({fname: {'active_service': [], 'disable_service': [], 'aaa': [], 'users': {},
+            iface_global.update({fname: {'active_service': [], 'disable_service': [], 'aaa': {}, 'users': {},
                                     'ip_dhcp': [], 'ip_ssh': {}, 'line': {}}})
             for line in config:
                 try:
@@ -177,7 +200,8 @@ def global_parse(filenames):
                 except ParseException:
                     pass
                 try:
-                    iface_global[fname]['aaa'].append(parse_aaa.parseString(line).asList()[-1])
+                    current_line = parse_aaa.parseString(line).asList()[-1]
+                    iface_global[fname]['aaa'].update(aaa_attributes(current_line))
                     continue
                 except ParseException:
                     pass
@@ -347,7 +371,7 @@ def interface_parse(filenames):
 # filenames = ['example/10.164.132.1.conf', 'example/172.17.135.196.conf']
 # global_parse(filenames)
 # interface_parse(filenames)
-#
+# 
 # interfaces=interface_parse(filenames)
 # global_params=global_parse(filenames)
 #
@@ -356,9 +380,9 @@ def interface_parse(filenames):
 #     for key in global_params[fname]:
 #         print(key, global_params[fname][key])
 #
-#     print('\n', fname, 'interface options:\n')
-#     for key in interfaces[fname]:
-#         print(key, interfaces[fname][key])
+    # print('\n', fname, 'interface options:\n')
+    # for key in interfaces[fname]:
+    #     print(key, interfaces[fname][key])
 
 
 # converts string list of numbers to list of ints with those numbers
