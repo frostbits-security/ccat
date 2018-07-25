@@ -19,6 +19,7 @@
 from pyparsing import Suppress, Optional, restOfLine, ParseException, MatchFirst, Word, nums, ZeroOrMore, NotAny, White,\
                       Or, printables, oneOf, alphas
 import re
+import util
 
 
 # Parse any attributes with whitespace as first symbol into list
@@ -41,7 +42,7 @@ def get_attributes (config):
 
 # Username options parsing
 
-def _globalparse___username_attributes (line):
+def _globalParse___username_attributes (line):
     username_dict = {}
     username       = (Word(printables))                             ('user')
     privilege      = (Optional(Suppress('privilege') + Word(nums))) ('priv_num')
@@ -84,7 +85,7 @@ def aaa_attributes(line):
 
 # Ssh options parsing
 
-def ssh_attributes(line):
+def _globalParse___ssh_attributes(line):
     ssh_dict = {}
     option = (Word(alphas + '-'))('opt')
     value  = (restOfLine)        ('val')
@@ -102,7 +103,7 @@ def ssh_attributes(line):
 
 # Console and vty line options parsing
 
-def line_attributes(config):
+def _globalParse___line_attributes(config):
     line_list, next_line = get_attributes(config)
     line_dict = {'log_syng': 'no', 'access-class': {}}
 
@@ -212,14 +213,14 @@ def global_parse(filenames):
                     pass
                 try:
                     current_line = parse_ip_ssh.parseString(line).asList()[-1]
-                    iface_global[fname]['ip_ssh'].update(ssh_attributes(current_line))
+                    iface_global[fname]['ip_ssh'].update(_globalParse___ssh_attributes(current_line))
                     continue
                 except ParseException:
                     pass
                 try:
                     while line != '!':
                         item = parse_line.parseString(line).asList()[-1]
-                        iface_global[fname]['line'][item], next_line = line_attributes(config)
+                        iface_global[fname]['line'][item], next_line = _globalParse___line_attributes(config)
                         line = next_line
                     continue
                 except ParseException:
@@ -229,7 +230,7 @@ def global_parse(filenames):
 
 # Interface attributes parsing
 
-def iface_attributes (config):
+def _interfaceParse___iface_attributes (config):
     iface_list = get_attributes(config)[0]
 
     iface_dict = {'vlans':[], 'shutdown': 'no'}
@@ -276,7 +277,7 @@ def iface_attributes (config):
             pass
         try:
             storm_control=parse_storm.parseString(option).asList()[-1]
-            iface_dict['storm control']=storm_check(storm_control,storm_dict)
+            iface_dict['storm control']=__ifaceAttributes___storm_check(storm_control,storm_dict)
             continue
         except ParseException:
             pass
@@ -286,7 +287,7 @@ def iface_attributes (config):
             iface_dict['cdp'] = 'no'
         try:
             port_sec=parse_port_sec.parseString(option).asList()[-1]
-            iface_dict['port-security'] = port_sec_parse(port_sec, port_sec_dct)
+            iface_dict['port-security'] = __ifaceAttributes___port_sec_parse(port_sec, port_sec_dct)
         except ParseException:
             pass
     return iface_dict
@@ -294,55 +295,48 @@ def iface_attributes (config):
 
 #Storm-control option parsing
 
-def storm_check(storm,dct):
+def __ifaceAttributes___storm_check(storm,dct):
 
     parse_level  = Word(alphas) + Suppress('level ') + restOfLine
     parse_action = Suppress('action ') + Word(alphas)
     parse_type   = Word(alphas) + Suppress(Optional("include")) + Word(alphas)
     try:
-        return int_dict_parse(parse_level, storm, 'level', dct)
+        return util.int_dict_parse(parse_level, storm, 'level', dct)
     except ParseException:
         pass
     try:
-        return int_dict_parse(parse_action, storm, 'action', dct)
+        return util.int_dict_parse(parse_action, storm, 'action', dct)
     except ParseException:
         pass
     try:
-        return int_dict_parse(parse_type, storm, 'type', dct)
+        return util.int_dict_parse(parse_type, storm, 'type', dct)
     except ParseException:
         pass
 
 
-#Add value to the feature interface_dict
-
-def int_dict_parse(parse_meth,featur_str,name,featur_dict):
-
-    value = parse_meth.parseString(featur_str).asList()
-    featur_dict[name] = value
-    return featur_dict
 
 
 #Port-security option parsing
 
-def port_sec_parse(port,dct):
+def __ifaceAttributes___port_sec_parse(port,dct):
     parse_aging=Suppress('aging type ')+restOfLine
     parse_violat=Suppress('violation ')+restOfLine
     parse_mac=Suppress('mac-address ')+Optional('sticky')+restOfLine
     parse_max=Suppress('maximum ')
     try:
-        return int_dict_parse(parse_aging, port, 'aging', dct)
+        return util.int_dict_parse(parse_aging, port, 'aging', dct)
     except ParseException:
         pass
     try:
-        return int_dict_parse(parse_violat, port, 'violation', dct)
+        return util.int_dict_parse(parse_violat, port, 'violation', dct)
     except ParseException:
         pass
     try:
-        return int_dict_parse(parse_mac, port, 'mac-address', dct)
+        return util.int_dict_parse(parse_mac, port, 'mac-address', dct)
     except ParseException:
         pass
     try:
-        return int_dict_parse(parse_max, port, 'maximum', dct)
+        return util.int_dict_parse(parse_max, port, 'maximum', dct)
     except ParseException:
         pass
 
@@ -384,28 +378,24 @@ def interface_parse(filenames):
     # for key in interfaces[fname]:
     #     print(key, interfaces[fname][key])
 
-
-# converts string list of numbers to list of ints with those numbers
-def intify(strlist):
-    res=[]
-    for i in strlist:
-        res.append(int(i))
-    return res
-
 # vlanmap parsing, returns list of three lists with ints
+# returns 0 if no vlanmap given
 def vlanmap_parse(filename):
-    vmapf=open(filename,"r")
-    vlanmap=vmapf.read()
-    vmapf.close()
-    vlanpattern=re.compile(': ([0-9,]+)')
-    vlanmap=re.findall(vlanpattern,vlanmap)
-    res=[]
-    try:
-        res.append(intify(vlanmap[0].split(','))) #critical
-        res.append(intify(vlanmap[1].split(','))) #unknown 
-        res.append(intify(vlanmap[2].split(','))) #trusted
-    except:
-        print("Error in vlanmap syntax")
-        exit()
-    return res
-
+    if(filename):
+        vmapf=open(filename,"r")
+        vlanmap=vmapf.read()
+        vmapf.close()
+        vlanpattern=re.compile(': ([0-9,]+)')
+        vlanmap=re.findall(vlanpattern,vlanmap)
+        res=[]
+        try:
+            res.append(util.intify(vlanmap[0].split(','))) #critical
+            res.append(util.intify(vlanmap[1].split(','))) #unknown 
+            res.append(util.intify(vlanmap[2].split(','))) #trusted
+        except:
+            print("Error in vlanmap syntax")
+            exit()
+        return res
+    else:
+        return 0
+    exit()
