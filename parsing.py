@@ -319,12 +319,17 @@ def __ifaceAttributes___storm_check(storm,dct):
 #Port-security option parsing
 
 def __ifaceAttributes___port_sec_parse(port,dct):
-    parse_aging=Suppress('aging type ')+restOfLine
-    parse_violat=Suppress('violation ')+restOfLine
+    parse_aging_time = Suppress('aging time ')+restOfLine
+    parse_aging_type = Suppress('aging type ') + restOfLine
+    parse_violat = Suppress('violation ')+restOfLine
     parse_mac=Suppress('mac-address ')+Optional('sticky')+restOfLine
-    parse_max=Suppress('maximum ')
+    parse_max=Suppress('maximum ')+restOfLine
     try:
-        return util.int_dict_parse(parse_aging, port, 'aging', dct)
+        return util.int_dict_parse(parse_aging_time, port, 'aging time', dct)
+    except ParseException:
+        pass
+    try:
+        return util.int_dict_parse(parse_aging_type, port, 'aging type', dct)
     except ParseException:
         pass
     try:
