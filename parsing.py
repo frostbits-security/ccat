@@ -13,8 +13,8 @@
 #
 #
 # FOR DEBUG
-# import sys
-# sys.path.append(r"C:\\Program Files (x86)\\Python36-32\\Lib\\site-packages")
+import sys
+sys.path.append(r"C:\\Program Files (x86)\\Python36-32\\Lib\\site-packages")
 
 from pyparsing import Suppress, Optional, restOfLine, ParseException, MatchFirst, Word, nums, ZeroOrMore, NotAny, White,\
                       Or, printables, oneOf, alphas
@@ -60,7 +60,7 @@ def _globalParse___username_attributes (line):
     return username_dict
 
 
-def aaa_attributes(line):
+def _globalParse___aaa_attributes(line):
     aaa_dict = {}
     authentication = Suppress('authentication ') + restOfLine
     authorization = Suppress('authorization ') + restOfLine
@@ -196,13 +196,13 @@ def global_parse(filenames):
                     pass
                 try:
                     current_line = parse_username.parseString(line).asList()[-1]
-                    iface_global[fname]['users'].update(_globalparse___username_attributes(current_line))
+                    iface_global[fname]['users'].update(_globalParse___username_attributes(current_line))
                     continue
                 except ParseException:
                     pass
                 try:
                     current_line = parse_aaa.parseString(line).asList()[-1]
-                    iface_global[fname]['aaa'].update(aaa_attributes(current_line))
+                    iface_global[fname]['aaa'].update(_globalParse___aaa_attributes(current_line))
                     continue
                 except ParseException:
                     pass
@@ -354,7 +354,7 @@ def interface_parse(filenames):
             for line in config:
                 try:
                     item = parse_iface.parseString(line).asList()[-1]
-                    iface_local[fname][item] = iface_attributes(config)
+                    iface_local[fname][item] = _interfaceParse___iface_attributes(config)
                 except ParseException:
                     pass
     return iface_local
@@ -365,7 +365,7 @@ def interface_parse(filenames):
 # filenames = ['example/10.164.132.1.conf', 'example/172.17.135.196.conf']
 # global_parse(filenames)
 # interface_parse(filenames)
-# 
+#
 # interfaces=interface_parse(filenames)
 # global_params=global_parse(filenames)
 #
@@ -374,9 +374,9 @@ def interface_parse(filenames):
 #     for key in global_params[fname]:
 #         print(key, global_params[fname][key])
 #
-    # print('\n', fname, 'interface options:\n')
-    # for key in interfaces[fname]:
-    #     print(key, interfaces[fname][key])
+#     print('\n', fname, 'interface options:\n')
+#     for key in interfaces[fname]:
+#         print(key, interfaces[fname][key])
 
 # vlanmap parsing, returns list of three lists with ints
 # returns 0 if no vlanmap given
