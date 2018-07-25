@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 import args
 import parsing
-filenames=args.getargs()
+filenames=args.getfilenames()
+print (args.args)
 vlanmap=parsing.vlanmap_parse(filenames[0])
 print(vlanmap)
 filenames.pop(0)

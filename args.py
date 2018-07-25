@@ -4,14 +4,16 @@
 import argparse
 import os
 
+# to make possible access to args from main module
+args=0
 
-def arg_parser(config_folder, vlanmap):
+def _getargs___arg_parser(config_folder, vlanmap):
     res = []
     if vlanmap:
         if os.path.exists(vlanmap):
             res.append(vlanmap)
         else:
-            print('Incorrect vlanmap name!')
+            print('Error opening vlanmap')
             exit()
     else:
         res.append(0)
@@ -28,7 +30,8 @@ def arg_parser(config_folder, vlanmap):
 
 # module main, returns list of filepaths list[0] is vlanmap, others are configs
 
-def getargs():
+def getfilenames():
+    global args
     parser = argparse.ArgumentParser(formatter_class=argparse.RawDescriptionHelpFormatter,
                                      description="This is Cisco Configuration Analyzer Tool[CCAT].\nYou must load config to work. By default config is in example folder.",
                                      epilog='Usage example:\n  ccat\n  ccat  smth/config_folder -vl smth/vlanmap_folder -v')
@@ -37,4 +40,4 @@ def getargs():
     parser.add_argument("-v", action='store_true', help="increase verbosity")
     parser.add_argument("--noIPv6", action='store_true', help="turn off IPv6 check")
     args = parser.parse_args()
-    return arg_parser(args.config, args.vl)
+    return _getargs___arg_parser(args.config, args.vl)
