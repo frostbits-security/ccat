@@ -27,7 +27,6 @@ import util
 # SAMPLE: interface Loopback1
 # OUTPUT: futher options list, next line (otherwise program may skip next line due to cursor placement)
 # SAMPLE: ['description -= MGMT - core.nnn048.nnn =-', 'ip address 172.21.24.140 255.255.255.255'], '!'
-
 def get_attributes (config):
     options_list = []
     option = White(exact = 1) + Suppress(Optional(White())) + restOfLine
@@ -48,7 +47,6 @@ def get_attributes (config):
 # SAMPLE: vasya privilege 15 secret 5 $1$0P5Q$9h/ZPJj8T0iHu9DL/Ejt30
 # OUTPUT: user's options dictionary
 # SAMPLE: {'vasya': {'password_type': '5', 'privilege': '15'}}
-
 def _globalParse___username_attributes (line):
     username_dict = {}
     username       = (Word(printables))                             ('user')
@@ -71,7 +69,6 @@ def _globalParse___username_attributes (line):
 # SAMPLE: login default group radius local, authentication, 1
 # OUTPUT: AAA option dictionary
 # SAMPLE: {'login1': {'list': 'default', 'methods': ['radius', 'local']}}
-
 def _globalParse___aaa_attributes(line, type, count_aaa):
     aaa_dict = {}
 
@@ -104,13 +101,11 @@ def _globalParse___aaa_attributes(line, type, count_aaa):
     return aaa_dict
 
 
-
 # Ssh options parsing
 # INPUT:  line with ssh option
 # SAMPLE: ip ssh time-out 30
 # OUTPUT: ssh option dictionary
 # SAMPLE: {'time-out': '30'}
-
 def _globalParse___ssh_attributes(line):
     ssh_dict = {}
     option = (Word(alphas + '-'))('opt')
@@ -131,7 +126,6 @@ def _globalParse___ssh_attributes(line):
 # SAMPLE: vty 0 4
 # OUTPUT: console or line options dictionary, next line (otherwise program will skip next line due to cursor placement)
 # SAMPLE: {'log_syng': 'no', 'access-class': {'name': 'ssh-in', 'type': 'in'}, 'privilege': '15'}, 'line vty 5 15'
-
 def _globalParse___line_attributes(config):
     line_list, next_line = get_attributes(config)
     line_dict = {'log_syng': 'no', 'access-class': {}}
@@ -199,7 +193,6 @@ def _globalParse___line_attributes(config):
 # SAMPLE: ['example/10.164.132.1.conf','example/172.17.135.196.conf']
 # OUTPUT: global options dictionary
 # SAMPLE: see on top of this file
-
 def global_parse(filenames):
     iface_global = {}
 
@@ -313,11 +306,10 @@ def global_parse(filenames):
 # SAMPLE: example/10.164.132.1.conf
 # OUTPUT: interface options dictionary
 # SAMPLE: {'vlans': [], 'shutdown': 'no', 'description': '-= MGMT - core.nnn048.nnn =-'}
-
 def _interfaceParse___iface_attributes (config):
     iface_list = get_attributes(config)[0]
 
-    iface_dict = {'vlans':[], 'shutdown': 'no'}
+    iface_dict = {'vlans':[], 'shutdown': 'no', 'dhcp_snoop': 'untrust'}
 
     storm_dict = {}
 
@@ -325,16 +317,19 @@ def _interfaceParse___iface_attributes (config):
 
     vlan_num = Word(nums + '-') + ZeroOrMore(Suppress(',') + Word(nums + '-'))
 	
-    parse_description = Suppress('description ')     + restOfLine
-    parse_type        = Suppress('switchport mode ') + restOfLine
-    parse_vlans       = Suppress('switchport ')      + Suppress(MatchFirst('access vlan ' +
+    parse_description = Suppress('description ')              + restOfLine
+    parse_type        = Suppress('switchport mode ')          + restOfLine
+    parse_storm       = Suppress('storm-control ')            + restOfLine
+    parse_port_sec    = Suppress('switchport port-security ') + restOfLine
+    parse_vlans       = Suppress('switchport ')               + Suppress(MatchFirst('access vlan ' +
                                                        ('trunk allowed vlan ' + Optional('add ')))) + vlan_num
-    parse_storm=Suppress('storm-control ') + restOfLine
-    parse_port_sec = Suppress('switchport port-security ') + restOfLine
 
     for option in iface_list:
         if option == 'shutdown':
             iface_dict['shutdown'] = 'yes'
+            continue
+        if option == 'ip dhcp snooping trust':
+            iface_dict['dhcp_snoop'] = 'trust'
             continue
         try:
             iface_dict['description'] = parse_description.parseString(option).asList()[-1]
@@ -367,11 +362,14 @@ def _interfaceParse___iface_attributes (config):
             pass
         if option == 'switchport nonegotiate':
             iface_dict['dtp'] = 'no'
+            continue
         if option == 'no cdp enable':
             iface_dict['cdp'] = 'no'
+            continue
         try:
             port_sec=parse_port_sec.parseString(option).asList()[-1]
             iface_dict['port-security'] = __ifaceAttributes___port_sec_parse(port_sec, port_sec_dct)
+            continue
         except ParseException:
             pass
     return iface_dict
@@ -435,7 +433,6 @@ def __ifaceAttributes___port_sec_parse(port,dct):
 # SAMPLE: ['example/10.164.132.1.conf','example/172.17.135.196.conf']
 # OUTPUT: interface options dictionary
 # SAMPLE: see on top of this file
-
 def interface_parse(filenames):
     iface_local = {}
 

@@ -3,11 +3,10 @@ import args
 import parsing
 filenames=args.getfilenames()
 print (args.args)
-vlanmap=parsing.vlanmap_parse(filenames[0])
+vlanmap=parsing.vlanmap_parse(filenames.pop(0))
 print(vlanmap)
-filenames.pop(0)
-interfaces=parsing.interface_parse(filenames)
-global_params=parsing.global_parse(filenames)
+interfaces=parsing.interface_parse(filenames[0])
+global_params=parsing.global_parse(filenames[0])
 
 # Output for debug
 #
