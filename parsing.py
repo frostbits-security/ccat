@@ -2,13 +2,13 @@
 # Creating 2 dictionaries with global and local options.
 #
 # Global dictionary
-# {'file1.txt': {'active_service': [...], 'disable_service': [...], 'username': {...}, 'aaa': [...], 'ip_dhcp': [...],
-#                'ip_ssh': {...}, 'line': {...}}
+# {'file1.txt': {'ip_dhcp_snoop': {...}, 'ip_arp_inspection': {...}, 'active_service': [...], 'disable_service': [...],
+#                'aaa': {...}, 'users': {...}, 'ip_ssh': {...}, 'line': {...}, 'version': '...'}
 #  'file2.txt': {...}}
 #
 # Interface dictionary
-# {'file1.txt': {'vlans': [1,2,3], 'shutdown': 'yes'/'no', 'description': '...', 'type': 'access'/'trunk',
-#                'storm-control': {'level': {'type', 'range'}, 'action': '...'}}
+# {'file1.txt': {'vlans': [...], 'shutdown': 'yes'/'no', 'type': 'access'/'trunk', 'port-security': {'mac-address': ['type','mac'},
+#                'description': '...', 'storm-control': {'level': {'type', 'range'}, 'action': '...'}, 'cdp': 'yes/no'}
 #  'file2.txt': {...}}
 #
 #
@@ -17,12 +17,16 @@
 # sys.path.append(r"C:\\Program Files (x86)\\Python36-32\\Lib\\site-packages")
 
 from pyparsing import Suppress, Optional, restOfLine, ParseException, MatchFirst, Word, nums, ZeroOrMore, NotAny, White,\
-                      Or, printables, oneOf, alphas
+                      Or, printables, oneOf, alphas, OneOrMore
 import re
 import util
 
 
 # Parse any attributes with whitespace as first symbol into list
+# INPUT:  line with futher options (starts with whitespaces)
+# SAMPLE: interface Loopback1
+# OUTPUT: futher options list, next line (otherwise program may skip next line due to cursor placement)
+# SAMPLE: ['description -= MGMT - core.nnn048.nnn =-', 'ip address 172.21.24.140 255.255.255.255'], '!'
 
 def get_attributes (config):
     options_list = []
@@ -36,11 +40,14 @@ def get_attributes (config):
             option_parse = option.parseString(next_line)
     except:
         pass
-
     return options_list, next_line
 
 
 # Username options parsing
+# INPUT:  line with user options
+# SAMPLE: vasya privilege 15 secret 5 $1$0P5Q$9h/ZPJj8T0iHu9DL/Ejt30
+# OUTPUT: user's options dictionary
+# SAMPLE: {'vasya': {'password_type': '5', 'privilege': '15'}}
 
 def _globalParse___username_attributes (line):
     username_dict = {}
@@ -56,34 +63,53 @@ def _globalParse___username_attributes (line):
         username_dict[res.user]['privilege'] = res.priv_num.asList()[0]
     except AttributeError:
         pass
-
     return username_dict
 
 
-def _globalParse___aaa_attributes(line):
+# AAA options parsing
+# INPUT:  line with AAA options, type of AAA, login count
+# SAMPLE: login default group radius local, authentication, 1
+# OUTPUT: AAA option dictionary
+# SAMPLE: {'login1': {'list': 'default', 'methods': ['radius', 'local']}}
+
+def _globalParse___aaa_attributes(line, type, count_aaa):
     aaa_dict = {}
-    authentication = Suppress('authentication ') + restOfLine
-    authorization = Suppress('authorization ') + restOfLine
-    accounting = Suppress('accounting ') + restOfLine
 
-    try:
-        aaa_dict['authentication'] = authentication.parseString(line).asList()[-1]
-    except ParseException:
-        pass
-    try:
-        aaa_dict['authorization'] = authorization.parseString(line).asList()[-1]
-    except ParseException:
-        pass
-    try:
-        aaa_dict['accounting'] = accounting.parseString(line).asList()[-1]
-    except ParseException:
-        pass
+    authentication_options = Suppress('login')               + Word(printables) + OneOrMore(Optional(Suppress('group'))
+                                                                                            + Word(printables))
+    authorization_options  = MatchFirst(['exec', 'login'])   + Word(printables) + OneOrMore(Optional(Suppress('group'))
+                                                                                            + Word(printables))
+    accounting_options     = MatchFirst(['exec', 'network']) + Word(printables) +\
+                             MatchFirst(['start-stop','stop-only','stop']) + OneOrMore(Optional(Suppress('group')) +
+                             Word(printables))
 
+    if type == 'authentication':
+        timelist = authentication_options.parseString(line)
+        aaa_dict.update({'login'+str(count_aaa): {}})
+        aaa_dict['login'+str(count_aaa)]['list']    = timelist.pop(0)
+        aaa_dict['login'+str(count_aaa)]['methods'] = timelist.asList()
+    elif type == 'authorization':
+        timelist = authorization_options.parseString(line)
+        aaa_dict.update({'login'+str(count_aaa): {}})
+        aaa_dict['login'+str(count_aaa)]['login']   = timelist.pop(0)
+        aaa_dict['login'+str(count_aaa)]['list']    = timelist.pop(0)
+        aaa_dict['login'+str(count_aaa)]['methods'] = timelist.asList()
+    elif type == 'accounting':
+        timelist = accounting_options.parseString(line)
+        aaa_dict.update({'login'+str(count_aaa): {}})
+        aaa_dict['login'+str(count_aaa)]['login']   = timelist.pop(0)
+        aaa_dict['login'+str(count_aaa)]['list']    = timelist.pop(0)
+        aaa_dict['login'+str(count_aaa)]['record']  = timelist.pop(0)
+        aaa_dict['login'+str(count_aaa)]['methods'] = timelist.asList()
     return aaa_dict
 
 
 
 # Ssh options parsing
+# INPUT:  line with ssh option
+# SAMPLE: ip ssh time-out 30
+# OUTPUT: ssh option dictionary
+# SAMPLE: {'time-out': '30'}
 
 def _globalParse___ssh_attributes(line):
     ssh_dict = {}
@@ -97,11 +123,14 @@ def _globalParse___ssh_attributes(line):
         ssh_dict['port'] = res.val.split()[0]
     else:
         ssh_dict[res.opt] = res.val
-
     return ssh_dict
 
 
 # Console and vty line options parsing
+# INPUT:  line with console or vty line name
+# SAMPLE: vty 0 4
+# OUTPUT: console or line options dictionary, next line (otherwise program will skip next line due to cursor placement)
+# SAMPLE: {'log_syng': 'no', 'access-class': {'name': 'ssh-in', 'type': 'in'}, 'privilege': '15'}, 'line vty 5 15'
 
 def _globalParse___line_attributes(config):
     line_list, next_line = get_attributes(config)
@@ -162,28 +191,62 @@ def _globalParse___line_attributes(config):
             continue
         except ParseException:
             pass
-
     return line_dict, next_line
 
 
 # Global options parsing
+# INPUT:  files list to parse
+# SAMPLE: ['example/10.164.132.1.conf','example/172.17.135.196.conf']
+# OUTPUT: global options dictionary
+# SAMPLE: see on top of this file
 
 def global_parse(filenames):
     iface_global = {}
 
+    parse_version = Suppress('boot system flash bootflash:') + restOfLine
     parse_active_service  =                   Suppress('service ')    + restOfLine
     parse_disable_service =                   Suppress('no service ') + restOfLine
     parse_username        =                   Suppress('username ')   + restOfLine
-    parse_aaa             =                   Suppress('aaa ')        + restOfLine
-    parse_ip_dhcp         = NotAny(White()) + Suppress('ip dhcp ')    + restOfLine
     parse_ip_ssh          =                   Suppress('ip ssh ')     + restOfLine
     parse_line            =                   Suppress('line ')       + restOfLine
+    parse_aaa             =                   Suppress('aaa')         + restOfLine
+    parse_ip_dhcp         = NotAny(White()) + Suppress('ip dhcp snooping') + Optional(Suppress('vlan') + Word(nums) +
+                                                                                ZeroOrMore(Suppress(',') + Word(nums)))
+    parse_ip_arp          = NotAny(White()) + Suppress('ip arp inspection') + Suppress('vlan')         + Word(nums) +\
+                                                                                ZeroOrMore(Suppress(',') + Word(nums))
+
+    authentication = Suppress('authentication ') + restOfLine
+    authorization  = Suppress('authorization ')  + restOfLine
+    accounting     = Suppress('accounting ')     + restOfLine
 
     for fname in filenames:
         with open(fname) as config:
-            iface_global.update({fname: {'active_service': [], 'disable_service': [], 'aaa': {}, 'users': {},
-                                    'ip_dhcp': [], 'ip_ssh': {}, 'line': {}}})
+            count_authen, count_author, count_acc = 1, 1, 1
+            iface_global.update({fname: {'ip_dhcp_snoop':{'active':'no'},'ip_arp_inspection':{'active':'no'},
+                                         'active_service': [], 'disable_service': [], 'aaa': {}, 'users': {},
+                                         'ip_ssh': {}, 'line': {}}})
             for line in config:
+                try:
+                    iface_global[fname]['version'] = parse_version.parseString(line).asList()[0]
+                    continue
+                except ParseException:
+                    pass
+                try:
+                    current_line = parse_ip_dhcp.parseString(line).asList()
+                    iface_global[fname]['ip_dhcp_snoop']['active'] = 'yes'
+                    if current_line:
+                        iface_global[fname]['ip_dhcp_snoop']['vlans']  = current_line
+                    continue
+                except ParseException:
+                    pass
+                try:
+                    current_line = parse_ip_arp.parseString(line).asList()
+                    iface_global[fname]['ip_arp_inspection']['active'] = 'yes'
+                    if current_line:
+                        iface_global[fname]['ip_arp_inspection']['vlans']  = current_line
+                    continue
+                except ParseException:
+                    pass
                 try:
                     iface_global[fname]['active_service'].append(parse_active_service.parseString(line).asList()[-1])
                     continue
@@ -202,13 +265,30 @@ def global_parse(filenames):
                     pass
                 try:
                     current_line = parse_aaa.parseString(line).asList()[-1]
-                    iface_global[fname]['aaa'].update(_globalParse___aaa_attributes(current_line))
-                    continue
-                except ParseException:
-                    pass
-                try:
-                    iface_global[fname]['ip_dhcp'].append(parse_ip_dhcp.parseString(line).asList()[-1])
-                    continue
+                    try:
+                        current_line = authentication.parseString(current_line).asList()[-1]
+                        iface_global[fname]['aaa'].setdefault('authentication',{})
+                        iface_global[fname]['aaa']['authentication'].update(_globalParse___aaa_attributes(current_line,'authentication',count_authen))
+                        count_authen += 1
+                        continue
+                    except ParseException:
+                        pass
+                    try:
+                        current_line = authorization.parseString(current_line).asList()[-1]
+                        iface_global[fname]['aaa'].setdefault('authorization',{})
+                        iface_global[fname]['aaa']['authorization'].update(_globalParse___aaa_attributes(current_line,'authorization',count_author))
+                        count_author += 1
+                        continue
+                    except ParseException:
+                        pass
+                    try:
+                        current_line = accounting.parseString(current_line).asList()[-1]
+                        iface_global[fname]['aaa'].setdefault('accounting',{})
+                        iface_global[fname]['aaa']['accounting'].update(_globalParse___aaa_attributes(current_line,'accounting',count_acc))
+                        count_acc += 1
+                        continue
+                    except ParseException:
+                        pass
                 except ParseException:
                     pass
                 try:
@@ -229,6 +309,10 @@ def global_parse(filenames):
 
 
 # Interface attributes parsing
+# INPUT:  open file with cursor on interface line
+# SAMPLE: example/10.164.132.1.conf
+# OUTPUT: interface options dictionary
+# SAMPLE: {'vlans': [], 'shutdown': 'no', 'description': '-= MGMT - core.nnn048.nnn =-'}
 
 def _interfaceParse___iface_attributes (config):
     iface_list = get_attributes(config)[0]
@@ -347,6 +431,10 @@ def __ifaceAttributes___port_sec_parse(port,dct):
 
 
 # Interface options parsing
+# INPUT:  files list to parse
+# SAMPLE: ['example/10.164.132.1.conf','example/172.17.135.196.conf']
+# OUTPUT: interface options dictionary
+# SAMPLE: see on top of this file
 
 def interface_parse(filenames):
     iface_local = {}
@@ -366,10 +454,7 @@ def interface_parse(filenames):
 
 
 # OUTPUT FOR DEBUG
-
-# filenames = ['example/10.164.132.1.conf', 'example/172.17.135.196.conf']
-# global_parse(filenames)
-# interface_parse(filenames)
+# filenames = ['example/10.164.132.1.conf','example/172.17.135.196.conf']
 #
 # interfaces=interface_parse(filenames)
 # global_params=global_parse(filenames)
@@ -382,6 +467,7 @@ def interface_parse(filenames):
 #     print('\n', fname, 'interface options:\n')
 #     for key in interfaces[fname]:
 #         print(key, interfaces[fname][key])
+
 
 # vlanmap parsing, returns list of three lists with ints
 # returns 0 if no vlanmap given
