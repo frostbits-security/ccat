@@ -245,8 +245,8 @@ def global_parse(filenames):
             count_authen, count_author, count_acc = 1, 1, 1
             iface_global.update({fname: {'ip_dhcp_snoop':{'active':'no'},'ip_arp_inspection':{'active':'no'},
                                          'active_service': [], 'disable_service': [], 'aaa': {}, 'users': {},
-<<<<<<< HEAD
                                          'ip_ssh': {}, 'line': {},'stp':{}}})
+            
             #debug
             #print(fname)
             try:
