@@ -22,8 +22,8 @@ for i in global_params:
 	score[i]=[]
 	
 	print ("\nAnalysing "+i+" :")
-	score[i].append(checks.dhcpsnoop(global_params[i],interfaces[i]))
-	score[i].append(checks.arpinspection(global_params[i],interfaces[i]))
+	score[i].append(checks.dhcp_snoop(global_params[i],interfaces[i],args.args.disabled_interfaces))
+	#score[i].append(checks.arp_inspection(global_params[i],interfaces[i]))
 
 print(score)
 
