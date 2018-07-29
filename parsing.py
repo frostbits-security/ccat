@@ -439,7 +439,7 @@ def _interfaceParse___iface_attributes (config):
 
 def __ifaceAttributes___ip_parse(dhcp_snoop, dct):
     parse_mode=Word(alphas)
-    parse_rate=Suppress('limit rate ')+Word(alphas)
+    parse_rate=Suppress('limit rate ')+restOfLine
     try:
         return util.int_dict_parse(parse_rate, dhcp_snoop, 'limit', dct)
     except ParseException:
