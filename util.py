@@ -15,3 +15,10 @@ def int_dict_parse(parse_meth,featur_str,name,featur_dict):
     value = parse_meth.parseString(featur_str).asList()
     featur_dict[name] = value
     return featur_dict
+
+# returns average for a list
+# [1,2,3] -> 2
+def totalscore(scorelist):
+	if (len(scorelist)==0):
+		return 0
+	return sum(scorelist)/len(scorelist)
