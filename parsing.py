@@ -49,16 +49,16 @@ def get_attributes (config):
 # SAMPLE: {'vasya': {'password_type': '5', 'privilege': '15'}}
 def _globalParse___username_attributes (line):
     username_dict = {}
-    username       = (Word(printables))                             ('user')
-    privilege      = (Optional(Suppress('privilege') + Word(nums))) ('priv_num')
-    password_type  = (Suppress('secret')             + Word(nums))  ('pass_type')
-    parse_username = (username + privilege + password_type + Suppress(restOfLine))
-    res = parse_username.parseString(line)
+    username       = (Word(printables))                                          ('user')
+    privilege      = (Suppress('privilege') + Word(nums))                        ('priv_num')
+    password_type  = (Suppress(MatchFirst(['secret', 'password'])) + Word(nums)) ('pass_type')
+    parse_username = (username + Optional(privilege) + password_type + Suppress(restOfLine))
+    result = parse_username.parseString(line)
 
-    username_dict[res.user] = {}
-    username_dict[res.user]['password_type'] = res.pass_type.asList()[0]
+    username_dict[result.user] = {}
+    username_dict[result.user]['password_type'] = result.pass_type.asList()[0]
     try:
-        username_dict[res.user]['privilege'] = res.priv_num.asList()[0]
+        username_dict[result.user]['privilege'] = result.priv_num.asList()[0]
     except AttributeError:
         pass
     return username_dict
@@ -72,32 +72,33 @@ def _globalParse___username_attributes (line):
 def _globalParse___aaa_attributes(line, type, count_aaa):
     aaa_dict = {}
 
-    authentication_options = Suppress('login')               + Word(printables) + OneOrMore(Optional(Suppress('group'))
+    parse_authentication_options = Suppress('login')               + Word(printables) + OneOrMore(Optional(Suppress('group'))
                                                                                             + Word(printables))
-    authorization_options  = MatchFirst(['exec', 'login'])   + Word(printables) + OneOrMore(Optional(Suppress('group'))
+    parse_authorization_options  = MatchFirst(['exec', 'login'])   + Word(printables) + OneOrMore(Optional(Suppress('group'))
                                                                                             + Word(printables))
-    accounting_options     = MatchFirst(['exec', 'network']) + Word(printables) +\
+    parse_accounting_options     = MatchFirst(['exec', 'network']) + Word(printables) +\
                              MatchFirst(['start-stop','stop-only','stop']) + OneOrMore(Optional(Suppress('group')) +
                              Word(printables))
 
     if type == 'authentication':
-        timelist = authentication_options.parseString(line)
+        result = parse_authentication_options.parseString(line)
         aaa_dict.update({'login'+str(count_aaa): {}})
-        aaa_dict['login'+str(count_aaa)]['list']    = timelist.pop(0)
-        aaa_dict['login'+str(count_aaa)]['methods'] = timelist.asList()
+        aaa_dict['login'+str(count_aaa)]['list']    = result.pop(0)
+        aaa_dict['login'+str(count_aaa)]['methods'] = result.asList()
     elif type == 'authorization':
-        timelist = authorization_options.parseString(line)
+        result = parse_authorization_options.parseString(line)
         aaa_dict.update({'login'+str(count_aaa): {}})
-        aaa_dict['login'+str(count_aaa)]['login']   = timelist.pop(0)
-        aaa_dict['login'+str(count_aaa)]['list']    = timelist.pop(0)
-        aaa_dict['login'+str(count_aaa)]['methods'] = timelist.asList()
+        aaa_dict['login'+str(count_aaa)]['login']   = result.pop(0)
+        aaa_dict['login'+str(count_aaa)]['list']    = result.pop(0)
+        aaa_dict['login'+str(count_aaa)]['methods'] = result.asList()
     elif type == 'accounting':
-        timelist = accounting_options.parseString(line)
+        result = parse_accounting_options.parseString(line)
         aaa_dict.update({'login'+str(count_aaa): {}})
-        aaa_dict['login'+str(count_aaa)]['login']   = timelist.pop(0)
-        aaa_dict['login'+str(count_aaa)]['list']    = timelist.pop(0)
-        aaa_dict['login'+str(count_aaa)]['record']  = timelist.pop(0)
-        aaa_dict['login'+str(count_aaa)]['methods'] = timelist.asList()
+        aaa_dict['login'+str(count_aaa)]['login']   = result.pop(0)
+        aaa_dict['login'+str(count_aaa)]['list']    = result.pop(0)
+        aaa_dict['login'+str(count_aaa)]['record']  = result.pop(0)
+        aaa_dict['login'+str(count_aaa)]['methods'] = result.asList()
+
     return aaa_dict
 
 
@@ -108,16 +109,21 @@ def _globalParse___aaa_attributes(line, type, count_aaa):
 # SAMPLE: {'time-out': '30'}
 def _globalParse___ssh_attributes(line):
     ssh_dict = {}
-    option = (Word(alphas + '-'))('opt')
-    value  = (restOfLine)        ('val')
-    res    = (option + White() + value).parseString(line)
+    ssh_option = (Word(alphas + '-')) ('option')
+    ssh_value  = (restOfLine)         ('value')
+    result = (ssh_option + White() + ssh_value).parseString(line)
 
-    if res.opt == 'logging':
+    if result.option == 'logging':
         ssh_dict['logging-events'] = 'yes'
-    elif res.opt == 'port':
-        ssh_dict['port'] = res.val.split()[0]
-    else:
-        ssh_dict[res.opt] = res.val
+    elif result.option == 'port':
+        ssh_dict['port_rotary'] = result.value.split()[0]
+    elif result.option == 'maxstartups':
+        ssh_dict['maxstartups'] = result.value.split()[0]
+    elif result.option == 'time-out':
+        ssh_dict['time-out'] = result.value.split()[0]
+    elif result.option == 'version':
+        ssh_dict['version'] = result.value.split()[0]
+
     return ssh_dict
 
 
@@ -130,6 +136,7 @@ def _globalParse___line_attributes(config):
     line_list, next_line = get_attributes(config)
     line_dict = {'log_syng': 'no', 'access-class': {}}
 
+    parse_login_type   = Suppress('login ' + Optional('authentication ')) + restOfLine
     parse_exec_timeout = Suppress('exec-timeout ')     + restOfLine
     parse_pass_type    = Suppress('password ')         + restOfLine
     parse_privilege    = Suppress('privilege level ')  + restOfLine
@@ -150,6 +157,11 @@ def _globalParse___line_attributes(config):
                 line_dict['exec_timeout'] = int(item[0]) + int(item[1])/60
             else:
                 line_dict['exec_timeout'] = int(item[0])
+            continue
+        except ParseException:
+            pass
+        try:
+            line_dict['login_type'] = parse_login_type.parseString(option).asList()[-1]
             continue
         except ParseException:
             pass
@@ -185,6 +197,7 @@ def _globalParse___line_attributes(config):
             continue
         except ParseException:
             pass
+
     return line_dict, next_line
 
 
