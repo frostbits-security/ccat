@@ -34,10 +34,10 @@ def dhcp_snoop(global_params,iface_params,vlanmap,allinterf):
 
 					if 'limit' in iface_snoop:
 						if(int(iface_snoop['limit'][0])>100):
-							print (colored('DHCP snooping rate limit is too high','blue',attrs=['bold']))
+							print (colored('DHCP snooping rate limit is too high at interface '+i,'blue',attrs=['bold']))
 							score.append(1)
 					else:
-						print (colored('No DHCP snooping rate limit','blue',attrs=['bold']))
+						print (colored('No DHCP snooping rate limit at interface '+i,'blue',attrs=['bold']))
 						score.append(1)
 
 				elif(mode=='trust'):
