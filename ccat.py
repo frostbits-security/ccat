@@ -5,7 +5,6 @@ import checks
 filenames=args.getfilenames()
 print (args.args)
 vlanmap=parsing.vlanmap_parse(filenames.pop(0))
-print(vlanmap)
 interfaces=parsing.interface_parse(filenames[0])
 global_params=parsing.global_parse(filenames[0])
 
@@ -21,10 +20,11 @@ for i in global_params:
 	# Creating a list for scores of this config
 	score[i]=[]
 	
-	print ("\nAnalysing "+i+" :")
-	#score[i].append(checks.dhcp_snoop(global_params[i],interfaces[i],vlanmap,args.args.disabled_interfaces))
+	print ("\nAnalysing "+i+":")
+	score[i].append(checks.dhcp_snoop(global_params[i],interfaces[i],vlanmap,args.args.disabled_interfaces))
 	#score[i].append(checks.arp_inspection(global_params[i],interfaces[i]))
 
+print()
 print(score)
 
 # Output for debug
