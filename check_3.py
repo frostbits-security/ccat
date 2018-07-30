@@ -154,7 +154,6 @@ def check_features(config_dct, global_dct):
                     if iface_dct['type'] == 'access' and iface_dct['stp'] == 'portfast':
                         result['stp portfast'] = 1
                     elif 'trunk' in iface_dct['stp']:
-                        print('DANGEROUS!!')
                         result['trunk portfast'] = 1
 
             result_dct[iface] = result
