@@ -1,12 +1,6 @@
-import parsing
 from termcolor import colored
 
 
-# config_dct=parsing.interface_parse(['C:\\Users\\pthka\\git\\project\\cisco-analyser\\example\\10.164.132.1.conf','C:\\Users\\pthka\\git\\project\\cisco-analyser\\example\\172.17.135.196.conf', 'C:\\Users\\pthka\\git\\project\\cisco-analyser\\example\\10.165.218.1.conf']
-# )
-# global_dct=parsing.global_parse(['C:\\Users\\pthka\\git\\project\\cisco-analyser\\example\\10.164.132.1.conf','C:\\Users\\pthka\\git\\project\\cisco-analyser\\example\\172.17.135.196.conf','C:\\Users\\pthka\\git\\project\\cisco-analyser\\example\\10.165.218.1.conf']
-# )
-# print(global_dct)
 def storm_lvl_check(lvl):
     return (1 if float(lvl) < 80.0 else 0)
 
