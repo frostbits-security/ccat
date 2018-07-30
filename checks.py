@@ -1,5 +1,6 @@
 import util
 from termcolor import colored
+from statistics import median
 
 def dhcp_snoop(global_params,iface_params,vlanmap,allinterf):
 	score=[]
@@ -12,8 +13,8 @@ def dhcp_snoop(global_params,iface_params,vlanmap,allinterf):
 		if ('vlans' in global_params['ip_dhcp_snoop']):
 			snooping_vlans=util.intify(global_params['ip_dhcp_snoop']['vlans'])
 	else:
-		print (colored('DHCP snooping disabled','yellow',attrs=['bold']))
-		score.append(2)
+		print (colored('DHCP snooping disabled','red',attrs=['bold']))
+		score.append(3)
 
 	# ifaces
 	if(enabled):
@@ -25,7 +26,6 @@ def dhcp_snoop(global_params,iface_params,vlanmap,allinterf):
 			if (not (allinterf) and iface_params[i]['shutdown']=='yes'):
 				continue
 			else:
-				continue
 				mode=iface_snoop['mode']
 				# dirty hack cuz parsing returns lists sometimes
 				if type(mode) is list:
@@ -42,17 +42,13 @@ def dhcp_snoop(global_params,iface_params,vlanmap,allinterf):
 
 				elif(mode=='trust'):
 					if(vlanmap and iface_vlans):
-						if(set(vlanmap[3]).isdisjoint(iface_vlans)):
+						if(set(vlanmap[2]).isdisjoint(iface_vlans)):
 							print (colored('Interface '+i+' set as trusted, but vlanmap is different','yellow',attrs=['bold']))
 							score.append(2)
 				else:
 					print('Unknown mode: '+mode)
 
-
-
-				print(iface_params[i]['dhcp_snoop'])	
-
-	return util.totalscore(score)
+	return median(score)
 
 '''
 def arp_inspection(global_params,iface_params):
