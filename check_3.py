@@ -165,5 +165,143 @@ def check_features(config_dct, global_dct):
         #     f.write(str(result_dct))
 
 
+# Config global parameters parsing
+# INPUT:  dictionary with config global options
+# SAMPLE: {'ip_dhcp_snoop': {...}, 'ip_arp_inspection': {...}, 'active_service': [...], ...}
+# OUTPUT: dictionary with defined bad(0)/good(1)/warning(2) parameters
+# SAMPLE: {'ip_dhcp_snoop': {'active': 0}, 'ip_arp_inspection': {'active': 0}, 'active_service': {'password-encryption': 1, ...}}
+def global_params_check(global_params):
+    global_params_results_dict = {'ip_dhcp_snoop':{}, 'ip_arp_inspection':{}, 'active_service':{}, 'disable_service':{},
+                                  'users':{}, 'line':{}, 'ip_ssh':{}}
+
+# active services section
+    if 'password-encryption' in global_params['active_service']:
+        global_params_results_dict['active_service']['password-encryption'] = 1
+    else:
+        global_params_results_dict['active_service']['password-encryption'] = 0
+    if 'tcp-keepalives-in' in global_params['active_service']:
+        global_params_results_dict['active_service']['tcp-keepalives-in'] = 1
+    else:
+        global_params_results_dict['active_service']['tcp-keepalives-in'] = 2
+    if 'udp-small-servers' in global_params['active_service']:
+        global_params_results_dict['active_service']['udp-small-servers'] = 0
+    else:
+        global_params_results_dict['active_service']['udp-small-servers'] = 1
+    if 'tcp-small-servers' in global_params['active_service']:
+        global_params_results_dict['active_service']['tcp-small-servers'] = 0
+    else:
+        global_params_results_dict['active_service']['tcp-small-servers'] = 1
+
+# disable services section
+    if 'pad' in global_params['disable_service']:
+        global_params_results_dict['disable_service']['pad'] = 1
+    else:
+        global_params_results_dict['disable_service']['pad'] = 0
+
+# enable password section
+    if 'enable_password' in global_params:
+        if global_params['enable_password'] == '5':
+            global_params_results_dict['enable_password'] = 1
+        else:
+            global_params_results_dict['enable_password'] = 0
+
+# users section
+    for user in global_params['users']:
+        global_params_results_dict['users'][user] = {}
+        if global_params['users'][user]['password_type'] == '5':
+            global_params_results_dict['users'][user]['password_type'] = 1
+        else:
+            global_params_results_dict['users'][user]['password_type'] = 0
+        if 'privilege' in global_params['users'][user]:
+            if global_params['users'][user]['privilege'] == '15':
+                global_params_results_dict['users'][user]['privilege'] = 2
+
+# IP DHCP snooping section
+    if global_params['ip_dhcp_snoop']['active'] == 'yes':
+        global_params_results_dict['ip_dhcp_snoop']['active'] = 1
+    else:
+        global_params_results_dict['ip_dhcp_snoop']['active'] = 0
+
+# IP ARP inspection section
+    if global_params['ip_arp_inspection']['active'] == 'yes':
+        global_params_results_dict['ip_arp_inspection']['active'] = 1
+    else:
+        global_params_results_dict['ip_arp_inspection']['active'] = 0
+
+# ssh section
+    if 'version' in global_params['ip_ssh']:
+        if global_params['ip_ssh']['version'] == '2':
+            global_params_results_dict['ip_ssh']['version'] = 1
+        else:
+            global_params_results_dict['ip_ssh']['version'] = 2
+    if 'authentication-retries' in global_params['ip_ssh']:
+        if int(global_params['ip_ssh']['authentication-retries']) > 5:
+            global_params_results_dict['ip_ssh']['authentication-retries'] = 2
+    if 'time-out' in global_params['ip_ssh']:
+        if int(global_params['ip_ssh']['time-out']) < 100:
+            global_params_results_dict['ip_ssh']['time-out'] = 1
+        elif 100 < int(global_params['ip_ssh']['time-out']) <= 300:
+            global_params_results_dict['ip_ssh']['time-out'] = 2
+        elif int(global_params['ip_ssh']['time-out']) > 300:
+            global_params_results_dict['ip_ssh']['time-out'] = 0
+
+# console and vty lines section
+    for line in global_params['line']:
+        global_params_results_dict['line'][line] = {}
+        if 'log_sync' in global_params['line'][line]:
+            if global_params['line'][line]['log_sync'] == 'yes':
+                global_params_results_dict['line'][line]['log_sync'] = 1
+            else:
+                global_params_results_dict['line'][line]['log_sync'] = 2
+        if 'exec_timeout' in global_params['line'][line]:
+            if global_params['line'][line]['exec_timeout'] < 15:
+                global_params_results_dict['line'][line]['exec_timeout'] = 1
+            elif 15 < global_params['line'][line]['exec_timeout'] <= 30:
+                global_params_results_dict['line'][line]['exec_timeout'] = 2
+            elif global_params['line'][line]['exec_timeout'] > 30:
+                global_params_results_dict['line'][line]['exec_timeout'] = 0
+        if 'privilege' in global_params['line'][line]:
+            if global_params['line'][line]['privilege'] == '15':
+                global_params_results_dict['line'][line]['privilege'] = 2
+        if 'transp_in' in global_params['line'][line]:
+            if global_params['line'][line]['transp_in'] == 'ssh':
+                global_params_results_dict['line'][line]['transp_in'] = 1
+            else:
+                global_params_results_dict['line'][line]['transp_in'] = 2
+        if 'transp_out' in global_params['line'][line]:
+            if global_params['line'][line]['transp_out'] == 'ssh':
+                global_params_results_dict['line'][line]['transp_out'] = 1
+            else:
+                global_params_results_dict['line'][line]['transp_out'] = 2
+    return global_params_results_dict
+
+
+# Display global options check result
+# INPUT:  dictionary from global_params_check function
+# SAMPLE: see global_params_check output
+# OUTPUT: display option name and its grade
+# SAMPLE: 'ip_arp_inspection active IS BAD'
+def show_global_options(dictionary):
+    for key in dictionary:
+        print(key, end=' ')
+        if dictionary[key] == 0 or dictionary[key] == 1 or dictionary[key] == 2:
+            if dictionary[key] == 0:
+                print('IS BAD')
+            elif dictionary[key] == 1:
+                print('IS GOOD')
+            elif dictionary[key] == 2:
+                print('IS WARNING')
+        else:
+            show_global_options(dictionary[key])
+            print('\n')
+            
+# FOR DEBUG
+#
+# import parsing
+#
+# for fname in parsing.filenames:
+#     result_dictionary = global_params_check(parsing.global_params[fname])
+#     print(result_dictionary)
+#     show_global_options(result_dictionary)
 
 
