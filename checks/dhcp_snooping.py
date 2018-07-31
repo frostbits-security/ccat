@@ -2,7 +2,7 @@ import util
 from termcolor import colored
 from statistics import median
 
-def dhcp_snoop(global_params,iface_params,vlanmap,allinterf):
+def check(global_params,iface_params,vlanmap,allinterf):
 	score=[]
 	enabled=0
 	snooping_vlans=[]
@@ -49,17 +49,3 @@ def dhcp_snoop(global_params,iface_params,vlanmap,allinterf):
 					print('Unknown mode: '+mode)
 
 	return median(score)
-
-'''
-def arp_inspection(global_params,iface_params):
-	score=[]
-	allinterf=0
-	
-	if(global_params['ip_arp_inspection']['active']=='yes'):
-		pass
-	else:
-		print (colored("ARP inspection disabled","yellow"))
-		score.append(2)
-
-	return util.totalscore(score)
-'''

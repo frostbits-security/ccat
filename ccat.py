@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 import args
 import parsing
-import checks
+import checks.dhcp_snooping
+import checks.arp_inspection
 filenames=args.getfilenames()
 print (args.args)
 vlanmap=parsing.vlanmap_parse(filenames.pop(0))
@@ -21,7 +22,7 @@ for i in global_params:
 	score[i]=[]
 	
 	print ("\nAnalysing "+i+":")
-	score[i].append(checks.dhcp_snoop(global_params[i],interfaces[i],vlanmap,args.args.disabled_interfaces))
+	score[i].append(checks.dhcp_snooping.check(global_params[i],interfaces[i],vlanmap,args.args.disabled_interfaces))
 	#score[i].append(checks.arp_inspection(global_params[i],interfaces[i]))
 
 print()
