@@ -1,33 +1,4 @@
-# CCAT - Cisco Config Anaysis Tool #
-
-## Usage  
-
-`ccat -c example -vl vlmap.txt`  
-
-## Installation  
-
-`pip3 -r requirements.txt`  
-`python3 setup.py install`  
-
-## Roadmap:  
-
-- Хорошо задокументировать каждую функцию - что делает, что принимает на ввод, что выводит  
-- Проверки без vlanmap   
-- Проверки c vlanmap   
-- Проверки с IPv6  
-- Цветной вывод результата (good, warning, bad) 
-- Обернуть в установщик (setup.py)  
-- Баннер  
-- Брут паролей   
-- Проверка прошивки/устройства в ExploitDB API  
-- Опции, зависимые от версии прошивки
-- Система оценки результата   
-- Парсинг описания вланов по словарю с попыткой автоматом назначить критичность 
-- Поиск других небезопасных фич вроде smartinstall   
-- Результат проверок оценивается по шкале [1,2,3]
-
-## Developer guide
-### Гайдлайн по именованию функций:  
+# Гайдлайн по именованию функций:  
 
 - Стандартная форма записи - с нижними подчёркиваниями  
 `function_name`  
@@ -36,4 +7,14 @@
 - У под-подфункций степень вложенности влияет на количество подчёркиваний перед названием  
 `__subfunctionName___subsubfunction_name`  
 
+# CCAT - Cisco Config Anaysis Tool #
 
+# Usage  
+
+`ccat -c example -vl vlmap.txt`  
+
+
+# Installation  
+
+`pip3 -r requirements.txt`  
+`python3 setup.py install`  
