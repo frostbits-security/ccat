@@ -1,11 +1,11 @@
 # CCAT - Cisco Config Anaysis Tool #
 
-# Usage  
+## Usage  
 
 `ccat -c example -vl vlmap.txt`  
 
 
-# Installation  
+## Installation  
 
 `pip3 -r requirements.txt`  
 `python3 setup.py install`  
