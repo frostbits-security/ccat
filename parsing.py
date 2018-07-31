@@ -102,6 +102,32 @@ def _globalParse___aaa_attributes(line, type, count_aaa):
     return aaa_dict
 
 
+# STP option parsing
+# Input:
+#        string, which start with word 'spanning-tree'
+#        dictionary for settings
+# Output:
+#        dictionary with settings
+#
+def _globalParse___stp_attributes(stp,dct):
+    parse_portfast = Suppress('portfast ')          + restOfLine
+    parse_bpdu     = Suppress('portfast bpduguard ')+ restOfLine
+    parse_loop     = Suppress('loopguard ')         + restOfLine
+    try:
+        return util.int_dict_parse(parse_bpdu, stp, 'bpdu', dct)
+    except ParseException:
+        pass
+    try:
+        return util.int_dict_parse(parse_loop, stp, 'loopguard', dct)
+    except ParseException:
+        pass
+    try:
+        return util.int_dict_parse(parse_portfast, stp, 'portfast', dct)
+    except ParseException:
+        pass
+    return 0
+
+
 # Ssh options parsing
 # INPUT:  line with ssh option
 # SAMPLE: ip ssh time-out 30
@@ -200,52 +226,27 @@ def _globalParse___line_attributes(config):
 
     return line_dict, next_line
 
-# STP option parsing
-# Input:
-#        string, which start with word 'spanning-tree'
-#        dictionary for settings
-# Output:
-#        dictionary with settings
-#
-
-def _globalParse___stp_attributes(stp,dct):
-    parse_portfast = Suppress('portfast ')          + restOfLine
-    parse_bpdu     = Suppress('portfast bpduguard ')+ restOfLine
-    parse_loop     = Suppress('loopguard ')         + restOfLine
-    try:
-        return util.int_dict_parse(parse_bpdu, stp, 'bpdu', dct)
-    except ParseException:
-        pass
-    try:
-        return util.int_dict_parse(parse_loop, stp, 'loopguard', dct)
-    except ParseException:
-        pass
-    try:
-        return util.int_dict_parse(parse_portfast, stp, 'portfast', dct)
-    except ParseException:
-        pass
-    return 0
 
 # Global options parsing
 # INPUT:  files list to parse
 # SAMPLE: ['example/10.164.132.1.conf','example/172.17.135.196.conf']
 # OUTPUT: global options dictionary
 # SAMPLE: see on top of this file
-
 def global_parse(filenames):
     iface_global = {}
 
-    parse_version         = Suppress('boot system flash bootflash:') + restOfLine
     parse_active_service  = Suppress('service ')                     + restOfLine
     parse_disable_service = Suppress('no service ')                  + restOfLine
+    parse_version         = Suppress('boot system flash bootflash:') + restOfLine
     parse_username        = Suppress('username ')                    + restOfLine
-    parse_ip_ssh          = Suppress('ip ssh ')                      + restOfLine
-    parse_line            = Suppress('line ')                        + restOfLine
     parse_aaa             = Suppress('aaa')                          + restOfLine
     parse_stp             = Suppress('spanning-tree ')               + restOfLine
-    parse_ip_dhcp         = NotAny(White()) + Suppress('ip dhcp snooping') + Optional(Suppress('vlan') + Word(nums) +
+    parse_ip_ssh          = Suppress('ip ssh ')                      + restOfLine
+    parse_line            = Suppress('line ')                        + restOfLine
+    parse_enable_password = Suppress('enable' + MatchFirst(['secret','password'])) + Word(nums) + Suppress(restOfLine)
+    parse_ip_dhcp         = NotAny(White()) + Suppress('ip dhcp snooping')  + Optional(Suppress('vlan') + Word(nums) +
                                                                                 ZeroOrMore(Suppress(',') + Word(nums)))
-    parse_ip_arp          = NotAny(White()) + Suppress('ip arp inspection') + Suppress('vlan')         + Word(nums) +\
+    parse_ip_arp          = NotAny(White()) + Suppress('ip arp inspection') + Suppress('vlan')          + Word(nums) +\
                                                                                 ZeroOrMore(Suppress(',') + Word(nums))
 
     authentication = Suppress('authentication ') + restOfLine
@@ -264,27 +265,6 @@ def global_parse(filenames):
             try:
                 for line in config:
                     try:
-                        iface_global[fname]['version'] = parse_version.parseString(line).asList()[0]
-                        continue
-                    except ParseException:
-                        pass
-                    try:
-                        current_line = parse_ip_dhcp.parseString(line).asList()
-                        iface_global[fname]['ip_dhcp_snoop']['active'] = 'yes'
-                        if current_line:
-                            iface_global[fname]['ip_dhcp_snoop']['vlans']  = current_line
-                        continue
-                    except ParseException:
-                        pass
-                    try:
-                        current_line = parse_ip_arp.parseString(line).asList()
-                        iface_global[fname]['ip_arp_inspection']['active'] = 'yes'
-                        if current_line:
-                            iface_global[fname]['ip_arp_inspection']['vlans']  = current_line
-                        continue
-                    except ParseException:
-                        pass
-                    try:
                         iface_global[fname]['active_service'].append(parse_active_service.parseString(line).asList()[-1])
                         continue
                     except ParseException:
@@ -295,16 +275,18 @@ def global_parse(filenames):
                     except ParseException:
                         pass
                     try:
-                        current_line = parse_username.parseString(line).asList()[-1]
-                        iface_global[fname]['users'].update(_globalParse___username_attributes(current_line))
+                        iface_global[fname]['version'] = parse_version.parseString(line).asList()[0]
                         continue
                     except ParseException:
                         pass
                     try:
-                        stp_str = parse_stp.parseString(line).asList()[-1]
-                        stp_line=_globalParse___stp_attributes(stp_str, iface_global[fname]['stp'])
-                        if stp_line!=0:
-                            iface_global[fname]['users'].update(stp_line)
+                        iface_global[fname]['enable_password'] = parse_enable_password.parseString(line).asList()[0]
+                        continue
+                    except ParseException:
+                        pass
+                    try:
+                        current_line = parse_username.parseString(line).asList()[-1]
+                        iface_global[fname]['users'].update(_globalParse___username_attributes(current_line))
                         continue
                     except ParseException:
                         pass
@@ -337,6 +319,30 @@ def global_parse(filenames):
                     except ParseException:
                         pass
                     try:
+                        current_line = parse_ip_dhcp.parseString(line).asList()
+                        iface_global[fname]['ip_dhcp_snoop']['active'] = 'yes'
+                        if current_line:
+                            iface_global[fname]['ip_dhcp_snoop']['vlans']  = current_line
+                        continue
+                    except ParseException:
+                        pass
+                    try:
+                        current_line = parse_ip_arp.parseString(line).asList()
+                        iface_global[fname]['ip_arp_inspection']['active'] = 'yes'
+                        if current_line:
+                            iface_global[fname]['ip_arp_inspection']['vlans']  = current_line
+                        continue
+                    except ParseException:
+                        pass
+                    try:
+                        stp_str = parse_stp.parseString(line).asList()[-1]
+                        stp_line=_globalParse___stp_attributes(stp_str, iface_global[fname]['stp'])
+                        if stp_line!=0:
+                            iface_global[fname]['stp'].update(stp_line)
+                        continue
+                    except ParseException:
+                        pass
+                    try:
                         current_line = parse_ip_ssh.parseString(line).asList()[-1]
                         iface_global[fname]['ip_ssh'].update(_globalParse___ssh_attributes(current_line))
                         continue
@@ -361,7 +367,6 @@ def global_parse(filenames):
 # SAMPLE: example/10.164.132.1.conf
 # OUTPUT: interface options dictionary
 # SAMPLE: {'vlans': [], 'shutdown': 'no', 'description': '-= MGMT - core.nnn048.nnn =-'}
-
 def _interfaceParse___iface_attributes (config):
     iface_list = get_attributes(config)[0]
 
@@ -441,6 +446,7 @@ def _interfaceParse___iface_attributes (config):
             pass
     return iface_dict
 
+
 # Dhcp snooping/Arp inspection option parsing
 # Input:
 #        string, which start with word 'ip dhcp snooping'/ 'ip arp inspection'
@@ -448,7 +454,6 @@ def _interfaceParse___iface_attributes (config):
 # Output:
 #        dictionary with settings
 #
-
 def __ifaceAttributes___ip_parse(dhcp_snoop, dct):
     parse_mode=Word(alphas)
     parse_rate=Suppress('limit rate ')+restOfLine
@@ -461,6 +466,7 @@ def __ifaceAttributes___ip_parse(dhcp_snoop, dct):
     except ParseException:
         pass
 
+
 # Storm-control option parsing
 # Input:
 #        string, which start with word 'storm-control'
@@ -468,7 +474,6 @@ def __ifaceAttributes___ip_parse(dhcp_snoop, dct):
 # Output:
 #        dictionary with storm-control settings
 #
-
 def __ifaceAttributes___storm_check(storm,dct):
 
     parse_level  = Word(alphas) + Suppress('level ') + restOfLine
@@ -495,7 +500,6 @@ def __ifaceAttributes___storm_check(storm,dct):
 # Output:
 #        dictionary with port-security settings
 #
-
 def __ifaceAttributes___port_sec_parse(port,dct):
     parse_aging_time = Suppress('aging time ')  + restOfLine
     parse_aging_type = Suppress('aging type ')  + restOfLine
