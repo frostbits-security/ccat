@@ -50,7 +50,7 @@ def get_attributes (config):
 def _globalParse___username_attributes (line):
     username_dict = {}
     username       = (Word(printables))                                          ('user')
-    privilege      = (Suppress('privilege') + Word(nums))                        ('priv_num')
+    privilege      = (Suppress('privilege')                        + Word(nums)) ('priv_num')
     password_type  = (Suppress(MatchFirst(['secret', 'password'])) + Word(nums)) ('pass_type')
     parse_username = (username + Optional(privilege) + password_type + Suppress(restOfLine))
     result = parse_username.parseString(line)
@@ -209,10 +209,9 @@ def _globalParse___line_attributes(config):
 #
 
 def _globalParse___stp_attributes(stp,dct):
-    # print(stp,dct)
-    parse_portfast=Suppress('portfast ')+restOfLine
-    parse_bpdu=Suppress('portfast bpduguard')+restOfLine
-    parse_loop=Suppress('loopguard')+restOfLine
+    parse_portfast = Suppress('portfast ')          + restOfLine
+    parse_bpdu     = Suppress('portfast bpduguard ')+ restOfLine
+    parse_loop     = Suppress('loopguard ')         + restOfLine
     try:
         return util.int_dict_parse(parse_bpdu, stp, 'bpdu', dct)
     except ParseException:
@@ -236,18 +235,18 @@ def _globalParse___stp_attributes(stp,dct):
 def global_parse(filenames):
     iface_global = {}
 
-    parse_version = Suppress('boot system flash bootflash:') + restOfLine
-    parse_active_service  =                   Suppress('service ')    + restOfLine
-    parse_disable_service =                   Suppress('no service ') + restOfLine
-    parse_username        =                   Suppress('username ')   + restOfLine
-    parse_ip_ssh          =                   Suppress('ip ssh ')     + restOfLine
-    parse_line            =                   Suppress('line ')       + restOfLine
-    parse_aaa             =                   Suppress('aaa')         + restOfLine
+    parse_version         = Suppress('boot system flash bootflash:') + restOfLine
+    parse_active_service  = Suppress('service ')                     + restOfLine
+    parse_disable_service = Suppress('no service ')                  + restOfLine
+    parse_username        = Suppress('username ')                    + restOfLine
+    parse_ip_ssh          = Suppress('ip ssh ')                      + restOfLine
+    parse_line            = Suppress('line ')                        + restOfLine
+    parse_aaa             = Suppress('aaa')                          + restOfLine
+    parse_stp             = Suppress('spanning-tree ')               + restOfLine
     parse_ip_dhcp         = NotAny(White()) + Suppress('ip dhcp snooping') + Optional(Suppress('vlan') + Word(nums) +
                                                                                 ZeroOrMore(Suppress(',') + Word(nums)))
     parse_ip_arp          = NotAny(White()) + Suppress('ip arp inspection') + Suppress('vlan')         + Word(nums) +\
                                                                                 ZeroOrMore(Suppress(',') + Word(nums))
-    parse_stp = Suppress('spanning-tree ') + restOfLine
 
     authentication = Suppress('authentication ') + restOfLine
     authorization  = Suppress('authorization ')  + restOfLine
@@ -375,8 +374,8 @@ def _interfaceParse___iface_attributes (config):
     parse_type        = Suppress('switchport mode ')          + restOfLine
     parse_storm       = Suppress('storm-control ')            + restOfLine
     parse_port_sec    = Suppress('switchport port-security ') + restOfLine
-    parse_dhcp_snoop=Suppress('ip dhcp snooping ')+restOfLine
-    parse_arp_insp=Suppress('ip arp inspection ')+restOfLine
+    parse_dhcp_snoop  = Suppress('ip dhcp snooping ')         + restOfLine
+    parse_arp_insp    = Suppress('ip arp inspection ')        + restOfLine
     parse_vlans       = Suppress('switchport ')               + Suppress(MatchFirst('access vlan ' +
                                                        ('trunk allowed vlan ' + Optional('add ')))) + vlan_num
 
@@ -498,11 +497,11 @@ def __ifaceAttributes___storm_check(storm,dct):
 #
 
 def __ifaceAttributes___port_sec_parse(port,dct):
-    parse_aging_time = Suppress('aging time ')+restOfLine
-    parse_aging_type = Suppress('aging type ') + restOfLine
-    parse_violat = Suppress('violation ')+restOfLine
-    parse_mac=Suppress('mac-address ')+Optional('sticky')+restOfLine
-    parse_max=Suppress('maximum ')+restOfLine
+    parse_aging_time = Suppress('aging time ')  + restOfLine
+    parse_aging_type = Suppress('aging type ')  + restOfLine
+    parse_violat     = Suppress('violation ')   + restOfLine
+    parse_max        = Suppress('maximum ')     + restOfLine
+    parse_mac        = Suppress('mac-address ') + Optional('sticky') + restOfLine
     try:
         return util.int_dict_parse(parse_aging_time, port, 'aging time', dct)
     except ParseException:
