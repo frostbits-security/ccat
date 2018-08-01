@@ -1,9 +1,15 @@
-# CCAT - Cisco Config Anaysis Tool #
+# CCAT
+Cisco Config Anaysis Tool
 
+This tool is designed to analyze the configuration files of Cisco devices. In this release only switches are supported. The list of checks is based on the Cisco Guide to Harden Cisco IOS Devices.
+A full list of checks is in the Wiki.
 ## Usage  
 
-`ccat -c example -vl vlmap.txt`  
+`ccat -c example -vl vlmap.txt` 
 
+**-c** - path to configuration file
+
+**-vl** - path to lanmap file ([about](https://github.com/cisco-config-analysis-tool/ccat/wiki/Lan-map-file) it)
 
 ## Installation  
 

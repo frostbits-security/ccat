@@ -2,13 +2,16 @@
 # Creating 2 dictionaries with global and local options.
 #
 # Global dictionary
-# {'file1.txt': {'ip_dhcp_snoop': {...}, 'ip_arp_inspection': {...}, 'active_service': [...], 'disable_service': [...],
-#                'aaa': {...}, 'users': {...}, 'ip_ssh': {...}, 'line': {...}, 'version': '...'}
+# {'file1.txt': {'ip': {'dhcp_snooping': {...}, 'arp_inspection': {...}, 'ssh': {...}, 'active_service': [...]}
+#                'active_service': [...], 'disable_service': [...], 'aaa': {'authentication': {...},
+#                'authorization': {...}, 'accounting': {...}}, 'users': {...}, 'line': {...}, 'stp': {...},
+#                'enable_password': '5'/'7', 'version': '...'}
 #  'file2.txt': {...}}
 #
 # Interface dictionary
 # {'file1.txt': {'vlans': [...], 'shutdown': 'yes'/'no', 'type': 'access'/'trunk', 'port-security': {'mac-address': ['type','mac'},
-#                'description': '...', 'storm-control': {'level': {'type', 'range'}, 'action': '...'}, 'cdp': 'yes/no'}
+#                'description': '...', 'storm-control': {'level': {'type', 'range'}, 'action': '...'}, 'cdp': 'yes/no',
+#                'dhcp_snoop': {...}, 'arp_insp': {...}}
 #  'file2.txt': {...}}
 #
 #
@@ -235,19 +238,21 @@ def _globalParse___line_attributes(config):
 def global_parse(filenames):
     iface_global = {}
 
+    parse_enable_password = Suppress('enable' + MatchFirst(['secret','password'])) + Word(nums) + Suppress(restOfLine)
     parse_active_service  = Suppress('service ')                     + restOfLine
     parse_disable_service = Suppress('no service ')                  + restOfLine
     parse_version         = Suppress('boot system flash bootflash:') + restOfLine
     parse_username        = Suppress('username ')                    + restOfLine
     parse_aaa             = Suppress('aaa')                          + restOfLine
     parse_stp             = Suppress('spanning-tree ')               + restOfLine
-    parse_ip_ssh          = Suppress('ip ssh ')                      + restOfLine
     parse_line            = Suppress('line ')                        + restOfLine
-    parse_enable_password = Suppress('enable' + MatchFirst(['secret','password'])) + Word(nums) + Suppress(restOfLine)
+    parse_ip_ssh          = Suppress('ip ssh ')                      + restOfLine
     parse_ip_dhcp         = NotAny(White()) + Suppress('ip dhcp snooping')  + Optional(Suppress('vlan') + Word(nums) +
                                                                                 ZeroOrMore(Suppress(',') + Word(nums)))
     parse_ip_arp          = NotAny(White()) + Suppress('ip arp inspection') + Suppress('vlan')          + Word(nums) +\
                                                                                 ZeroOrMore(Suppress(',') + Word(nums))
+    parse_ip              = NotAny(White()) + Suppress('ip') + MatchFirst(['finger', 'identd', 'source-route',
+                                                                           'bootp server', 'http server'])
 
     authentication = Suppress('authentication ') + restOfLine
     authorization  = Suppress('authorization ')  + restOfLine
@@ -256,9 +261,9 @@ def global_parse(filenames):
     for fname in filenames:
         with open(fname) as config:
             count_authen, count_author, count_acc = 1, 1, 1
-            iface_global.update({fname: {'ip_dhcp_snoop':{'active':'no'},'ip_arp_inspection':{'active':'no'},
-                                         'active_service': [], 'disable_service': [], 'aaa': {}, 'users': {},
-                                         'ip_ssh': {}, 'line': {},'stp':{}}})
+            iface_global.update({fname: {'ip': {'dhcp_snooping': {'active': 'no'}, 'arp_inspection': {'active': 'no'},
+                                         'ssh': {}, 'active_service': []}, 'active_service': [], 'disable_service': [],
+                                         'aaa': {}, 'users': {}, 'line': {}, 'stp': {}}})
             
             #debug
             #print(fname)
@@ -320,17 +325,28 @@ def global_parse(filenames):
                         pass
                     try:
                         current_line = parse_ip_dhcp.parseString(line).asList()
-                        iface_global[fname]['ip_dhcp_snoop']['active'] = 'yes'
+                        iface_global[fname]['ip']['dhcp_snooping']['active'] = 'yes'
                         if current_line:
-                            iface_global[fname]['ip_dhcp_snoop']['vlans']  = current_line
+                            iface_global[fname]['ip']['dhcp_snooping']['vlans']  = current_line
                         continue
                     except ParseException:
                         pass
                     try:
                         current_line = parse_ip_arp.parseString(line).asList()
-                        iface_global[fname]['ip_arp_inspection']['active'] = 'yes'
+                        iface_global[fname]['ip']['arp_inspection']['active'] = 'yes'
                         if current_line:
-                            iface_global[fname]['ip_arp_inspection']['vlans']  = current_line
+                            iface_global[fname]['ip']['arp_inspection']['vlans']  = current_line
+                        continue
+                    except ParseException:
+                        pass
+                    try:
+                        current_line = parse_ip_ssh.parseString(line).asList()[-1]
+                        iface_global[fname]['ip']['ssh'].update(_globalParse___ssh_attributes(current_line))
+                        continue
+                    except ParseException:
+                        pass
+                    try:
+                        iface_global[fname]['ip']['active_service'].append(parse_ip.parseString(line).asList()[-1])
                         continue
                     except ParseException:
                         pass
@@ -339,12 +355,6 @@ def global_parse(filenames):
                         stp_line=_globalParse___stp_attributes(stp_str, iface_global[fname]['stp'])
                         if stp_line!=0:
                             iface_global[fname]['stp'].update(stp_line)
-                        continue
-                    except ParseException:
-                        pass
-                    try:
-                        current_line = parse_ip_ssh.parseString(line).asList()[-1]
-                        iface_global[fname]['ip_ssh'].update(_globalParse___ssh_attributes(current_line))
                         continue
                     except ParseException:
                         pass
@@ -379,6 +389,7 @@ def _interfaceParse___iface_attributes (config):
     parse_type        = Suppress('switchport mode ')          + restOfLine
     parse_storm       = Suppress('storm-control ')            + restOfLine
     parse_port_sec    = Suppress('switchport port-security ') + restOfLine
+    parse_stp_port    = Suppress('spanning-tree ')            + restOfLine
     parse_dhcp_snoop  = Suppress('ip dhcp snooping ')         + restOfLine
     parse_arp_insp    = Suppress('ip arp inspection ')        + restOfLine
     parse_vlans       = Suppress('switchport ')               + Suppress(MatchFirst('access vlan ' +
@@ -444,6 +455,12 @@ def _interfaceParse___iface_attributes (config):
             continue
         except ParseException:
             pass
+        try:
+            stp_port=parse_stp_port.parseString(option).asList()[-1]
+            iface_dict['stp'] =stp_port
+            continue
+        except ParseException:
+            pass
     return iface_dict
 
 
@@ -480,7 +497,12 @@ def __ifaceAttributes___storm_check(storm,dct):
     parse_action = Suppress('action ') + Word(alphas)
     parse_type   = Word(alphas) + Suppress(Optional("include")) + Word(alphas)
     try:
-        return util.int_dict_parse(parse_level, storm, 'level', dct)
+        value = parse_level.parseString(storm).asList()
+        if 'level' in dct:
+            dct['level'].append(value)
+        else:
+            dct['level'] = [value]
+        return dct
     except ParseException:
         pass
     try:
@@ -557,15 +579,15 @@ def interface_parse(filenames):
 
 
 # OUTPUT FOR DEBUG
-# filenames = ['example/10.164.132.1.conf','example/172.17.135.196.conf']
+# filenames = ['C:\\Users\\pthka\\git\\project\\cisco-analyser\\example\\172.17.135.196.conf']
 #
 # interfaces=interface_parse(filenames)
-# global_params=global_parse(filenames)
+# # global_params=global_parse(filenames)
 #
 # for fname in filenames:
-#     print('\n', fname, 'global options:\n')
-#     for key in global_params[fname]:
-#         print(key, global_params[fname][key])
+# #     print('\n', fname, 'global options:\n')
+# #     for key in global_params[fname]:
+# #         print(key, global_params[fname][key])
 #
 #     print('\n', fname, 'interface options:\n')
 #     for key in interfaces[fname]:
