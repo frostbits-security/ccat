@@ -8,10 +8,10 @@ def check(global_params,iface_params,vlanmap,allinterf):
 	snooping_vlans=[]
 
 	# globals
-	if(global_params['ip_dhcp_snoop']['active']=='yes'):
+	if(global_params['ip']['dhcp_snooping']['active']=='yes'):
 		enabled=1
-		if ('vlans' in global_params['ip_dhcp_snoop']):
-			snooping_vlans=util.intify(global_params['ip_dhcp_snoop']['vlans'])
+		if ('vlans' in global_params['ip']['dhcp_snooping']):
+			snooping_vlans=util.intify(global_params['ip']['dhcp_snooping']['vlans'])
 	else:
 		print (colored('DHCP snooping disabled','red',attrs=['bold']))
 		score.append(3)

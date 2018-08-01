@@ -7,10 +7,10 @@ def check(global_params,iface_params,vlanmap,allinterf):
 	snooping_vlans=[]
 
 	# globals
-	if(global_params['ip_arp_inspection']['active']=='yes'):
+	if(global_params['ip']['arp_inspection']['active']=='yes'):
 		enabled=1
-		if ('vlans' in global_params['ip_arp_inspection']):
-			snooping_vlans=util.intify(global_params['ip_arp_inspectionz']['vlans'])
+		if ('vlans' in global_params['ip']['arp_inspection']):
+			snooping_vlans=util.intify(global_params['ip']['arp_inspection']['vlans'])
 	else:
 		print (colored('ARP inspection disabled','red',attrs=['bold']))
 		score.append(3)
