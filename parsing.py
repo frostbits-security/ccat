@@ -576,19 +576,19 @@ def interface_parse(filenames):
 
 
 # OUTPUT FOR DEBUG
-filenames = ['example/1.txt']
-
-interfaces=interface_parse(filenames)
-global_params=global_parse(filenames)
-
-for fname in filenames:
-    print('\n', fname, 'global options:\n')
-    for key in global_params[fname]:
-        print(key, global_params[fname][key])
-
-    print('\n', fname, 'interface options:\n')
-    for key in interfaces[fname]:
-        print(key, interfaces[fname][key])
+# filenames = []
+#
+# interfaces=interface_parse(filenames)
+# global_params=global_parse(filenames)
+#
+# for fname in filenames:
+#     print('\n', fname, 'global options:\n')
+#     for key in global_params[fname]:
+#         print(key, global_params[fname][key])
+#
+#     print('\n', fname, 'interface options:\n')
+#     for key in interfaces[fname]:
+#         print(key, interfaces[fname][key])
 
 
 # vlanmap parsing, returns list of three lists with ints
