@@ -389,6 +389,7 @@ def _interfaceParse___iface_attributes (config):
     parse_type        = Suppress('switchport mode ')          + restOfLine
     parse_storm       = Suppress('storm-control ')            + restOfLine
     parse_port_sec    = Suppress('switchport port-security ') + restOfLine
+    parse_stp_port    = Suppress('spanning-tree ')            + restOfLine
     parse_dhcp_snoop  = Suppress('ip dhcp snooping ')         + restOfLine
     parse_arp_insp    = Suppress('ip arp inspection ')        + restOfLine
     parse_vlans       = Suppress('switchport ')               + Suppress(MatchFirst('access vlan ' +
@@ -454,6 +455,12 @@ def _interfaceParse___iface_attributes (config):
             continue
         except ParseException:
             pass
+        try:
+            stp_port=parse_stp_port.parseString(option).asList()[-1]
+            iface_dict['stp'] =stp_port
+            continue
+        except ParseException:
+            pass
     return iface_dict
 
 
@@ -490,7 +497,12 @@ def __ifaceAttributes___storm_check(storm,dct):
     parse_action = Suppress('action ') + Word(alphas)
     parse_type   = Word(alphas) + Suppress(Optional("include")) + Word(alphas)
     try:
-        return util.int_dict_parse(parse_level, storm, 'level', dct)
+        value = parse_level.parseString(storm).asList()
+        if 'level' in dct:
+            dct['level'].append(value)
+        else:
+            dct['level'] = [value]
+        return dct
     except ParseException:
         pass
     try:
@@ -567,19 +579,19 @@ def interface_parse(filenames):
 
 
 # OUTPUT FOR DEBUG
-# filenames = []
-
+# filenames = ['C:\\Users\\pthka\\git\\project\\cisco-analyser\\example\\172.17.135.196.conf']
+#
 # interfaces=interface_parse(filenames)
-# global_params=global_parse(filenames)
-
+# # global_params=global_parse(filenames)
+#
 # for fname in filenames:
-    # print('\n', fname, 'global options:\n')
-    # for key in global_params[fname]:
-    #     print(key, global_params[fname][key])
-
-    # print('\n', fname, 'interface options:\n')
-    # for key in interfaces[fname]:
-    #     print(key, interfaces[fname][key])
+# #     print('\n', fname, 'global options:\n')
+# #     for key in global_params[fname]:
+# #         print(key, global_params[fname][key])
+#
+#     print('\n', fname, 'interface options:\n')
+#     for key in interfaces[fname]:
+#         print(key, interfaces[fname][key])
 
 
 # vlanmap parsing, returns list of three lists with ints
