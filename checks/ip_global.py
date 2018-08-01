@@ -34,36 +34,35 @@ def check(global_params,results_dict):
                                                      'Decrease it due to security reasons']
 
 # ip options section
-    if 'finger' in global_params['ip']['ssh']['active_service']:
-        results_dict['ip']['ssh']['active_service']['finger'] = [0, 'ENABLED',
-                                                                 'Disable it to prevent user to view other active users']
+    if 'finger' in global_params['ip']['active_service']:
+        results_dict['ip']['active_service']['finger'] = [0, 'ENABLED',
+                                                          'Disable it to prevent user to view other active users']
     else:
-        results_dict['ip']['ssh']['active_service']['finger'] = [2, 'DISABLED']
+        results_dict['ip']['active_service']['finger'] = [2, 'DISABLED']
 
-    if 'identd' in global_params['ip']['ssh']['active_service']:
-        results_dict['ip']['ssh']['active_service']['identd'] = [0, 'ENABLED',
-                                                                 'Disable it to prevent user connection information leaks']
+    if 'identd' in global_params['ip']['active_service']:
+        results_dict['ip']['active_service']['identd'] = [0, 'ENABLED',
+                                                          'Disable it to prevent user connection information leaks']
     else:
-        results_dict['ip']['ssh']['active_service']['identd'] = [2, 'DISABLED']
+        results_dict['ip']['active_service']['identd'] = [2, 'DISABLED']
 
-    if 'source-route' in global_params['ip']['ssh']['active_service']:
-        results_dict['ip']['ssh']['active_service']['source-route'] = [0, 'ENABLED',
-                                                                       'Disable it to prevent packet route leak']
+    if 'source-route' in global_params['ip']['active_service']:
+        results_dict['ip']['active_service']['source-route'] = [0, 'ENABLED',
+                                                                'Disable it to prevent packet route leak']
     else:
-        results_dict['ip']['ssh']['active_service']['source-route'] = [2, 'DISABLED']
+        results_dict['ip']['active_service']['source-route'] = [2, 'DISABLED']
 
-    if 'bootp server' in global_params['ip']['ssh']['active_service']:
-        results_dict['ip']['ssh']['active_service']['bootp_server'] = [0, 'ENABLED',
-                                                                       'Disable it to prevent possible IOS image stealing']
+    if 'bootp server' in global_params['ip']['active_service']:
+        results_dict['ip']['active_service']['bootp_server'] = [0, 'ENABLED',
+                                                                'Disable it to prevent possible IOS image stealing']
     else:
-        results_dict['ip']['ssh']['active_service']['bootp_server'] = [2, 'DISABLED']
+        results_dict['ip']['active_service']['bootp_server'] = [2, 'DISABLED']
 
-    if 'http server' in global_params['ip']['ssh']['active_service']:
-        results_dict['ip']['ssh']['active_service']['http_server'] = [0, 'ENABLED',
-                                                                      'Disable it to prevent unsecure connection. You'
-                                                                      'may turn on secure server with "ip http'
-                                                                      'secure-server" command']
+    if 'http server' in global_params['ip']['active_service']:
+        results_dict['ip']['active_service']['http_server'] = [0, 'ENABLED',
+                                                               'Disable it to prevent unsecure connection. You may turn'
+                                                               'on secure server with "ip http secure-server" command']
     else:
-        results_dict['ip']['ssh']['active_service']['http_server'] = [2, 'DISABLED']
+        results_dict['ip']['active_service']['http_server'] = [2, 'DISABLED']
 
     return results_dict

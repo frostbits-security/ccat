@@ -10,9 +10,9 @@ def check(global_params,results_dict):
 # enable password section
     if 'enable_password' in global_params:
         if global_params['enable_password'] == '5':
-            results_dict['enable_password'] = [2, 'Encrypted with MD5']
+            results_dict['enable_password']['type'] = [2, 'Encrypted with MD5']
         else:
-            results_dict['enable_password'] = [0, 'Weak encryption', 'Change encryption type to MD5']
+            results_dict['enable_password']['type'] = [0, 'Weak encryption', 'Change encryption type to MD5']
 
 # console and vty lines section
     for line in global_params['line']:
