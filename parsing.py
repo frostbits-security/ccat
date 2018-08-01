@@ -24,7 +24,7 @@ from pyparsing import Suppress, Optional, restOfLine, ParseException, MatchFirst
 import re
 import util
 
-
+#
 # Parse any attributes with whitespace as first symbol into list
 # INPUT:  line with futher options (starts with whitespaces)
 # SAMPLE: interface Loopback1
