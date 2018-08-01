@@ -4,7 +4,9 @@ A full list of checks is in the Wiki.
 ## Usage  
 
 `ccat -c example -vl vlmap.txt`  
+**-c** - path to configuration file
 
+**-vl** - path to lanmap file ([about](https://github.com/cisco-config-analysis-tool/ccat/wiki/Lan-map-file) it)
 
 ## Installation  
 
