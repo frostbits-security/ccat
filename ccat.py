@@ -6,8 +6,9 @@ import checks.arp_inspection
 filenames=args.getfilenames()
 print (args.args)
 vlanmap=parsing.vlanmap_parse(filenames.pop(0))
-interfaces=parsing.interface_parse(filenames[0])
-global_params=parsing.global_parse(filenames[0])
+parsing.parseconfigs(filenames[0])
+interfaces=parsing.iface_local
+global_params=parsing.iface_global
 
 # Scoring system. 
 # Determines severity of misconfiguration errors from 1 to 3 (critical)
