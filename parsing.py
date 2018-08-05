@@ -601,6 +601,15 @@ def vlanmap_parse(filename):
             res.append(vlanmap['critical_area']) #critical
             res.append(vlanmap['unknown_area']) #unknown
             res.append(vlanmap['trusted_area']) #trusted
+            cnt=0
+            for zone in res:
+                for i in zone:
+                    if type(i) is str:
+                        rng=i.split('-')
+                        res[cnt].remove(i)
+                        for n in range(int(rng[0]),int(rng[1])+1):
+                            res[cnt].append(n)
+                cnt+=1
         except:
             print("Error in vlanmap syntax")
             exit()
