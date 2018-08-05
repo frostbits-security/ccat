@@ -618,20 +618,24 @@ def parseconfigs(filenames):
 # returns 0 if no vlanmap given
 def vlanmap_parse(filename):
     if(filename):
-        vmapf=open(filename,"r")
-        vlanmap=vmapf.read()
-        vmapf.close()
-        vlanpattern=re.compile(': ([0-9,]+)')
-        vlanmap=re.findall(vlanpattern,vlanmap)
+        vlanmap=load(open(filename))
         res=[]
         try:
-            res.append(util.intify(vlanmap[0].split(','))) #critical
-            res.append(util.intify(vlanmap[1].split(','))) #unknown 
-            res.append(util.intify(vlanmap[2].split(','))) #trusted
+            res.append(vlanmap['critical_area']) #critical
+            res.append(vlanmap['unknown_area']) #unknown
+            res.append(vlanmap['trusted_area']) #trusted
+            cnt=0
+            for zone in res:
+                for i in zone:
+                    if type(i) is str:
+                        rng=i.split('-')
+                        res[cnt].remove(i)
+                        for n in range(int(rng[0]),int(rng[1])+1):
+                            res[cnt].append(n)
+                cnt+=1
         except:
             print("Error in vlanmap syntax")
             exit()
         return res
     else:
         return 0
-    exit()
