@@ -9,7 +9,7 @@ A full list of checks is in the Wiki.
 
 **-c** - path to configuration file
 
-**-vl** - path to lanmap file ([about](https://github.com/cisco-config-analysis-tool/ccat/wiki/Lan-map-file) it)
+**-vl** - path to ([vlanmap file](https://github.com/cisco-config-analysis-tool/ccat/wiki/Lan-map-file))
 
 ## Installation  
 
