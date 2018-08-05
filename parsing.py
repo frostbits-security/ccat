@@ -21,7 +21,7 @@
 
 from pyparsing import Suppress, Optional, restOfLine, ParseException, MatchFirst, Word, nums, ZeroOrMore, NotAny, White,\
                       Or, printables, oneOf, alphas, OneOrMore
-import re
+from json import load
 import util
 
 
