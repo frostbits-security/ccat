@@ -18,7 +18,7 @@
 
 from pyparsing import Suppress, Optional, restOfLine, ParseException, MatchFirst, Word, nums, ZeroOrMore, NotAny, White,\
                       Or, printables, oneOf, alphas, OneOrMore
-import re
+from json import load
 import util
 
 #
@@ -381,7 +381,7 @@ def _interfaceParse___iface_attributes (config):
 
 
     vlan_num = Word(nums + '-') + ZeroOrMore(Suppress(',') + Word(nums + '-'))
-	
+    
     parse_description = Suppress('description ')              + restOfLine
     parse_type        = Suppress('switchport mode ')          + restOfLine
     parse_storm       = Suppress('storm-control ')            + restOfLine
@@ -595,20 +595,15 @@ def interface_parse(filenames):
 # returns 0 if no vlanmap given
 def vlanmap_parse(filename):
     if(filename):
-        vmapf=open(filename,"r")
-        vlanmap=vmapf.read()
-        vmapf.close()
-        vlanpattern=re.compile(': ([0-9,]+)')
-        vlanmap=re.findall(vlanpattern,vlanmap)
+        vlanmap=load(open(filename))
         res=[]
         try:
-            res.append(util.intify(vlanmap[0].split(','))) #critical
-            res.append(util.intify(vlanmap[1].split(','))) #unknown 
-            res.append(util.intify(vlanmap[2].split(','))) #trusted
+            res.append(vlanmap['critical_area']) #critical
+            res.append(vlanmap['unknown_area']) #unknown
+            res.append(vlanmap['trusted_area']) #trusted
         except:
             print("Error in vlanmap syntax")
             exit()
         return res
     else:
         return 0
-    exit()
