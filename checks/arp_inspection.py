@@ -2,17 +2,19 @@ import util
 from termcolor import colored
 from statistics import median
 
-def check(global_params,iface_params,vlanmap,allinterf):
-	nabled=0
+def check(global_params,iface_params,vlanmap,allinterf,result_dict):
+	enabled=0
 	snooping_vlans=[]
 
 	# globals
-	if(global_params['ip_arp_inspection']['active']=='yes'):
+	if(global_params['ip']['arp_inspection']['active']=='yes'):
 		enabled=1
-		if ('vlans' in global_params['ip_arp_inspection']):
-			snooping_vlans=util.intify(global_params['ip_arp_inspectionz']['vlans'])
+		result_dict['ip']['arp_inspection']['active'] = [2,'ENABLED']
+		if ('vlans' in global_params['ip']['arp_inspection']):
+			snooping_vlans=util.intify(global_params['ip']['arp_inspection']['vlans'])
 	else:
-		print (colored('ARP inspection disabled','red',attrs=['bold']))
+		# print (colored('ARP inspection disabled','red',attrs=['bold']))
+		result_dict['ip']['arp_inspection']['active'] = [0,'DISABLED', 'Turn it on to prevent spoofing attack']
 		score.append(3)
 
 	# ifaces
@@ -26,8 +28,5 @@ def check(global_params,iface_params,vlanmap,allinterf):
 				continue
 			else:
 				mode=iface_snoop['mode']
-				# dirty hack cuz parsing returns lists sometimes
-				if type(mode) is list:
-					mode=mode[0]
 
-	return median(score)
+	return median(score), result_dict

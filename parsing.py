@@ -15,9 +15,6 @@
 #  'file2.txt': {...}}
 #
 #
-# FOR DEBUG
-# import sys
-# sys.path.append(r"C:\\Program Files (x86)\\Python36-32\\Lib\\site-packages")
 
 from pyparsing import Suppress, Optional, restOfLine, ParseException, MatchFirst, Word, nums, ZeroOrMore, NotAny, White,\
                       Or, printables, oneOf, alphas, OneOrMore
@@ -393,7 +390,7 @@ def _interfaceParse___iface_attributes (config):
 
 
     vlan_num = Word(nums + '-') + ZeroOrMore(Suppress(',') + Word(nums + '-'))
-	
+    
     parse_description = Suppress('description ')              + restOfLine
     parse_type        = Suppress('switchport mode ')          + restOfLine
     parse_storm       = Suppress('storm-control ')            + restOfLine
@@ -591,15 +588,15 @@ def parseconfigs(filenames):
     return 0
 
 # OUTPUT FOR DEBUG
-# filenames = ['C:\\Users\\pthka\\git\\project\\cisco-analyser\\example\\172.17.135.196.conf']
+# filenames = []
 #
 # interfaces=interface_parse(filenames)
-# # global_params=global_parse(filenames)
+# global_params=global_parse(filenames)
 #
 # for fname in filenames:
-# #     print('\n', fname, 'global options:\n')
-# #     for key in global_params[fname]:
-# #         print(key, global_params[fname][key])
+#     print('\n', fname, 'global options:\n')
+#     for key in global_params[fname]:
+#         print(key, global_params[fname][key])
 #
 #     print('\n', fname, 'interface options:\n')
 #     for key in interfaces[fname]:
