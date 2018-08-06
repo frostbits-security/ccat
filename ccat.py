@@ -23,7 +23,6 @@ for i in global_params:
 	score[i]=[]
 	
 	print ("\nAnalysing "+i+":")
-	print(interfaces[i])
 	score[i].append(checks.dhcp_snooping.check(global_params[i],interfaces[i],vlanmap,args.args.disabled_interfaces))
 	#score[i].append(checks.arp_inspection(global_params[i],interfaces[i]))
 

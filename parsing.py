@@ -572,7 +572,7 @@ def interface_parse(config,fname):
             item = parse_iface.parseString(line).asList()[-1]
             iface_local[fname][item] = _interfaceParse___iface_attributes(config)
         except ParseException:
-            pass       
+            pass      
     return 0
 
 # main function 
@@ -583,11 +583,10 @@ def parseconfigs(filenames):
     
     for fname in filenames:
         iface_local.update({fname: {}})
-        iface_global.update({fname: {'ip': {'dhcp_snooping': {'active': 'no'}, 'arp_inspection': {'active': 'no'},
-                                 'ssh': {}, 'active_service': []}, 'active_service': [], 'disable_service': [],
-                                 'aaa': {}, 'users': {}, 'line': {}, 'stp': {}}})
+        iface_global.update({fname: {'ip': {'dhcp_snooping': {'active': 'no'}, 'arp_inspection': {'active': 'no'},'ssh': {}, 'active_service': []}, 'active_service': [], 'disable_service': [],'aaa': {}, 'users': {}, 'line': {}, 'stp': {}}})
         with open(fname) as config:
             global_parse(config,fname)
+            config.seek(0)
             interface_parse(config,fname)
     return 0
 
