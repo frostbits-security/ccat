@@ -38,12 +38,9 @@ parse_aaa             = Suppress('aaa')                          + restOfLine
 parse_stp             = Suppress('spanning-tree ')               + restOfLine
 parse_line            = Suppress('line ')                        + restOfLine
 parse_ip_ssh          = Suppress('ip ssh ')                      + restOfLine
-parse_ip_dhcp         = NotAny(White()) + Suppress('ip dhcp snooping')  + Optional(Suppress('vlan') + Word(nums) +
-                                                                            ZeroOrMore(Suppress(',') + Word(nums)))
-parse_ip_arp          = NotAny(White()) + Suppress('ip arp inspection') + Suppress('vlan')          + Word(nums) +\
-                                                                            ZeroOrMore(Suppress(',') + Word(nums))
-parse_ip              = NotAny(White()) + Suppress('ip') + MatchFirst(['finger', 'identd', 'source-route',
-                                                                       'bootp server', 'http server'])
+parse_ip_dhcp         = NotAny(White()) + Suppress('ip dhcp snooping')  + Optional(Suppress('vlan') + Word(nums) +ZeroOrMore(Suppress(',') + Word(nums)))
+parse_ip_arp          = NotAny(White()) + Suppress('ip arp inspection') + Suppress('vlan')          + Word(nums) +ZeroOrMore(Suppress(',') + Word(nums))
+parse_ip              = NotAny(White()) + Suppress('ip') + MatchFirst(['finger', 'identd', 'source-route','bootp server', 'http server'])
 authentication = Suppress('authentication ') + restOfLine
 authorization  = Suppress('authorization ')  + restOfLine
 accounting     = Suppress('accounting ')     + restOfLine
@@ -309,8 +306,10 @@ def global_parse(config,fname):
             continue
         except ParseException:
             pass
-        
-        current_line = parse_aaa.parseString(line).asList()[-1]
+        try:
+            current_line = parse_aaa.parseString(line).asList()[-1]
+        except ParseException:
+            pass
         try:
             current_line = authentication.parseString(current_line).asList()[-1]
             iface_global[fname]['aaa'].setdefault('authentication',{})
@@ -333,12 +332,16 @@ def global_parse(config,fname):
             iface_global[fname]['aaa']['accounting'].update(_globalParse___aaa_attributes(current_line,'accounting',count_acc))
             count_acc += 1
             continue
+        except:
+            pass
+        try:
+            current_line = parse_ip_dhcp.parseString(line).asList()
+            iface_global[fname]['ip']['dhcp_snooping']['active'] = 'yes'
+            if current_line:
+                iface_global[fname]['ip']['dhcp_snooping']['vlans']  = current_line
+        except ParseException:
+            pass
         
-        
-        current_line = parse_ip_dhcp.parseString(line).asList()
-        iface_global[fname]['ip']['dhcp_snooping']['active'] = 'yes'
-        if current_line:
-            iface_global[fname]['ip']['dhcp_snooping']['vlans']  = current_line
         
         try:
             current_line = parse_ip_arp.parseString(line).asList()
@@ -584,13 +587,8 @@ def parseconfigs(filenames):
                                  'ssh': {}, 'active_service': []}, 'active_service': [], 'disable_service': [],
                                  'aaa': {}, 'users': {}, 'line': {}, 'stp': {}}})
         with open(fname) as config:
-            try:
-                interface_parse(config,fname)
-                global_parse(config,fname)
-            except Exception as e:
-                print(e)
-                print('Error processing file: '+fname)
-                pass
+            global_parse(config,fname)
+            interface_parse(config,fname)
     return 0
 
 # OUTPUT FOR DEBUG
