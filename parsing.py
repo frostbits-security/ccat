@@ -582,9 +582,13 @@ def parseconfigs(filenames):
         iface_local.update({fname: {}})
         iface_global.update({fname: {'ip': {'dhcp_snooping': {'active': 'no'}, 'arp_inspection': {'active': 'no'},'ssh': {}, 'active_service': []}, 'active_service': [], 'disable_service': [],'aaa': {}, 'users': {}, 'line': {}, 'stp': {}}})
         with open(fname) as config:
-            global_parse(config,fname)
-            config.seek(0)
-            interface_parse(config,fname)
+            try:
+                global_parse(config,fname)
+                config.seek(0)
+                interface_parse(config,fname)
+            except Exception as e:
+                print("Error in file "+fname)
+                print(e)
     return 0
 
 # OUTPUT FOR DEBUG
