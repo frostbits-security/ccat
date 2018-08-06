@@ -9,7 +9,6 @@ vlanmap=parsing.vlanmap_parse(filenames.pop(0))
 parsing.parseconfigs(filenames[0])
 interfaces=parsing.iface_local
 global_params=parsing.iface_global
-print(global_params)
 
 # Scoring system. 
 # Determines severity of misconfiguration errors from 1 to 3 (critical)
@@ -24,6 +23,7 @@ for i in global_params:
 	score[i]=[]
 	
 	print ("\nAnalysing "+i+":")
+	print(interfaces[i])
 	score[i].append(checks.dhcp_snooping.check(global_params[i],interfaces[i],vlanmap,args.args.disabled_interfaces))
 	#score[i].append(checks.arp_inspection(global_params[i],interfaces[i]))
 

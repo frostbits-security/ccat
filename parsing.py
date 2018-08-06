@@ -311,7 +311,7 @@ def global_parse(config,fname):
         except ParseException:
             pass
         try:
-            current_line = authentication.parseString(current_line).asList()[-1]
+            current_line = authentication.parseString(line).asList()[-1]
             iface_global[fname]['aaa'].setdefault('authentication',{})
             iface_global[fname]['aaa']['authentication'].update(_globalParse___aaa_attributes(current_line,'authentication',count_authen))
             count_authen += 1
@@ -319,7 +319,7 @@ def global_parse(config,fname):
         except ParseException:
             pass
         try:
-            current_line = authorization.parseString(current_line).asList()[-1]
+            current_line = authorization.parseString(line).asList()[-1]
             iface_global[fname]['aaa'].setdefault('authorization',{})
             iface_global[fname]['aaa']['authorization'].update(_globalParse___aaa_attributes(current_line,'authorization',count_author))
             count_author += 1
@@ -327,7 +327,7 @@ def global_parse(config,fname):
         except ParseException:
             pass
         try:
-            current_line = accounting.parseString(current_line).asList()[-1]
+            current_line = accounting.parseString(line).asList()[-1]
             iface_global[fname]['aaa'].setdefault('accounting',{})
             iface_global[fname]['aaa']['accounting'].update(_globalParse___aaa_attributes(current_line,'accounting',count_acc))
             count_acc += 1
