@@ -143,7 +143,7 @@ def _globalParse___stp_attributes(stp,dct):
     parse_bpdu     = Suppress('portfast bpduguard ')+ restOfLine
     parse_loop     = Suppress('loopguard ')         + restOfLine
     try:
-        return util.int_dict_parse(parse_bpdu, stp, 'bpdu', dct)
+        return util.int_dict_parse(parse_bpdu, stp, 'bpduguard', dct)
     except ParseException:
         pass
     try:
