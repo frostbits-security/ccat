@@ -21,6 +21,29 @@ from pyparsing import Suppress, Optional, restOfLine, ParseException, MatchFirst
 from json import load
 import util
 
+
+iface_local={}
+parse_iface = Suppress('interface ') + restOfLine
+
+iface_global={}
+parse_enable_password = Suppress('enable' + MatchFirst(['secret','password'])) + Word(nums) + Suppress(restOfLine)
+parse_active_service  = Suppress('service ')                     + restOfLine
+parse_disable_service = Suppress('no service ')                  + restOfLine
+parse_version         = Suppress('boot system flash bootflash:') + restOfLine
+parse_username        = Suppress('username ')                    + restOfLine
+parse_aaa             = Suppress('aaa')                          + restOfLine
+parse_stp             = Suppress('spanning-tree ')               + restOfLine
+parse_line            = Suppress('line ')                        + restOfLine
+parse_ip_ssh          = Suppress('ip ssh ')                      + restOfLine
+parse_ip_dhcp         = NotAny(White()) + Suppress('ip dhcp snooping')  + Optional(Suppress('vlan') + Word(nums) +ZeroOrMore(Suppress(',') + Word(nums)))
+parse_ip_arp          = NotAny(White()) + Suppress('ip arp inspection') + Suppress('vlan')          + Word(nums) +ZeroOrMore(Suppress(',') + Word(nums))
+parse_ip              = NotAny(White()) + Suppress('ip') + MatchFirst(['finger', 'identd', 'source-route','bootp server', 'http server'])
+authentication = Suppress('authentication ') + restOfLine
+authorization  = Suppress('authorization ')  + restOfLine
+accounting     = Suppress('accounting ')     + restOfLine
+
+
+
 #
 # Parse any attributes with whitespace as first symbol into list
 # INPUT:  line with futher options (starts with whitespaces)
@@ -114,7 +137,7 @@ def _globalParse___stp_attributes(stp,dct):
     parse_bpdu     = Suppress('portfast bpduguard ')+ restOfLine
     parse_loop     = Suppress('loopguard ')         + restOfLine
     try:
-        return util.int_dict_parse(parse_bpdu, stp, 'bpdu', dct)
+        return util.int_dict_parse(parse_bpdu, stp, 'bpduguard', dct)
     except ParseException:
         pass
     try:
@@ -232,141 +255,127 @@ def _globalParse___line_attributes(config):
 # SAMPLE: ['example/10.164.132.1.conf','example/172.17.135.196.conf']
 # OUTPUT: global options dictionary
 # SAMPLE: see on top of this file
-def global_parse(filenames):
-    iface_global = {}
 
-    parse_enable_password = Suppress('enable' + MatchFirst(['secret','password'])) + Word(nums) + Suppress(restOfLine)
-    parse_active_service  = Suppress('service ')                     + restOfLine
-    parse_disable_service = Suppress('no service ')                  + restOfLine
-    parse_version         = Suppress('boot system flash bootflash:') + restOfLine
-    parse_username        = Suppress('username ')                    + restOfLine
-    parse_aaa             = Suppress('aaa')                          + restOfLine
-    parse_stp             = Suppress('spanning-tree ')               + restOfLine
-    parse_line            = Suppress('line ')                        + restOfLine
-    parse_ip_ssh          = Suppress('ip ssh ')                      + restOfLine
-    parse_ip_dhcp         = NotAny(White()) + Suppress('ip dhcp snooping')  + Optional(Suppress('vlan') + Word(nums) +
-                                                                                ZeroOrMore(Suppress(',') + Word(nums)))
-    parse_ip_arp          = NotAny(White()) + Suppress('ip arp inspection') + Suppress('vlan')          + Word(nums) +\
-                                                                                ZeroOrMore(Suppress(',') + Word(nums))
-    parse_ip              = NotAny(White()) + Suppress('ip') + MatchFirst(['finger', 'identd', 'source-route',
-                                                                           'bootp server', 'http server'])
+def global_parse(config,fname):
+    global iface_global
 
-    authentication = Suppress('authentication ') + restOfLine
-    authorization  = Suppress('authorization ')  + restOfLine
-    accounting     = Suppress('accounting ')     + restOfLine
+    global parse_enable_password 
+    global parse_active_service  
+    global parse_disable_service 
+    global parse_version         
+    global parse_username        
+    global parse_aaa             
+    global parse_stp             
+    global parse_line            
+    global parse_ip_ssh          
+    global parse_ip_dhcp         
+    global parse_ip_arp          
+    global parse_ip              
+    global authentication 
+    global authorization  
+    global accounting  
 
-    for fname in filenames:
-        with open(fname) as config:
-            count_authen, count_author, count_acc = 1, 1, 1
-            iface_global.update({fname: {'ip': {'dhcp_snooping': {'active': 'no'}, 'arp_inspection': {'active': 'no'},
-                                         'ssh': {}, 'active_service': []}, 'active_service': [], 'disable_service': [],
-                                         'aaa': {}, 'users': {}, 'line': {}, 'stp': {}}})
-            
-            #debug
-            #print(fname)
-            try:
-                for line in config:
-                    try:
-                        iface_global[fname]['active_service'].append(parse_active_service.parseString(line).asList()[-1])
-                        continue
-                    except ParseException:
-                        pass
-                    try:
-                        iface_global[fname]['disable_service'].append(parse_disable_service.parseString(line).asList()[-1])
-                        continue
-                    except ParseException:
-                        pass
-                    try:
-                        iface_global[fname]['version'] = parse_version.parseString(line).asList()[0]
-                        continue
-                    except ParseException:
-                        pass
-                    try:
-                        iface_global[fname]['enable_password'] = parse_enable_password.parseString(line).asList()[0]
-                        continue
-                    except ParseException:
-                        pass
-                    try:
-                        current_line = parse_username.parseString(line).asList()[-1]
-                        iface_global[fname]['users'].update(_globalParse___username_attributes(current_line))
-                        continue
-                    except ParseException:
-                        pass
-                    try:
-                        current_line = parse_aaa.parseString(line).asList()[-1]
-                        try:
-                            current_line = authentication.parseString(current_line).asList()[-1]
-                            iface_global[fname]['aaa'].setdefault('authentication',{})
-                            iface_global[fname]['aaa']['authentication'].update(_globalParse___aaa_attributes(current_line,'authentication',count_authen))
-                            count_authen += 1
-                            continue
-                        except ParseException:
-                            pass
-                        try:
-                            current_line = authorization.parseString(current_line).asList()[-1]
-                            iface_global[fname]['aaa'].setdefault('authorization',{})
-                            iface_global[fname]['aaa']['authorization'].update(_globalParse___aaa_attributes(current_line,'authorization',count_author))
-                            count_author += 1
-                            continue
-                        except ParseException:
-                            pass
-                        try:
-                            current_line = accounting.parseString(current_line).asList()[-1]
-                            iface_global[fname]['aaa'].setdefault('accounting',{})
-                            iface_global[fname]['aaa']['accounting'].update(_globalParse___aaa_attributes(current_line,'accounting',count_acc))
-                            count_acc += 1
-                            continue
-                        except ParseException:
-                            pass
-                    except ParseException:
-                        pass
-                    try:
-                        current_line = parse_ip_dhcp.parseString(line).asList()
-                        iface_global[fname]['ip']['dhcp_snooping']['active'] = 'yes'
-                        if current_line:
-                            iface_global[fname]['ip']['dhcp_snooping']['vlans']  = current_line
-                        continue
-                    except ParseException:
-                        pass
-                    try:
-                        current_line = parse_ip_arp.parseString(line).asList()
-                        iface_global[fname]['ip']['arp_inspection']['active'] = 'yes'
-                        if current_line:
-                            iface_global[fname]['ip']['arp_inspection']['vlans']  = current_line
-                        continue
-                    except ParseException:
-                        pass
-                    try:
-                        current_line = parse_ip_ssh.parseString(line).asList()[-1]
-                        iface_global[fname]['ip']['ssh'].update(_globalParse___ssh_attributes(current_line))
-                        continue
-                    except ParseException:
-                        pass
-                    try:
-                        iface_global[fname]['ip']['active_service'].append(parse_ip.parseString(line).asList()[-1])
-                        continue
-                    except ParseException:
-                        pass
-                    try:
-                        stp_str = parse_stp.parseString(line).asList()[-1]
-                        stp_line=_globalParse___stp_attributes(stp_str, iface_global[fname]['stp'])
-                        if stp_line!=0:
-                            iface_global[fname]['stp'].update(stp_line)
-                        continue
-                    except ParseException:
-                        pass
-                    try:
-                        while line != '!':
-                            item = parse_line.parseString(line).asList()[-1]
-                            iface_global[fname]['line'][item], next_line = _globalParse___line_attributes(config)
-                            line = next_line
-                        continue
-                    except ParseException:
-                        pass
-            except:
-                print('Error processing file: '+fname)
-                pass
-    return iface_global
+    count_authen, count_author, count_acc = 1, 1, 1
+    for line in config:
+        try:
+            iface_global[fname]['active_service'].append(parse_active_service.parseString(line).asList()[-1])
+            continue
+        except ParseException:
+            pass
+        try:
+            iface_global[fname]['disable_service'].append(parse_disable_service.parseString(line).asList()[-1])
+            continue
+        except ParseException:
+            pass
+        try:
+            iface_global[fname]['version'] = parse_version.parseString(line).asList()[0]
+            continue
+        except ParseException:
+            pass
+        try:
+            iface_global[fname]['enable_password'] = parse_enable_password.parseString(line).asList()[0]
+            continue
+        except ParseException:
+            pass
+        try:
+            current_line = parse_username.parseString(line).asList()[-1]
+            iface_global[fname]['users'].update(_globalParse___username_attributes(current_line))
+            continue
+        except ParseException:
+            pass
+        try:
+            current_line = parse_aaa.parseString(line).asList()[-1]
+        except ParseException:
+            pass
+        try:
+            current_line = authentication.parseString(line).asList()[-1]
+            iface_global[fname]['aaa'].setdefault('authentication',{})
+            iface_global[fname]['aaa']['authentication'].update(_globalParse___aaa_attributes(current_line,'authentication',count_authen))
+            count_authen += 1
+            continue
+        except ParseException:
+            pass
+        try:
+            current_line = authorization.parseString(line).asList()[-1]
+            iface_global[fname]['aaa'].setdefault('authorization',{})
+            iface_global[fname]['aaa']['authorization'].update(_globalParse___aaa_attributes(current_line,'authorization',count_author))
+            count_author += 1
+            continue
+        except ParseException:
+            pass
+        try:
+            current_line = accounting.parseString(line).asList()[-1]
+            iface_global[fname]['aaa'].setdefault('accounting',{})
+            iface_global[fname]['aaa']['accounting'].update(_globalParse___aaa_attributes(current_line,'accounting',count_acc))
+            count_acc += 1
+            continue
+        except:
+            pass
+        try:
+            current_line = parse_ip_dhcp.parseString(line).asList()
+            iface_global[fname]['ip']['dhcp_snooping']['active'] = 'yes'
+            if current_line:
+                iface_global[fname]['ip']['dhcp_snooping']['vlans']  = current_line
+        except ParseException:
+            pass
+        
+        
+        try:
+            current_line = parse_ip_arp.parseString(line).asList()
+            iface_global[fname]['ip']['arp_inspection']['active'] = 'yes'
+            if current_line:
+                iface_global[fname]['ip']['arp_inspection']['vlans']  = current_line
+            continue
+        except ParseException:
+            pass
+        try:
+            current_line = parse_ip_ssh.parseString(line).asList()[-1]
+            iface_global[fname]['ip']['ssh'].update(_globalParse___ssh_attributes(current_line))
+            continue
+        except ParseException:
+            pass
+        try:
+            iface_global[fname]['ip']['active_service'].append(parse_ip.parseString(line).asList()[-1])
+            continue
+        except ParseException:
+            pass
+        try:
+            stp_str = parse_stp.parseString(line).asList()[-1]
+            stp_line=_globalParse___stp_attributes(stp_str, iface_global[fname]['stp'])
+            if stp_line!=0:
+                iface_global[fname]['stp'].update(stp_line)
+            continue
+        except ParseException:
+            pass
+        try:
+            while line != '!':
+                item = parse_line.parseString(line).asList()[-1]
+                iface_global[fname]['line'][item], next_line = _globalParse___line_attributes(config)
+                line = next_line
+            continue
+        except ParseException:
+            pass
+
 
 
 # Interface attributes parsing
@@ -552,28 +561,31 @@ def __ifaceAttributes___port_sec_parse(port,dct):
 # SAMPLE: ['example/10.164.132.1.conf','example/172.17.135.196.conf']
 # OUTPUT: interface options dictionary
 # SAMPLE: see on top of this file
-def interface_parse(filenames):
-    iface_local = {}
+def interface_parse(config,fname):
+    global parse_iface
+    global iface_local
+    for line in config:
+        try:
+            item = parse_iface.parseString(line).asList()[-1]
+            iface_local[fname][item] = _interfaceParse___iface_attributes(config)
+        except ParseException:
+            pass      
+    return 0
 
-    parse_iface = Suppress('interface ') + restOfLine
-        # ip ARP INSPECTION LIMIT RATE, trust
+# main function 
+def parseconfigs(filenames):
+    global iface_local
+    global iface_global
+
+    
     for fname in filenames:
-        #debug
-        #print(fname)
         iface_local.update({fname: {}})
+        iface_global.update({fname: {'ip': {'dhcp_snooping': {'active': 'no'}, 'arp_inspection': {'active': 'no'},'ssh': {}, 'active_service': []}, 'active_service': [], 'disable_service': [],'aaa': {}, 'users': {}, 'line': {}, 'stp': {}}})
         with open(fname) as config:
-            try:
-                for line in config:
-                    try:
-                        item = parse_iface.parseString(line).asList()[-1]
-                        iface_local[fname][item] = _interfaceParse___iface_attributes(config)
-                    except ParseException:
-                        pass
-            except:
-                print('Error processing file: '+fname)
-                pass
-    return iface_local
-
+            global_parse(config,fname)
+            config.seek(0)
+            interface_parse(config,fname)
+    return 0
 
 # OUTPUT FOR DEBUG
 # filenames = []

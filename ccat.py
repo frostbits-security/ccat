@@ -10,6 +10,7 @@ vlanmap = parsing.vlanmap_parse(filenames.pop(0))
 interfaces = parsing.interface_parse(filenames[0])
 global_params = parsing.global_parse(filenames[0])
 
+
 # Scoring system. 
 # Determines severity of misconfiguration errors from 1 to 3 (critical)
 
