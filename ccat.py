@@ -31,7 +31,7 @@ for filename in filenames[0]:
     checks.mode.check           (interfaces[filename], result_dict)
     checks.stp.check            (interfaces[filename], result_dict)
 
-    # Need to change these functions like 3 above
+    # Need to change these functions like 4 above
     #
     # checks.storm_control.check  (interfaces[filename], result_dict)
     # checks.stp_global.check     (interfaces[filename], result_dict)
