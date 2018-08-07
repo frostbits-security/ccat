@@ -12,7 +12,7 @@ for filename in filenames[0]:
     interfaces = parsing.iface_local
     global_params = parsing.iface_global
     print('\n\nRESULTS FOR', filename)
-    result_dict = {'active_service': {}, 'disable_service': {}, 'enable_password': {}, 'users': {}, 'ip':
+    result_dict = {'services': {}, 'enable_password': {}, 'users': {}, 'ip':
         {'dhcp_snooping': {}, 'arp_inspection': {}, 'ssh': {}, 'active_service': {}}, 'line': {}}
 
     checks.services.check       (global_params[filename], result_dict)
