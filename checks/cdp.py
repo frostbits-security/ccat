@@ -17,7 +17,9 @@ def check(iface_dct,dct):
                 result['cdp'] = [0, 'BAD', 'CDP should not be enable']
         else:
             result['cdp'] = [0, 'BAD', 'CDP should not be enable']
-        dct.update({iface:{'CDP':result}})
+        # At first iteration creates new empty dictionary, add it to begin of the global iteration function for interface attributes check !!!
+        dct[iface] = {}
+        dct[iface].update(result)
     return dct
 
 

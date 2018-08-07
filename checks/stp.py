@@ -20,7 +20,7 @@ def check(iface_dct,dct):
                 result['portfast on trunk'] = [1, 'WARNING', 'Portfast is on the trunk mode port']
         else:
             result['portfast'] = [0, 'BAD', 'Portfast should be enable']
-        dct.update({each: {'STP': result}})
+        dct[each].update(result)
     return dct
 
 

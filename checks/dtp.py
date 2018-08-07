@@ -17,7 +17,7 @@ def check(iface_dct,dct):
                 result['dtp'] = [0, 'BAD', 'DTP should not be enable']
         else:
             result['dtp'] = [0, 'BAD', 'DTP should not be enable']
-        dct.update({iface:{'DTP':result}})
+        dct[iface].update(result)
     return dct
 
 
