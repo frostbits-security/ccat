@@ -2,6 +2,10 @@
 
 from termcolor import colored
 
+# Colored output for windows
+import colorama
+colorama.init()
+
 # Options display
 # INPUT:  result dictionary of 1 section, option full name
 # SAMPLE: {'dhcp_snooping': {'active': [0, 'DISABLED', 'Turn it off to prevent spoofing attack']}}
@@ -29,9 +33,9 @@ def display_options(dictionary, full_name):#, filename):
                 # print('{0:30} * {1:1}'.format(' ',dictionary[key][2]))
 
             elif dictionary[key][0] == 2:
-                print('{0:30} {1:1}'.format(' - '+full_name + key, '['+colored(dictionary[key][1],'white')+']'))
+                print('{0:30} {1:1}'.format(' - '+full_name + key, '['+colored(dictionary[key][1],'green')+']'))
                 # Output to file
-                # filename.write('{0:30} {1:1}'.format(' - '+full_name + key, '['+colored(dictionary[key][1],'white')+']\n'))
+                # filename.write('{0:30} {1:1}'.format(' - '+full_name + key, '['+colored(dictionary[key][1],'green')+']\n'))
 
         else:
             full_name += key + ' '
