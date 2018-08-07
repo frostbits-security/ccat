@@ -24,7 +24,7 @@ def check(global_params,results_dict):
                 results_dict['line'][line]['log_sync'] = [1,'DISABLED', 'You may want to enable it to prevent command'
                                                                         'typing interrupt']
         if 'exec_timeout' in global_params['line'][line]:
-            if        global_params['line'][line]['exec_timeout'] < 15:
+            if   0  < global_params['line'][line]['exec_timeout'] < 15:
                 results_dict['line'][line]['exec_timeout'] = [2, 'Exec-timeout is ' +
                                                               str(global_params['line'][line]['exec_timeout'])]
             elif 15 < global_params['line'][line]['exec_timeout'] <= 30:
@@ -35,6 +35,10 @@ def check(global_params,results_dict):
                 results_dict['line'][line]['exec_timeout'] = [0, 'Exec-timeout is ' +
                                                               str(global_params['line'][line]['exec_timeout']),
                                                               'Decrease it due to security reasons']
+            elif      global_params['line'][line]['exec_timeout'] == 0:
+                results_dict['line'][line]['exec_timeout'] = [0, 'Exec-timeout is ' +
+                                                              str(global_params['line'][line]['exec_timeout']),
+                                                              'Turn on exec timeout for this console']
         if 'privilege' in global_params['line'][line]:
             if global_params['line'][line]['privilege'] == '15':
                 results_dict['line'][line]['privilege'] = [1, 'High privilege level',
