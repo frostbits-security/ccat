@@ -29,4 +29,4 @@ def check(global_params,iface_params,vlanmap,allinterf,result_dict):
 			else:
 				mode=iface_snoop['mode']
 
-	return median(score), result_dict
+	return result_dict

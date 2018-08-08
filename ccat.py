@@ -20,11 +20,8 @@ for filename in filenames[0]:
     checks.ip_global.check      (global_params[filename], result_dict)
     checks.console_vty.check    (global_params[filename], result_dict)
 
-    # Need to unify these functions
-    #
-    # allinterf = 'something'
-    # checks.arp_inspection.check (global_params[filename], interfaces[filename], vlanmap, allinterf, result_dict)
-    # checks.dhcp_snooping.check  (global_params[filename], interfaces[filename], vlanmap, allinterf, result_dict)
+#    checks.arp_inspection.check (global_params[filename], interfaces[filename], vlanmap, args.args.disabled_interfaces, result_dict)
+    checks.dhcp_snooping.check  (global_params[filename], interfaces[filename], vlanmap, args.args.disabled_interfaces, result_dict)
 
     checks.cdp.check            (interfaces[filename], result_dict)
     checks.dtp.check            (interfaces[filename], result_dict)
