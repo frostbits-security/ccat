@@ -35,7 +35,7 @@ def check(global_params,results_dict):
     if 'vstack' in global_params['disable_service']:
         results_dict['services']['vstack'] = [2, 'DISABLED']
     else:
-        results_dict['services']['vstack'] = [0, 'ENABLED', 'Turn it off of block 4786 port to disable smart install'
-                                                         'configuration']
+        results_dict['services']['vstack'] = [0, 'ENABLED', 'Turn it off or block 4786 port (if "vstack" option'
+                                                            'unavailable) to disable smart install configuration']
 
     return results_dict
