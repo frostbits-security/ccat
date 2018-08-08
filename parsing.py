@@ -31,10 +31,11 @@ parse_active_service  = Suppress('service ')                     + restOfLine
 parse_disable_service = Suppress('no service ')                  + restOfLine
 parse_version         = Suppress('boot system flash bootflash:') + restOfLine
 parse_username        = Suppress('username ')                    + restOfLine
-parse_aaa             = Suppress('aaa')                          + restOfLine
+parse_aaa             = Suppress('aaa ')                          + restOfLine
 parse_stp             = Suppress('spanning-tree ')               + restOfLine
 parse_line            = Suppress('line ')                        + restOfLine
 parse_ip_ssh          = Suppress('ip ssh ')                      + restOfLine
+parse_vstack          = Suppress('no') + 'vstack'
 parse_ip_dhcp         = NotAny(White()) + Suppress('ip dhcp snooping')  + Optional(Suppress('vlan') + Word(nums) +ZeroOrMore(Suppress(',') + Word(nums)))
 parse_ip_arp          = NotAny(White()) + Suppress('ip arp inspection') + Suppress('vlan')          + Word(nums) +ZeroOrMore(Suppress(',') + Word(nums))
 parse_ip              = NotAny(White()) + Suppress('ip') + MatchFirst(['finger', 'identd', 'source-route','bootp server', 'http server'])
@@ -288,6 +289,11 @@ def global_parse(config,fname):
         except ParseException:
             pass
         try:
+            iface_global[fname]['disable_service'].append(parse_vstack.parseString(line).asList()[-1])
+            continue
+        except ParseException:
+            pass
+        try:
             iface_global[fname]['version'] = parse_version.parseString(line).asList()[0]
             continue
         except ParseException:
@@ -303,34 +309,34 @@ def global_parse(config,fname):
             continue
         except ParseException:
             pass
-        try:
-            current_line = parse_aaa.parseString(line).asList()[-1]
-        except ParseException:
-            pass
-        try:
-            current_line = authentication.parseString(line).asList()[-1]
-            iface_global[fname]['aaa'].setdefault('authentication',{})
-            iface_global[fname]['aaa']['authentication'].update(_globalParse___aaa_attributes(current_line,'authentication',count_authen))
-            count_authen += 1
-            continue
-        except ParseException:
-            pass
-        try:
-            current_line = authorization.parseString(line).asList()[-1]
-            iface_global[fname]['aaa'].setdefault('authorization',{})
-            iface_global[fname]['aaa']['authorization'].update(_globalParse___aaa_attributes(current_line,'authorization',count_author))
-            count_author += 1
-            continue
-        except ParseException:
-            pass
-        try:
-            current_line = accounting.parseString(line).asList()[-1]
-            iface_global[fname]['aaa'].setdefault('accounting',{})
-            iface_global[fname]['aaa']['accounting'].update(_globalParse___aaa_attributes(current_line,'accounting',count_acc))
-            count_acc += 1
-            continue
-        except:
-            pass
+        # try:
+        #     current_line = parse_aaa.parseString(line).asList()[-1]
+        #     try:
+        #         current_line = authentication.parseString(current_line).asList()[-1]
+        #         iface_global[fname]['aaa'].setdefault('authentication',{})
+        #         iface_global[fname]['aaa']['authentication'].update(_globalParse___aaa_attributes(current_line,'authentication',count_authen))
+        #         count_authen += 1
+        #         continue
+        #     except ParseException:
+        #         pass
+        #     try:
+        #         current_line = authorization.parseString(current_line).asList()[-1]
+        #         iface_global[fname]['aaa'].setdefault('authorization',{})
+        #         iface_global[fname]['aaa']['authorization'].update(_globalParse___aaa_attributes(current_line,'authorization',count_author))
+        #         count_author += 1
+        #         continue
+        #     except ParseException:
+        #         pass
+        #     try:
+        #         current_line = accounting.parseString(current_line).asList()[-1]
+        #         iface_global[fname]['aaa'].setdefault('accounting',{})
+        #         iface_global[fname]['aaa']['accounting'].update(_globalParse___aaa_attributes(current_line,'accounting',count_acc))
+        #         count_acc += 1
+        #         continue
+        #     except:
+        #         pass
+        # except ParseException:
+        #     pass
         try:
             current_line = parse_ip_dhcp.parseString(line).asList()
             iface_global[fname]['ip']['dhcp_snooping']['active'] = 'yes'
