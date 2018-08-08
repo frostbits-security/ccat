@@ -23,19 +23,19 @@ def check(global_params,results_dict):
     else:
         results_dict['services']['pad'] = [0, 'ENABLED', 'Turn it off to prevent potential unauthorized access']
     if 'udp-small-servers' in global_params['active_service']:
-        results_dict['services']['udp-small-servers']   = [0, 'ENABLED', 'Turn it off to prevent potential information'
+        results_dict['services']['udp-small-servers']   = [0, 'ENABLED', 'Turn it off to prevent potential information '
                                                                          'leak and DOS attack']
     else:
         results_dict['services']['udp-small-servers']   = [2, 'DISABLED']
     if 'tcp-small-servers' in global_params['active_service']:
-        results_dict['services']['tcp-small-servers']   = [0, 'ENABLED', 'Turn it off to prevent potential information'
+        results_dict['services']['tcp-small-servers']   = [0, 'ENABLED', 'Turn it off to prevent potential information '
                                                                          'leak and DOS attack']
     else:
         results_dict['services']['tcp-small-servers']   = [2, 'DISABLED']
     if 'vstack' in global_params['disable_service']:
         results_dict['services']['vstack'] = [2, 'DISABLED']
     else:
-        results_dict['services']['vstack'] = [0, 'ENABLED', 'Turn it off or block 4786 port (if "vstack" option'
+        results_dict['services']['vstack'] = [0, 'ENABLED', 'Turn it off or block 4786 port (if "vstack" option '
                                                             'unavailable) to disable smart install configuration']
 
     return results_dict

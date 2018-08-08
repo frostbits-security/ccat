@@ -9,10 +9,21 @@
 def check(global_params,results_dict):
 # enable password section
     if 'enable_password' in global_params:
-        if global_params['enable_password'] == '5':
-            results_dict['enable_password']['type'] = [2, 'Encrypted with MD5']
-        else:
-            results_dict['enable_password']['type'] = [0, 'Weak encryption', 'Change encryption type to MD5']
+        try:
+            if global_params['enable_password'][1]   == '5':
+                results_dict['enable_password']['type'] = [2, 'MD5']
+            elif global_params['enable_password'][1] == '7':
+                results_dict['enable_password']['type'] = [0, 'Weak encryption', 'Change encryption type to strong type']
+            elif global_params['enable_password'][1] == '4':
+                results_dict['enable_password']['type'] = [2, 'SHA-256']
+            elif global_params['enable_password'][1] == '8':
+                results_dict['enable_password']['type'] = [2, 'PBKDF2-SHA-256']
+            elif global_params['enable_password'][1] == '9':
+                results_dict['enable_password']['type'] = [2, 'scrypt']
+        except IndexError:
+            results_dict['enable_password']['type'] = [0, 'No encryption', 'Encrypt EXEC mode password']
+    else:
+        results_dict['enable_password']['type'] = [0, 'No password', 'Set password on EXEC mode']
 
 # console and vty lines section
     for line in global_params['line']:

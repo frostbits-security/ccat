@@ -26,7 +26,7 @@ iface_local={}
 parse_iface = Suppress('interface ') + restOfLine
 
 iface_global={}
-parse_enable_password = Suppress('enable' + MatchFirst(['secret','password'])) + Word(nums) + Suppress(restOfLine)
+parse_enable_password = Suppress('enable') + MatchFirst(['secret','password']) + Optional(Word(nums)+Suppress(White(exact=1))) + Suppress(restOfLine)
 parse_active_service  = Suppress('service ')                     + restOfLine
 parse_disable_service = Suppress('no service ')                  + restOfLine
 parse_version         = Suppress('boot system flash bootflash:') + restOfLine
@@ -299,7 +299,12 @@ def global_parse(config,fname):
         except ParseException:
             pass
         try:
-            iface_global[fname]['enable_password'] = parse_enable_password.parseString(line).asList()[0]
+            current_line = parse_enable_password.parseString(line).asList()
+            try:
+                if iface_global[fname]['enable_password'][0] != 'secret':
+                    iface_global[fname]['enable_password'] = current_line
+            except KeyError:
+                iface_global[fname]['enable_password'] = current_line
             continue
         except ParseException:
             pass
@@ -392,7 +397,7 @@ def global_parse(config,fname):
 def _interfaceParse___iface_attributes (config):
     iface_list = get_attributes(config)[0]
 
-    iface_dict = {'vlans':[], 'shutdown': 'no', 'dhcp_snoop': {'mode':'untrust'},'arp_insp':{'mode':'untrust'},'storm control': {}, 'port-security': {}}
+    iface_dict = {'shutdown': 'no', 'vlans':[], 'dhcp_snoop': {'mode':'untrust'},'arp_insp':{'mode':'untrust'},'storm control': {}, 'port-security': {}}
 
 
     vlan_num = Word(nums + '-') + ZeroOrMore(Suppress(',') + Word(nums + '-'))
@@ -407,10 +412,11 @@ def _interfaceParse___iface_attributes (config):
     parse_vlans       = Suppress('switchport ')               + Suppress(MatchFirst('access vlan ' +
                                                        ('trunk allowed vlan ' + Optional('add ')))) + vlan_num
 
-    for option in iface_list:
+    # Reserved options list is using due to 'shutdown' option is usually located at the end of the list, so it breaks cycle if interface is shutdown and function speed increases
+    for option in iface_list[::-1]:
         if option == 'shutdown':
-            iface_dict['shutdown'] = 'yes'
-            continue
+            iface_dict = {'shutdown': 'yes'}
+            break
         # if option == 'ip dhcp snooping trust':
         #     iface_dict['dhcp_snoop'] = 'trust'
         #     continue
