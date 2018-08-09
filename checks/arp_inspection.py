@@ -13,14 +13,17 @@ def check(global_params,iface_params,vlanmap,allinterf,result_dict):
 		if ('vlans' in global_params['ip']['arp_inspection']):
 			snooping_vlans=util.intify(global_params['ip']['arp_inspection']['vlans'])
 	else:
-		# print (colored('ARP inspection disabled','red',attrs=['bold']))
 		result_dict['ip']['arp_inspection']['active'] = [0,'DISABLED', 'Turn it on to prevent spoofing attack']
-		score.append(3)
 
 	# ifaces
 	if(enabled):
 		for i in iface_params:
-			iface_snoop=iface_params[i]['dhcp_snoop']
+			if not (i in result_dict):
+				result_dict[i]={}
+			try:
+				iface_snoop=iface_params[i]['arp_insp']
+			except:
+				continue
 			iface_vlans=[]
 			if 'vlans' in iface_params[i]:
 				iface_vlans=iface_params[i]['vlans']
