@@ -19,7 +19,7 @@ def check(iface_dct):
         else:
             result['portfast on trunk'] = [1, 'WARNING', 'A Portfast on trunk port']
     else:
-        result['portfast'] = [1, 'DISABLE', 'A portfast on access port should be enable']
+        result['portfast'] = [1, 'DISABLED', 'A portfast on access port should be enable']
 
     return result
 

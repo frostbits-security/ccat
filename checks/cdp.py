@@ -12,11 +12,11 @@ def check(iface_dct):
     result = {}
     if 'cdp' in iface_dct:
         if iface_dct['cdp'] == 'no':
-            result['cdp'] = [2, 'DISABLE', 'CDP should not be enable']
+            result['cdp'] = [2, 'DISABLED', 'CDP should not be enable']
         else:
-            result['cdp'] = [0, 'ENABLE', 'CDP should not be enable']
+            result['cdp'] = [0, 'ENABLED', 'CDP should not be enable']
     else:
-        result['cdp'] = [0, 'ENABLE', 'CDP should not be enable']
+        result['cdp'] = [0, 'ENABLED', 'CDP should not be enable']
 
     return result
 

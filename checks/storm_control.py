@@ -28,7 +28,7 @@ def check_storm_type(type_storm, result, flag):
         type_dct = iter_type(type_storm, type_dct)
     for each in type_dct:
         if type_dct[each] == 1:
-            result.update({each + ' storm':[2,'ENABLE',each.capitalize()+' storm-control should be turn on']})
+            result.update({each + ' storm':[2,'ENABLED',each.capitalize()+' storm-control should be turn on']})
 
     return result
 
@@ -81,11 +81,11 @@ def check(iface_dct):
         for each in ['broadcast storm','multicast storm','unicast storm']:
             if each not in dct:
                 if each=='unicast storm':
-                    dct.update({each: [1, 'DISABLE', each.capitalize() + ' storm-control should be turn on']})
+                    dct.update({each: [1, 'DISABLED', each.capitalize() + ' storm-control should be turn on']})
                 else:
-                    dct.update({each:[0,'DISABLE',each.capitalize()+' storm-control should be turn on']})
+                    dct.update({each:[0,'DISABLED',each.capitalize()+' storm-control should be turn on']})
     else:
-        dct.update({'Storm-control': [0, 'DISABLE', 'Storm-control should be enable']})
+        dct.update({'Storm-control': [0, 'DISABLED', 'Storm-control should be enable']})
         return dct
 
     return dct
