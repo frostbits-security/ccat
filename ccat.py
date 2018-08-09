@@ -43,9 +43,8 @@ for filename in filenames[0]:
     checks.users.check          (global_params[filename], result_dict)
     checks.ip_global.check      (global_params[filename], result_dict)
     checks.console_vty.check    (global_params[filename], result_dict)
-
-#    checks.arp_inspection.check (global_params[filename], interfaces[filename], vlanmap, args.args.disabled_interfaces, result_dict)
-#     checks.dhcp_snooping.check  (global_params[filename], interfaces[filename], vlanmap, args.args.disabled_interfaces, result_dict)
+    checks.arp_inspection.check (global_params[filename], interfaces[filename], vlanmap, args.args.disabled_interfaces, result_dict)
+    checks.dhcp_snooping.check  (global_params[filename], interfaces[filename], vlanmap, args.args.disabled_interfaces, result_dict)
 
     # checks.mode.check           (interfaces[filename], result_dict)
 
@@ -59,6 +58,7 @@ for filename in filenames[0]:
     for iface in interfaces[filename]:
         if 'loop' not in iface.lower() and 'vlan' not in iface.lower():
             result_dict[iface] = {}
+            result_dict[iface].update(checks.port_security.check(interfaces[filename][iface]))
             result_dict[iface].update(checks.storm_control.check(interfaces[filename][iface]))
             result_dict[iface].update(checks.cdp.check(interfaces[filename][iface]))
             result_dict[iface].update(checks.dtp.check(interfaces[filename][iface]))
