@@ -21,17 +21,22 @@ for filename in filenames[0]:
     checks.console_vty.check    (global_params[filename], result_dict)
 
 #    checks.arp_inspection.check (global_params[filename], interfaces[filename], vlanmap, args.args.disabled_interfaces, result_dict)
-    checks.dhcp_snooping.check  (global_params[filename], interfaces[filename], vlanmap, args.args.disabled_interfaces, result_dict)
+#     checks.dhcp_snooping.check  (global_params[filename], interfaces[filename], vlanmap, args.args.disabled_interfaces, result_dict)
 
-    checks.cdp.check            (interfaces[filename], result_dict)
-    checks.dtp.check            (interfaces[filename], result_dict)
-    checks.mode.check           (interfaces[filename], result_dict)
-    checks.stp.check            (interfaces[filename], result_dict)
+    # checks.mode.check           (interfaces[filename], result_dict)
+
 
     # Need to change these functions like 4 above
     #
     # checks.storm_control.check  (interfaces[filename], result_dict)
     # checks.stp_global.check     (interfaces[filename], result_dict)
+    for iface in interfaces[filename]:
+        if 'loop' not in iface.lower() and 'vlan' not in iface.lower():
+            result_dict[iface] = {}
+            result_dict[iface].update(checks.storm_control.check(interfaces[filename][iface]))
+            result_dict[iface].update(checks.cdp.check(interfaces[filename][iface]))
+            result_dict[iface].update(checks.dtp.check(interfaces[filename][iface]))
+            result_dict[iface].update(checks.stp.check(interfaces[filename][iface]))
 
     checks.display.display_results(result_dict)#, filename)
 
