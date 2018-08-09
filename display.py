@@ -1,7 +1,5 @@
 # Use display_results function for options display!
 
-# from termcolor import colored
-
 # Colored output for windows
 import colorama
 colorama.init()
@@ -21,6 +19,10 @@ class bcolors:
 
 def display_options(dictionary, full_name,file,outtype):
     for key in dictionary:
+        # skip empty dicts
+        if (dictionary[key]=={}) or (dictionary[key]==[]):
+            continue
+        # color assigning based on severity
         if type(dictionary[key]) is list:
             color=''
             htmlclr=''
@@ -33,13 +35,16 @@ def display_options(dictionary, full_name,file,outtype):
             if dictionary[key][0] == 2:
                 color=bcolors.GREEN
                 htmlclr='green'
+            # print value
             print('{0:30} {1:1}'.format(' - '+full_name + key, '['+(color+dictionary[key][1]+bcolors.END)+']'))
+            # writing to txt
             if(outtype and outtype=='txt'):
                 file.write('{0:30} {1:1}'.format(' - '+full_name + key, '['+dictionary[key][1]+']\n'))
                 try:
                     file.write('{0:30} * {1:1}'.format(' ', dictionary[key][2]+'\n'))
                 except:
                     pass
+            # writing to html
             elif(outtype):
                 file.write('<tr><td>' + ' - '+full_name + key + '</td>' + '<td style="font-weight: bold; color: '+htmlclr+';">['+dictionary[key][1]+ ']</td></tr>\n')
                 try:
@@ -50,6 +55,7 @@ def display_options(dictionary, full_name,file,outtype):
             # Output best practice to console
             # print('{0:30} * {1:1}'.format(' ',dictionary[key][2]))
         else:
+            # go deeper in dictionary structure
             full_name += key + ' '
             display_options(dictionary[key],full_name,file,outtype)
             full_name = ''
@@ -62,12 +68,17 @@ def display_options(dictionary, full_name,file,outtype):
 #          - dhcp_snooping active        [DISABLED]
 def display_results(dictionary,file,outtype):
     for key in dictionary:
+        # skip empty dicts
         if (dictionary[key]=={}) or (dictionary[key]==[]):
             continue
         full_name = ''
+        # print title
         print('\n',(bcolors.BLUE+key+bcolors.END))
+        # write to txt
         if(outtype and outtype=='txt'):
             file.write(key)
+        # write to html
         elif(outtype):
             file.write('<tr><td><font color="blue">'+key+'</font></td></tr>\n')
+        # parse dict
         display_options(dictionary[key],full_name,file,outtype)
