@@ -1,6 +1,6 @@
 # Use display_results function for options display!
 
-from termcolor import colored
+# from termcolor import colored
 
 # Colored output for windows
 import colorama
@@ -11,17 +11,25 @@ colorama.init()
 # SAMPLE: {'dhcp_snooping': {'active': [0, 'DISABLED', 'Turn it off to prevent spoofing attack']}}
 # OUTPUT: display colored options with its status
 # SAMPLE: - dhcp_snooping active        [DISABLED]
+class bcolors:
+    BLUE = '\033[1;34m'
+    GREEN = '\033[1;32m'
+    YELLOW = '\033[1;33m'
+    RED = '\033[1;31m'
+    END= '\033[0m'
+
+
 def display_options(dictionary, full_name):#, filename):
     for key in dictionary:
         if type(dictionary[key]) is list:
             color=''
             if dictionary[key][0] == 0:
-                color='red'
+                color=bcolors.RED
             if dictionary[key][0] == 1:
-                color='yellow'
+                color=bcolors.YELLOW
             if dictionary[key][0] == 2:
-                color='green'
-            print('{0:30} {1:1}'.format(' - '+full_name + key, '['+colored(dictionary[key][1],color)+']'))
+                color=bcolors.GREEN
+            print('{0:30} {1:1}'.format(' - '+full_name + key, '['+(color+dictionary[key][1]+bcolors.END)+']'))
             # Output to *.txt file
             # filename.write('{0:30} {1:1}'.format(' - '+full_name + key, '['+colored(dictionary[key][1],color)+']\n'))
             # filename.write('{0:30} * {1:1}'.format(' ', dictionary[key][2]+'\n'))
@@ -58,7 +66,7 @@ def display_results(dictionary):#, filename):
         if (dictionary[key]=={}) or (dictionary[key]==[]):
             continue
         full_name = ''
-        print('\n',colored(key,'blue'))
+        print('\n',(bcolors.BLUE+key+bcolors.END))
             # Output to *.txt file
             # fname.write(colored(key, 'blue') + '\n')
             # Output to *.html file
@@ -71,4 +79,3 @@ def display_results(dictionary):#, filename):
 # </body>
 # </html>
 # ''')
-
