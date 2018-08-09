@@ -8,16 +8,17 @@ from statistics import median
 def check(global_params,iface_params,vlanmap,allinterf,result_dict):
 	enabled=0
 	snooping_vlans=[]
+	result_dict['ip']['DHCP snooping']={}
 
 	### Globals
 	# Checking if dhcp snooping is enabled
 	if(global_params['ip']['dhcp_snooping']['active']=='yes'):
 		enabled=1
-		result_dict['ip']['dhcp_snooping']['active'] = [2,'ENABLED']
+		result_dict['ip']['DHCP snooping'] = [2,'ENABLED']
 		if ('vlans' in global_params['ip']['dhcp_snooping']):
 			snooping_vlans=util.intify(global_params['ip']['dhcp_snooping']['vlans'])
 	else:
-		result_dict['ip']['dhcp_snooping']['active'] = [0,'DISABLED', 'Enable this feature to prevent MITM and DHCP starvation attacks']
+		result_dict['ip']['DHCP snooping'] = [0,'DISABLED', 'Enable this feature to prevent MITM and DHCP starvation attacks']
 
 	### Interfaces
 	if(enabled):
@@ -39,8 +40,8 @@ def check(global_params,iface_params,vlanmap,allinterf,result_dict):
 				continue
 			else:
 				# create dictionary for output
-				if not ('dhcp snooping' in result_dict[i]):
-					result_dict[i]['dhcp snooping']={}
+				if not ('DHCP snooping' in result_dict[i]):
+					result_dict[i]['DHCP snooping']={}
 				mode=iface_snoop['mode']
 
 				if(mode=='untrust'):
@@ -53,13 +54,13 @@ def check(global_params,iface_params,vlanmap,allinterf,result_dict):
 						except:
 							chkres=int(iface_snoop['limit'].split(' ')[0])>100
 						if(chkres):
-							result_dict[i]['dhcp snooping']['rate limit'] = [1, 'Too high', 'DHCP starvation prevention is inefficient']
+							result_dict[i]['DHCP snooping']['rate limit'] = [1, 'Too high', 'DHCP starvation prevention is inefficient']
 					else:
-						result_dict[i]['dhcp snooping']['rate limit'] = [1, 'Not set', 'Needed to prevent DHCP starvation']
+						result_dict[i]['DHCP snooping']['rate limit'] = [1, 'Not set', 'Needed to prevent DHCP starvation']
 				# check if trusted interface is marked as trusted in vlamap
 				elif((mode=='trust') and vlanmap and iface_vlans):
 					if(set(vlanmap[2]).isdisjoint(iface_vlans)):
-						result_dict[i]['dhcp snooping']['vlans'] = [0,'Interface set as trusted, but vlanmap is different','This interface is not trusted according to vlanmap, but marked as trusted. Unauthorized DHCP server can work here']
+						result_dict[i]['DHCP snooping']['vlans'] = [0,'Interface set as trusted, but vlanmap is different','This interface is not trusted according to vlanmap, but marked as trusted. Unauthorized DHCP server can work here']
 				else:
 					pass
 	return result_dict
