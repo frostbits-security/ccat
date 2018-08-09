@@ -1,2 +1,4 @@
 __pycache__
 example/*.conf
+out.txt
+out.html
