@@ -1,12 +1,25 @@
 #!/usr/bin/env python3
 import args
 import parsing
+import display
 import checks
 from checks import *
 
 filenames = args.getfilenames()
 print(args.args)
 vlanmap = parsing.vlanmap_parse(filenames.pop(0))
+outtype=None
+file=None
+
+if(args.args.o):
+    file=open(args.args.o,'w')
+    if(args.args.o[-4:]=='html'):
+        outtype='html'
+    else:
+        outtype='txt'
+if(outtype=='html'):
+        file.write("<!doctype html><html><head></head><body><table>")
+
 for filename in filenames[0]:
     parsing.parseconfigs(filename)
     interfaces = parsing.iface_local
@@ -37,8 +50,18 @@ for filename in filenames[0]:
             result_dict[iface].update(checks.cdp.check(interfaces[filename][iface]))
             result_dict[iface].update(checks.dtp.check(interfaces[filename][iface]))
             result_dict[iface].update(checks.stp.check(interfaces[filename][iface]))
+    
+    if(outtype and outtype=='txt'):
+        file.write(key)
+    elif(outtype):
+        file.write('<tr><td style="color:blue; font-size: 2em;">' + filename + '</td><td></td></tr>\n')
+    display.display_results(result_dict,file,outtype)
 
-    checks.display.display_results(result_dict)#, filename)
+if(outtype=='html'):
+    file.write('<tr><td>&nbsp;</td></tr>\n</table></body></html>')
+    
+if(outtype):
+    file.close()
 
 # Do we really need scoring system ?
 #

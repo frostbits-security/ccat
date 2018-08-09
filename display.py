@@ -19,30 +19,39 @@ class bcolors:
     END= '\033[0m'
 
 
-def display_options(dictionary, full_name):#, filename):
+def display_options(dictionary, full_name,file,outtype):
     for key in dictionary:
         if type(dictionary[key]) is list:
             color=''
+            htmlclr=''
             if dictionary[key][0] == 0:
                 color=bcolors.RED
+                htmlclr='red'
             if dictionary[key][0] == 1:
                 color=bcolors.YELLOW
+                htmlclr='#ff7f00'
             if dictionary[key][0] == 2:
                 color=bcolors.GREEN
+                htmlclr='green'
             print('{0:30} {1:1}'.format(' - '+full_name + key, '['+(color+dictionary[key][1]+bcolors.END)+']'))
-            # Output to *.txt file
-            # filename.write('{0:30} {1:1}'.format(' - '+full_name + key, '['+colored(dictionary[key][1],color)+']\n'))
-            # filename.write('{0:30} * {1:1}'.format(' ', dictionary[key][2]+'\n'))
-
-            # Output to *.html file
-            # filename.write('<tr><td>' + ' - '+full_name + key + '</td>' + '<td>[<font color="'+color+'">'+dictionary[key][1]+']' + '</font></td></tr>\n')
-            # filename.write('<tr><td></td>' + '<td>*'+dictionary[key][2]+'</td></tr>\n')
+            if(outtype and outtype=='txt'):
+                file.write('{0:30} {1:1}'.format(' - '+full_name + key, '['+dictionary[key][1]+']\n'))
+                try:
+                    file.write('{0:30} * {1:1}'.format(' ', dictionary[key][2]+'\n'))
+                except:
+                    pass
+            elif(outtype):
+                file.write('<tr><td>' + ' - '+full_name + key + '</td>' + '<td style="font-weight: bold; color: '+htmlclr+';">['+dictionary[key][1]+ ']</td></tr>\n')
+                try:
+                    file.write('<tr><td></td>' + '<td>*'+dictionary[key][2]+'</td></tr>\n')
+                except:
+                    pass
 
             # Output best practice to console
             # print('{0:30} * {1:1}'.format(' ',dictionary[key][2]))
         else:
             full_name += key + ' '
-            display_options(dictionary[key],full_name)#, filename)
+            display_options(dictionary[key],full_name,file,outtype)
             full_name = ''
 
 # Results display
@@ -51,31 +60,14 @@ def display_options(dictionary, full_name):#, filename):
 # OUTPUT: colored separated options display
 # SAMPLE: ip
 #          - dhcp_snooping active        [DISABLED]
-def display_results(dictionary):#, filename):
-    # with open(filename + ".html", 'w') as fname:
-    # make 1 tab to next uncommented lines, uncomment the line above and next commented lines to write results in file
-#         fname.write(
-# '''<!doctype html>
-# <html>
-# <head>
-# </head>
-# <body>
-# <table>
-# ''')
+def display_results(dictionary,file,outtype):
     for key in dictionary:
         if (dictionary[key]=={}) or (dictionary[key]==[]):
             continue
         full_name = ''
         print('\n',(bcolors.BLUE+key+bcolors.END))
-            # Output to *.txt file
-            # fname.write(colored(key, 'blue') + '\n')
-            # Output to *.html file
-            # fname.write('<tr><td><font color="blue">'+key+'</font></td></tr>\n')
-
-        display_options(dictionary[key],full_name)#, fname)
-            # fname.write('<tr><td>&nbsp;</td></tr>\n')
-#         fname.write(
-# '''</table>
-# </body>
-# </html>
-# ''')
+        if(outtype and outtype=='txt'):
+            file.write(key)
+        elif(outtype):
+            file.write('<tr><td><font color="blue">'+key+'</font></td></tr>\n')
+        display_options(dictionary[key],full_name,file,outtype)
