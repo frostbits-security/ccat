@@ -42,9 +42,9 @@ def check(global_params,iface_params,vlanmap,allinterf,result_dict):
 						except:
 							chkres=int(iface_snoop['limit'].split(' ')[0])>100
 						if(chkres):
-							result_dict[i]['dhcp snooping']['rate limit'] = [1, 'Packet rate limit is too high']
+							result_dict[i]['dhcp snooping']['rate limit'] = [1, 'Too high']
 					else:
-						result_dict[i]['dhcp snooping']['rate limit'] = [1, 'No DHCP snooping packet rate limit']
+						result_dict[i]['dhcp snooping']['rate limit'] = [1, 'Not set']
 
 				elif(mode=='trust'):
 					if(vlanmap and iface_vlans):
