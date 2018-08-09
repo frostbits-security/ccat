@@ -14,40 +14,24 @@ colorama.init()
 def display_options(dictionary, full_name):#, filename):
     for key in dictionary:
         if type(dictionary[key]) is list:
+            color=''
             if dictionary[key][0] == 0:
-                print('{0:30} {1:1}'.format(' - '+full_name + key, '['+colored(dictionary[key][1],'red')+']'))
-                # Output to *.txt file
-                # filename.write('{0:30} {1:1}'.format(' - '+full_name + key, '['+colored(dictionary[key][1],'red')+']\n'))
-                # filename.write('{0:30} * {1:1}'.format(' ', dictionary[key][2]+'\n'))
+                color='red'
+            if dictionary[key][0] == 1:
+                color='yellow'
+            if dictionary[key][0] == 2:
+                color='green'
+            print('{0:30} {1:1}'.format(' - '+full_name + key, '['+colored(dictionary[key][1],color)+']'))
+            # Output to *.txt file
+            # filename.write('{0:30} {1:1}'.format(' - '+full_name + key, '['+colored(dictionary[key][1],color)+']\n'))
+            # filename.write('{0:30} * {1:1}'.format(' ', dictionary[key][2]+'\n'))
 
-                # Output to *.html file
-                # filename.write('<tr><td>' + ' - '+full_name + key + '</td>' + '<td>[<font color="red">'+dictionary[key][1]+']' + '</font></td></tr>\n')
-                # filename.write('<tr><td></td>' + '<td>*'+dictionary[key][2]+'</td></tr>\n')
+            # Output to *.html file
+            # filename.write('<tr><td>' + ' - '+full_name + key + '</td>' + '<td>[<font color="'+color+'">'+dictionary[key][1]+']' + '</font></td></tr>\n')
+            # filename.write('<tr><td></td>' + '<td>*'+dictionary[key][2]+'</td></tr>\n')
 
-                # Output best practice to console
-                # print('{0:30} * {1:1}'.format(' ',dictionary[key][2]))
-
-            elif dictionary[key][0] == 1:
-                print('{0:30} {1:1}'.format(' - '+full_name + key, '['+colored(dictionary[key][1],'yellow')+']'))
-                # Output to *.txt file
-                # filename.write('{0:30} {1:1}'.format(' - '+full_name + key, '['+colored(dictionary[key][1],'yellow')+']\n'))
-                # filename.write('{0:30} * {1:1}'.format(' ', dictionary[key][2]+'\n'))
-
-                # Output to *.html file
-                # filename.write('<tr><td>' + ' - '+full_name + key + '</td>' + '<td>[<font color="orange">'+dictionary[key][1]+']' + '</font></td></tr>\n')
-                # filename.write('<tr><td></td>' + '<td>*'+dictionary[key][2]+'</td></tr>\n')
-
-                # Output best practice to console
-                # print('{0:30} * {1:1}'.format(' ',dictionary[key][2]))
-
-            elif dictionary[key][0] == 2:
-                print('{0:30} {1:1}'.format(' - '+full_name + key, '['+colored(dictionary[key][1],'green')+']'))
-                # Output to *.txt file
-                # filename.write('{0:30} {1:1}'.format(' - '+full_name + key, '['+colored(dictionary[key][1],'green')+']\n'))
-
-                # Output to *.html file
-                # filename.write('<tr><td>' + ' - '+full_name + key + '</td>' + '<td>[<font color="green">'+dictionary[key][1]+']' + '</font></td></tr>\n')
-
+            # Output best practice to console
+            # print('{0:30} * {1:1}'.format(' ',dictionary[key][2]))
         else:
             full_name += key + ' '
             display_options(dictionary[key],full_name)#, filename)
@@ -71,6 +55,8 @@ def display_results(dictionary):#, filename):
 # <table>
 # ''')
     for key in dictionary:
+        if (dictionary[key]=={}) or (dictionary[key]==[]):
+            continue
         full_name = ''
         print('\n',colored(key,'blue'))
             # Output to *.txt file
