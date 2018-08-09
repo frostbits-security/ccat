@@ -2,8 +2,6 @@
 # DHCP Snooping check
 
 import util
-from termcolor import colored
-from statistics import median
 
 def check(global_params,iface_params,vlanmap,allinterf,result_dict):
 	enabled=0
