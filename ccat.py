@@ -52,14 +52,14 @@ for filename in filenames[0]:
             result_dict[iface].update(checks.stp.check(interfaces[filename][iface]))
     
     if(outtype and outtype=='txt'):
-        file.write(key)
+        file.write('\n\n'+filename+':\n\n')
     elif(outtype):
-        file.write('<tr><td style="color:blue; font-size: 2em;">' + filename + '</td><td></td></tr>\n')
+        file.write('<tr><td style="color:blue; font-size: 2em;">' + filename + ':</td><td></td></tr>\n')
     display.display_results(result_dict,file,outtype)
 
 if(outtype=='html'):
     file.write('<tr><td>&nbsp;</td></tr>\n</table></body></html>')
-    
+
 if(outtype):
     file.close()
 
