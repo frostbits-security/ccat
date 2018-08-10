@@ -37,7 +37,7 @@ def getfilenames():
                                      epilog='Usage example:\n  ccat  smth/config_folder -vl smth/vlanmap_folder -v')
     parser.add_argument("config", type=str, nargs='?', default=0, help="full path to the folder with config(s)")
     parser.add_argument("-vl", type=str, help="path to vlanmap (file that determine how critical is certain vlan, you can find example in 'example' folder)")
-    parser.add_argument("-o", type=str, help="path to output file (*.html and *.txt are supported)")
+    parser.add_argument("-o", type=str, help="path to output html files directory")
     parser.add_argument("-v", action='store_true', help="show detailed info about found issues")
     parser.add_argument("--no-ipv6", action='store_true', help="if you're not using IPv6")
     parser.add_argument("--disabled-interfaces", action='store_true', help="check interfaces even if they are turned off")
