@@ -14,6 +14,7 @@ print(args.args)
 # get vlanmap
 vlanmap = parsing.vlanmap_parse(filenames.pop(0))
 
+
 config_directory = None
 html_directory   = None
 html_file        = None
@@ -59,7 +60,6 @@ for filename in filenames[0]:
     # checks.dhcp_snooping.check  (global_params[filename], interfaces[filename], vlanmap, args.args.disabled_interfaces, result_dict)
 
 
-
     # Need to change these functions like others below
     #
     # checks.stp_global.check     (interfaces[filename], result_dict)
@@ -78,7 +78,7 @@ for filename in filenames[0]:
     # processing results
     display.display_results(result_dict,html_file)
 
- Do we really need scoring system ?
+# Do we really need scoring system ?
 #
 # Scoring system.
 # Determines severity of misconfiguration errors from 1 to 3 (critical)
