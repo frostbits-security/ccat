@@ -12,6 +12,6 @@ def intify(strlist):
 
 def int_dict_parse(parse_meth,featur_str,name,featur_dict):
 
-    value = parse_meth.parseString(featur_str).asList()[0]
+    value = parse_meth.parseString(featur_str).asList()
     featur_dict[name] = value
     return featur_dict

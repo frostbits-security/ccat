@@ -52,6 +52,8 @@ for filename in filenames[0]:
     checks.users.check          (global_params[filename], result_dict)
     checks.ip_global.check      (global_params[filename], result_dict)
     checks.console_vty.check    (global_params[filename], result_dict)
+    result,bpdu_flag=checks.stp_global.check(global_params[filename])
+    result_dict['Spanning-tree'].update(result)
 
     # Need to divide these checks to interfaces and global options (remain global checks here and add interface checks to
     # cycle below) to avoid more than 1 interfaces iteration (there are 2 here and 1 below now, thats not good for speed)
@@ -73,7 +75,9 @@ for filename in filenames[0]:
             result_dict[iface].update(checks.storm_control.check(interfaces[filename][iface]))
             result_dict[iface].update(checks.cdp.check          (interfaces[filename][iface]))
             result_dict[iface].update(checks.dtp.check          (interfaces[filename][iface]))
-            result_dict[iface].update(checks.stp.check          (interfaces[filename][iface]))
+            stp_result=checks.stp.check(interfaces[filename][iface],bpdu_flag)
+            if stp_result!=0:
+                result_dict[iface].update(stp_result)
 
     # processing results
     display.display_results(result_dict,html_file)
