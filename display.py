@@ -33,7 +33,7 @@ def display_options(dictionary, full_name, html):
                 color   = bcolors.GREEN
                 htmlclr = 'green'
             # Print option and status to console
-            print('{0:30} {1:1}'.format(' - '+full_name + key, '['+(color+dictionary[key][1]+bcolors.END)+']'))
+            print('{0:50} {1:1}'.format(' - '+full_name + key, '['+(color+dictionary[key][1]+bcolors.END)+']'))
             # Print option and status to html file if needed
             if html:
                 html.write('<tr><td>' + ' - '+full_name + key + '</td>' + '<td style="font-weight: bold; color: '+htmlclr+';">['+dictionary[key][1]+ ']</td></tr>\n')

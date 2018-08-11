@@ -41,7 +41,7 @@ for filename in filenames[0]:
     # getting parse output
     interfaces = parsing.iface_local
     global_params = parsing.iface_global
-    
+
     # prepare results dictionary
     print('\n\nRESULTS FOR', filename)
     result_dict = {'services': {}, 'enable_password': {}, 'users': {}, 'ip':
@@ -75,12 +75,14 @@ for filename in filenames[0]:
             result_dict[iface].update(checks.storm_control.check(interfaces[filename][iface]))
             result_dict[iface].update(checks.cdp.check          (interfaces[filename][iface]))
             result_dict[iface].update(checks.dtp.check          (interfaces[filename][iface]))
-            stp_result=checks.stp.check(interfaces[filename][iface],bpdu_flag)
+            stp_result=checks.stp.check                (interfaces[filename][iface],bpdu_flag)
             if stp_result!=0:
                 result_dict[iface].update(stp_result)
+            if port_result!=0:
+                result_dict[iface].update(port_result)
 
     # processing results
-    # display.display_results(result_dict,html_file)
+    display.display_results(result_dict,html_file)
 
 # Do we really need scoring system ?
 #
