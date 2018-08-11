@@ -54,17 +54,19 @@ def check(iface_dct):
                     lvl_list = lvl_list.split()
                     if len(lvl_list) == 3:
                         if lvl_list[1] > lvl_list[2] or lvl_list[1] != lvl_list[2]:
-                            if int(lvl_list[1]) == 0 or int(lvl_list[2]) == 0 or int(
-                                    lvl_list[1]) == 100 or int(lvl_list[2]) == 100 or int(
-                                lvl_list[1]) == 1 or int(lvl_list[2]) == 1:
+                            if float(lvl_list[1]) == 0 or float(lvl_list[2]) == 0 or float(
+                                    lvl_list[1]) == 100 or float(lvl_list[2]) == 100 or float(
+                                lvl_list[1]) == 1 or float(lvl_list[2]) == 1:
                                 dct.update({'storm level': [0,'INCORRECT','Storm-control level should be less than 80(0.8)']})
                             else:
                                 dct.update({'storm level':storm_lvl_check(lvl_list[1])})
                         else:
                             dct.update({'storm level': [0,'INCORRECT','Storm-control level shouldn`t be equal']})
                     else:
-                        if int(lvl_list[1]) == 0 or int(lvl_list[1]) == 100 or int(lvl_list[1]) == 1:
+                        if float(lvl_list[1]) == 0 or float(lvl_list[1]) == 100 or float(lvl_list[1]) == 1:
                             dct.update({'storm level':[0,'Bad','Storm-control level shouldn`t be equal 1(100) or 0']})
+                        else:
+                            dct.update({'storm level': storm_lvl_check(lvl_list[1])})
                 else:
                     dct.update({'storm level':storm_lvl_check(lvl_list)})
 
