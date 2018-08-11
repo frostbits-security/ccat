@@ -41,7 +41,7 @@ for filename in filenames[0]:
     # getting parse output
     interfaces = parsing.iface_local
     global_params = parsing.iface_global
-    print(interfaces)
+    
     # prepare results dictionary
     print('\n\nRESULTS FOR', filename)
     result_dict = {'services': {}, 'enable_password': {}, 'users': {}, 'ip':
