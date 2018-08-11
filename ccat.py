@@ -2,7 +2,7 @@
 import os
 import args
 import parsing
-import display
+# import display
 import checks
 from checks import *
 
@@ -41,11 +41,11 @@ for filename in filenames[0]:
     # getting parse output
     interfaces = parsing.iface_local
     global_params = parsing.iface_global
-
+    print(interfaces)
     # prepare results dictionary
     print('\n\nRESULTS FOR', filename)
     result_dict = {'services': {}, 'enable_password': {}, 'users': {}, 'ip':
-        {'dhcp_snooping': {}, 'arp_inspection': {}, 'ssh': {}, 'active_service': {}}, 'line': {}}
+        {'dhcp_snooping': {}, 'arp_inspection': {}, 'ssh': {}, 'active_service': {}}, 'line': {},'Spanning-tree':{}}
 
     # checks
     checks.services.check       (global_params[filename], result_dict)
@@ -64,7 +64,7 @@ for filename in filenames[0]:
 
     # Need to change these functions like others below
     #
-    # checks.stp_global.check     (interfaces[filename], result_dict)
+
     # checks.mode.check           (interfaces[filename], result_dict)
 
     # interface-only checks
@@ -80,7 +80,7 @@ for filename in filenames[0]:
                 result_dict[iface].update(stp_result)
 
     # processing results
-    display.display_results(result_dict,html_file)
+    # display.display_results(result_dict,html_file)
 
 # Do we really need scoring system ?
 #
