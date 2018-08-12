@@ -2,7 +2,7 @@
 import os
 import args
 import parsing
-# import display
+import display
 import checks
 from checks import *
 
@@ -44,15 +44,16 @@ for filename in filenames[0]:
 
     # prepare results dictionary
     print('\n\nRESULTS FOR', filename)
-    result_dict = {'services': {}, 'enable_password': {}, 'users': {}, 'ip':
-        {'dhcp_snooping': {}, 'arp_inspection': {}, 'ssh': {}, 'active_service': {}}, 'line': {},'Spanning-tree':{}}
+    result_dict = {'Services': {}, 'EXEC password': {}, 'Users': {}, 'IP options':
+        {'dhcp_snooping': {}, 'arp_inspection': {}, 'SSH': {}, 'service': {}}, 'Lines': {},'Spanning-tree':{}}
 
-    # checks
-    checks.services.check       (global_params[filename], result_dict)
-    checks.users.check          (global_params[filename], result_dict)
-    checks.ip_global.check      (global_params[filename], result_dict)
-    checks.console_vty.check    (global_params[filename], result_dict)
-    result,bpdu_flag=checks.stp_global.check(global_params[filename])
+    # global checks
+    result_dict.update(checks.services   .check(global_params[filename]))
+    result_dict.update(checks.users      .check(global_params[filename]))
+    result_dict.update(checks.ip_global  .check(global_params[filename]))
+    result_dict.update(checks.console_vty.check(global_params[filename]))
+
+    result,bpdu_flag = checks.stp_global.check(global_params[filename])
     result_dict['Spanning-tree'].update(result)
 
     # Need to divide these checks to interfaces and global options (remain global checks here and add interface checks to
@@ -62,11 +63,6 @@ for filename in filenames[0]:
     # checks.dhcp_snooping.check  (global_params[filename], interfaces[filename], vlanmap, args.args.disabled_interfaces, result_dict)
 
 
-    # Need to change these functions like others below
-    #
-
-    # checks.mode.check           (interfaces[filename], result_dict)
-
     # interface-only checks
     for iface in interfaces[filename]:
         if 'loop' not in iface.lower() and 'vlan' not in iface.lower() and interfaces[filename][iface]['shutdown']=='no':
@@ -75,11 +71,16 @@ for filename in filenames[0]:
             result_dict[iface].update(checks.storm_control.check(interfaces[filename][iface]))
             result_dict[iface].update(checks.cdp.check          (interfaces[filename][iface]))
             result_dict[iface].update(checks.dtp.check          (interfaces[filename][iface]))
-            stp_result=checks.stp.check                (interfaces[filename][iface],bpdu_flag)
+
+            stp_result  = checks.stp.check(interfaces[filename][iface],bpdu_flag)
+            port_result = checks.port_sec.check(interfaces[filename])
             if stp_result!=0:
                 result_dict[iface].update(stp_result)
             if port_result!=0:
                 result_dict[iface].update(port_result)
+
+            # Trunk/access check
+            # checks.mode.check           (interfaces[filename], result_dict)
 
     # processing results
     display.display_results(result_dict,html_file)

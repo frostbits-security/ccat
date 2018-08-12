@@ -165,6 +165,8 @@ def _globalParse___ssh_attributes(line):
 
     if result.option == 'logging':
         ssh_dict['logging-events'] = 'yes'
+    elif result.option == 'authentication-retries':
+        ssh_dict['authentication_retries'] = result.value.split()[0]
     elif result.option == 'port':
         ssh_dict['port_rotary'] = result.value.split()[0]
     elif result.option == 'maxstartups':
@@ -184,7 +186,7 @@ def _globalParse___ssh_attributes(line):
 # SAMPLE: {'log_syng': 'no', 'access-class': {'name': 'ssh-in', 'type': 'in'}, 'privilege': '15'}, 'line vty 5 15'
 def _globalParse___line_attributes(config):
     line_list, next_line = get_attributes(config)
-    line_dict = {'log_syng': 'no', 'access-class': {}}
+    line_dict = {'log_syng': 'no', 'no_exec': 'no', 'access-class': {}}
 
     parse_login_type   = Suppress('login ' + Optional('authentication ')) + restOfLine
     parse_exec_timeout = Suppress('exec-timeout ')     + restOfLine
@@ -199,6 +201,9 @@ def _globalParse___line_attributes(config):
     for option in line_list:
         if option == 'logging synchronous':
             line_dict['log_syng'] = 'yes'
+            continue
+        if option == 'no exec':
+            line_dict['no_exec'] = 'yes'
             continue
         try:
             item = parse_exec_timeout.parseString(option).asList()[-1]
