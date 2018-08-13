@@ -56,8 +56,8 @@ def get_attributes (config):
     options_list = []
     option = White(exact = 1) + Suppress(Optional(White())) + restOfLine
     next_line = config.readline()
-    option_parse = option.parseString(next_line)
     try:
+        option_parse = option.parseString(next_line)
         while option_parse[0] == ' ':
             options_list.append(option_parse[-1])
             next_line = config.readline()
