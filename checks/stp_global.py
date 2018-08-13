@@ -30,6 +30,6 @@ def check(global_dct):
             flag=2
         elif 'bpduguard' in global_dct['stp']:
             flag=1
-        print(global_dct['stp'])
+
         return (result,flag)
 
