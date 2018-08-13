@@ -31,14 +31,15 @@ parse_active_service  = Suppress('service ')                     + restOfLine
 parse_disable_service = Suppress('no service ')                  + restOfLine
 parse_version         = Suppress('boot system flash bootflash:') + restOfLine
 parse_username        = Suppress('username ')                    + restOfLine
-parse_aaa             = Suppress('aaa ')                          + restOfLine
+parse_aaa             = Suppress('aaa ')                         + restOfLine
 parse_stp             = Suppress('spanning-tree ')               + restOfLine
 parse_line            = Suppress('line ')                        + restOfLine
 parse_ip_ssh          = Suppress('ip ssh ')                      + restOfLine
 parse_vstack          = Suppress('no') + 'vstack'
 parse_ip_dhcp         = NotAny(White()) + Suppress('ip dhcp snooping')  + Optional(Suppress('vlan') + Word(nums) +ZeroOrMore(Suppress(',') + Word(nums)))
 parse_ip_arp          = NotAny(White()) + Suppress('ip arp inspection') + Suppress('vlan')          + Word(nums) +ZeroOrMore(Suppress(',') + Word(nums))
-parse_ip              = NotAny(White()) + Suppress('ip') + MatchFirst(['finger', 'identd', 'source-route','bootp server', 'http server'])
+parse_ip_service      = NotAny(White()) + Suppress('ip') + MatchFirst(['finger', 'identd', 'source-route','bootp server'])
+parse_ip_http         = NotAny(White()) + Suppress('ip http ')   + restOfLine
 authentication = Suppress('authentication ') + restOfLine
 authorization  = Suppress('authorization ')  + restOfLine
 accounting     = Suppress('accounting ')     + restOfLine
@@ -179,6 +180,26 @@ def _globalParse___ssh_attributes(line):
     return ssh_dict
 
 
+# Http options parsing
+# INPUT:  line with http option
+# SAMPLE: ip http secure-server
+# OUTPUT: http option dictionary
+# SAMPLE: {'type': 'HTTPS'}
+def _globalParse___http_attributes(line):
+    http_dict = {}
+
+    if line == 'server':
+        http_dict['type'] = 'http'
+    elif line == 'secure-server':
+        http_dict['type'] = 'https'
+    elif line.split()[0] == 'max-connections':
+        http_dict['max_connections'] = line.split()[-1]
+    elif line.split()[0] == 'port':
+        http_dict['port'] = line.split()[-1]
+
+    return http_dict
+
+
 # Console and vty line options parsing
 # INPUT:  line with console or vty line name
 # SAMPLE: vty 0 4
@@ -276,8 +297,9 @@ def global_parse(config,fname):
     global parse_ip_ssh          
     global parse_ip_dhcp         
     global parse_ip_arp          
-    global parse_ip              
-    global authentication 
+    global parse_ip_service
+    global parse_ip_http
+    global authentication
     global authorization  
     global accounting  
 
@@ -371,7 +393,13 @@ def global_parse(config,fname):
         except ParseException:
             pass
         try:
-            iface_global[fname]['ip']['active_service'].append(parse_ip.parseString(line).asList()[-1])
+            iface_global[fname]['ip']['active_service'].append(parse_ip_service.parseString(line).asList()[-1])
+            continue
+        except ParseException:
+            pass
+        try:
+            current_line = parse_ip_http.parseString(line).asList()[-1]
+            iface_global[fname]['ip']['http'].update(_globalParse___http_attributes(current_line))
             continue
         except ParseException:
             pass
@@ -596,7 +624,7 @@ def parseconfigs(filename):
 
     
     iface_local = {filename: {}}
-    iface_global = {filename: {'ip': {'dhcp_snooping': {'active': 'no'}, 'arp_inspection': {'active': 'no'},'ssh': {}, 'active_service': []}, 'active_service': [], 'disable_service': [],'aaa': {}, 'users': {}, 'line': {}, 'stp': {}}}
+    iface_global = {filename: {'ip': {'dhcp_snooping': {'active': 'no'}, 'arp_inspection': {'active': 'no'},'ssh': {}, 'active_service': [], 'http':{}}, 'active_service': [], 'disable_service': [],'aaa': {}, 'users': {}, 'line': {}, 'stp': {}}}
     with open(filename) as config:
         try:
             global_parse(config,filename)

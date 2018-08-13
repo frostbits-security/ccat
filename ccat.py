@@ -5,7 +5,8 @@ import parsing
 import display
 import checks
 from checks import *
-
+import time
+start_time = time.time()
 
 # get filenames from args
 filenames = args.getfilenames()
@@ -15,13 +16,12 @@ print(args.args)
 vlanmap = parsing.vlanmap_parse(filenames.pop(0))
 
 
-config_directory = None
 html_directory   = None
 html_file        = None
+config_directory = args.args.config
 # Create directory for html files output or check its exist
 if args.args.o:
     html_directory   = args.args.o
-    config_directory = args.args.config
     try:
         os.makedirs(html_directory, exist_ok=True)
     except OSError:
@@ -31,21 +31,21 @@ if args.args.o:
 
 # processing configs one by one
 for filename in filenames[0]:
+    # Define config file name
+    config_name = filename.partition(config_directory)[2]
     # Create output html file full path if needed
-    if html_directory and config_directory:
-        html_file = html_directory + filename.partition(config_directory)[2] + '.html'
-
+    if html_directory:
+        html_file = html_directory + config_name + '.html'
     # parsing configs
     parsing.parseconfigs(filename)
 
     # getting parse output
     interfaces = parsing.iface_local
     global_params = parsing.iface_global
-
     # prepare results dictionary
-    print('\n\nRESULTS FOR', filename)
-    result_dict = {'Services': {}, 'EXEC password': {}, 'Users': {}, 'IP options':
-        {'dhcp_snooping': {}, 'arp_inspection': {}, 'SSH': {}, 'service': {}}, 'Lines': {},'Spanning-tree':{}}
+    print('\n\nRESULTS FOR:', config_name[1:])
+    result_dict = {'Services': {}, 'EXEC password': {}, 'Users': {}, 'IP options': {'dhcp_snooping': {},
+                    'arp_inspection': {}, 'SSH': {}, 'service': {}, 'WEB server':{}}, 'Lines': {},'Spanning-tree':{}}
 
     # global checks
     result_dict.update(checks.services   .check(global_params[filename]))

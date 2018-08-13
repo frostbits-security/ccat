@@ -7,7 +7,8 @@
 #
 
 def check(global_params):
-    results_dict = {'IP options':{'SSH':{},'service':{}}}
+    results_dict = {'IP options':{'SSH':{},'service':{}, 'WEB server':{}}}
+
 # ssh section
     if 'version' in global_params['ip']['ssh']:
         if global_params['ip']['ssh']['version'] == '2':
@@ -42,7 +43,7 @@ def check(global_params):
             results_dict['IP options']['SSH']['max startups'] = [1, str(global_params['ip']['ssh']['maxstartups']),
                                                              'You may want to decrease it']
 
-# ip options section
+# ip services section
     if 'finger' in global_params['ip']['active_service']:
         results_dict['IP options']['service']['finger'] = [0, 'ENABLED',
                                                            'Disable it to prevent user to view other active users']
@@ -67,11 +68,27 @@ def check(global_params):
     else:
         results_dict['IP options']['service']['bootp server'] = [2, 'DISABLED']
 
-    if 'http server' in global_params['ip']['active_service']:
-        results_dict['IP options']['service']['HTTP server'] = [0, 'ENABLED',
-                                                                'Disable it to prevent unsecure connection. You may turn '
+# web server section
+    if 'type' in global_params['ip']['http']:
+        if global_params['ip']['http']['type'] == 'http':
+            results_dict['IP options']['WEB server']['type'] = [0, 'HTTP', 'Disable it to prevent unsecure connection. You may turn '
                                                                 'on secure server with "ip http secure-server" command']
+        else:
+            results_dict['IP options']['WEB server']['type'] = [2, 'HTTPS']
     else:
-        results_dict['IP options']['service']['HTTP server'] = [2, 'DISABLED']
+        results_dict['IP options']['WEB server']['type'] = [2, 'DISABLED']
+
+    if results_dict['IP options']['WEB server']['type'][1] is not 'DISABLED':
+        if 'max_connections' in global_params['ip']['http']:
+            if int(global_params['ip']['http']['max_connections']) > 10:
+                results_dict['IP options']['WEB server']['max connections'] = [1, str(global_params['ip']['http']['max_connections']),
+                                                                                    'You may want to decrease it due to security reasons']
+            else:
+                results_dict['IP options']['WEB server']['max connections'] = [2, str(global_params['ip']['http']['max_connections'])]
+
+        if 'port' in global_params['ip']['http']:
+            results_dict['IP options']['WEB server']['port'] = [2, str(global_params['ip']['http']['port'])]
+        else:
+            results_dict['IP options']['WEB server']['port'] = [1, 'Default', 'You may want to change it due to security reasons']
 
     return results_dict

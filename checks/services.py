@@ -19,6 +19,11 @@ def check(global_params):
     else:
         results_dict['Services']['tcp keepalives in']   = [1, 'DISABLED', 'You may need it to prevent stuck sessions']
 
+    if 'tcp-keepalives-out' in global_params['active_service']:
+        results_dict['Services']['tcp keepalives out']   = [2, 'ENABLED']
+    else:
+        results_dict['Services']['tcp keepalives out']   = [1, 'DISABLED', 'You may need it to prevent stuck sessions']
+
 # 'should be disable' services section
     if 'pad' in global_params['disable_service']:
         results_dict['Services']['pad'] = [2, 'DISABLED']
