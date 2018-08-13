@@ -427,92 +427,92 @@ def global_parse(config,fname):
 # SAMPLE: example/10.164.132.1.conf
 # OUTPUT: interface options dictionary
 # SAMPLE: {'vlans': [], 'shutdown': 'no', 'description': '-= MGMT - core.nnn048.nnn =-'}
-def _interfaceParse___iface_attributes (config):
+def _interfaceParse___iface_attributes(config):
     iface_list = get_attributes(config)[0]
+    # if iface isn`t enable and unused
+    if iface_list:
+        iface_dict = {'shutdown': 'no', 'vlans': [], 'dhcp_snoop': {'mode': 'untrust'}, 'arp_insp': {'mode': 'untrust'},
+                      'storm control': {}, 'port-security': {}}
 
-    iface_dict = {'shutdown': 'no', 'vlans':[], 'dhcp_snoop': {'mode':'untrust'},'arp_insp':{'mode':'untrust'},'storm control': {}, 'port-security': {}}
+        vlan_num = Word(nums + '-') + ZeroOrMore(Suppress(',') + Word(nums + '-'))
 
+        parse_description = Suppress('description ') + restOfLine
+        parse_type = Suppress('switchport mode ') + restOfLine
+        parse_storm = Suppress('storm-control ') + restOfLine
+        parse_port_sec = Suppress('switchport port-security ') + restOfLine
+        parse_stp_port = Suppress('spanning-tree ') + restOfLine
+        parse_dhcp_snoop = Suppress('ip dhcp snooping ') + restOfLine
+        parse_arp_insp = Suppress('ip arp inspection ') + restOfLine
+        parse_vlans = Suppress('switchport ') + Suppress(MatchFirst('access vlan ' +
+                                                                    ('trunk allowed vlan ' + Optional('add ')))) + vlan_num
 
-    vlan_num = Word(nums + '-') + ZeroOrMore(Suppress(',') + Word(nums + '-'))
-    
-    parse_description = Suppress('description ')              + restOfLine
-    parse_type        = Suppress('switchport mode ')          + restOfLine
-    parse_storm       = Suppress('storm-control ')            + restOfLine
-    parse_port_sec    = Suppress('switchport port-security ') + restOfLine
-    parse_stp_port    = Suppress('spanning-tree ')            + restOfLine
-    parse_dhcp_snoop  = Suppress('ip dhcp snooping ')         + restOfLine
-    parse_arp_insp    = Suppress('ip arp inspection ')        + restOfLine
-    parse_vlans       = Suppress('switchport ')               + Suppress(MatchFirst('access vlan ' +
-                                                       ('trunk allowed vlan ' + Optional('add ')))) + vlan_num
-
-    # Reserved options list is using due to 'shutdown' option is usually located at the end of the list, so it breaks cycle if interface is shutdown and function speed increases
-    for option in iface_list[::-1]:
-        if option == 'shutdown':
-            iface_dict = {'shutdown': 'yes'}
-            break
-        # if option == 'ip dhcp snooping trust':
-        #     iface_dict['dhcp_snoop'] = 'trust'
-        #     continue
-        try:
-            iface_dict['description'] = parse_description.parseString(option).asList()[-1]
-            continue
-        except ParseException:
-            pass
-        try:
-            iface_dict['type'] = parse_type.parseString(option).asList()[-1]
-            continue
-        except ParseException:
-            pass
-        try:
-            vlan_add = parse_vlans.parseString(option).asList()
-            for unit in vlan_add:
-                if '-' in unit:
-                    range_units = unit.split('-')
-                    range_list = [i for i in range(int(range_units[0]), int(range_units[1]) + 1)]
-                    vlan_add.remove(unit)
-                    iface_dict['vlans'].extend(range_list)
-                else:
-                    iface_dict['vlans'].append(int(unit))
-            continue
-        except ParseException:
-            pass
-        try:
-            storm_control=parse_storm.parseString(option).asList()[-1]
-            iface_dict['storm control']=__ifaceAttributes___storm_check(storm_control,iface_dict['storm control'])
-            continue
-        except ParseException:
-            pass
-        if option == 'switchport nonegotiate':
-            iface_dict['dtp'] = 'no'
-            continue
-        if option == 'no cdp enable':
-            iface_dict['cdp'] = 'no'
-            continue
-        try:
-            port_sec=parse_port_sec.parseString(option).asList()[-1]
-            iface_dict['port-security'] = __ifaceAttributes___port_sec_parse(port_sec, iface_dict['port-security'])
-            continue
-        except ParseException:
-            pass
-        try:
-            dhcp_snoop=parse_dhcp_snoop.parseString(option).asList()[-1]
-            iface_dict['dhcp_snoop'] = __ifaceAttributes___ip_parse(dhcp_snoop, iface_dict['dhcp_snoop'])
-            continue
-        except ParseException:
-            pass
-        try:
-            arp_insp=parse_arp_insp.parseString(option).asList()[-1]
-            iface_dict['dhcp_snoop'] = __ifaceAttributes___ip_parse(arp_insp, iface_dict['arp_insp'])
-            continue
-        except ParseException:
-            pass
-        try:
-            stp_port=parse_stp_port.parseString(option).asList()[-1]
-            iface_dict['stp'] =stp_port
-            continue
-        except ParseException:
-            pass
-    return iface_dict
+        # Reserved options list is using due to 'shutdown' option is usually located at the end of the list, so it breaks cycle if interface is shutdown and function speed increases
+        for option in iface_list[::-1]:
+            if option == 'shutdown':
+                iface_dict = {'shutdown': 'yes'}
+                break
+            try:
+                iface_dict['description'] = parse_description.parseString(option).asList()[-1]
+                continue
+            except ParseException:
+                pass
+            try:
+                iface_dict['type'] = parse_type.parseString(option).asList()[-1]
+                continue
+            except ParseException:
+                pass
+            try:
+                vlan_add = parse_vlans.parseString(option).asList()
+                for unit in vlan_add:
+                    if '-' in unit:
+                        range_units = unit.split('-')
+                        range_list = [i for i in range(int(range_units[0]), int(range_units[1]) + 1)]
+                        vlan_add.remove(unit)
+                        iface_dict['vlans'].extend(range_list)
+                    else:
+                        iface_dict['vlans'].append(int(unit))
+                continue
+            except ParseException:
+                pass
+            try:
+                storm_control = parse_storm.parseString(option).asList()[-1]
+                iface_dict['storm control'] = __ifaceAttributes___storm_check(storm_control, iface_dict['storm control'])
+                continue
+            except ParseException:
+                pass
+            if option == 'switchport nonegotiate':
+                iface_dict['dtp'] = 'no'
+                continue
+            if option == 'no cdp enable':
+                iface_dict['cdp'] = 'no'
+                continue
+            try:
+                port_sec = parse_port_sec.parseString(option).asList()[-1]
+                iface_dict['port-security'] = __ifaceAttributes___port_sec_parse(port_sec, iface_dict['port-security'])
+                continue
+            except ParseException:
+                pass
+            try:
+                dhcp_snoop = parse_dhcp_snoop.parseString(option).asList()[-1]
+                iface_dict['dhcp_snoop'] = __ifaceAttributes___ip_parse(dhcp_snoop, iface_dict['dhcp_snoop'])
+                continue
+            except ParseException:
+                pass
+            try:
+                arp_insp = parse_arp_insp.parseString(option).asList()[-1]
+                iface_dict['dhcp_snoop'] = __ifaceAttributes___ip_parse(arp_insp, iface_dict['arp_insp'])
+                continue
+            except ParseException:
+                pass
+            try:
+                stp_port = parse_stp_port.parseString(option).asList()[-1]
+                iface_dict['stp'] = stp_port
+                continue
+            except ParseException:
+                pass
+        return iface_dict
+    else:
+        return {'unknow_inface':1}
 
 
 # Dhcp snooping/Arp inspection option parsing

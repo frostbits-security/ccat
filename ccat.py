@@ -53,7 +53,7 @@ for filename in filenames[0]:
     result_dict.update(checks.ip_global  .check(global_params[filename]))
     result_dict.update(checks.console_vty.check(global_params[filename]))
 
-    result,bpdu_flag = checks.stp_global.check(global_params[filename])
+    result,bpdu_flag = checks.stp_global .check(global_params[filename])
     result_dict['Spanning-tree'].update(result)
 
     # Need to divide these checks to interfaces and global options (remain global checks here and add interface checks to
@@ -65,19 +65,23 @@ for filename in filenames[0]:
 
     # interface-only checks
     for iface in interfaces[filename]:
-        if 'loop' not in iface.lower() and 'vlan' not in iface.lower() and interfaces[filename][iface]['shutdown']=='no':
-            result_dict[iface] = {}
-            result_dict[iface].update(checks.port_security.check(interfaces[filename][iface]))
-            result_dict[iface].update(checks.storm_control.check(interfaces[filename][iface]))
-            result_dict[iface].update(checks.cdp.check          (interfaces[filename][iface]))
-            result_dict[iface].update(checks.dtp.check          (interfaces[filename][iface]))
+        if 'unknow_inface' not in interfaces[filename][iface]:
+            if 'loop' not in iface.lower() and 'vlan' not in iface.lower() and interfaces[filename][iface][
+                'shutdown'] == 'no':
+                result_dict[iface] = {}
+                result_dict[iface].update(checks.port_security.check(interfaces[filename][iface]))
+                result_dict[iface].update(checks.storm_control.check(interfaces[filename][iface]))
+                result_dict[iface].update(checks.cdp.check(interfaces[filename][iface]))
+                result_dict[iface].update(checks.dtp.check(interfaces[filename][iface]))
 
-            stp_result  = checks.stp.check(interfaces[filename][iface],bpdu_flag)
-            port_result = checks.port_sec.check(interfaces[filename])
-            if stp_result!=0:
-                result_dict[iface].update(stp_result)
-            if port_result!=0:
-                result_dict[iface].update(port_result)
+                stp_result = checks.stp.check(interfaces[filename][iface], bpdu_flag)
+                port_result = checks.port_sec.check(interfaces[filename])
+                if stp_result != 0:
+                    result_dict[iface].update(stp_result)
+                if port_result != 0:
+                    result_dict[iface].update(port_result)
+        else:
+            result_dict[iface] = {'Unused Interface': [0, 'ENABLE', 'An interface that is not used must be disabled']}
 
             # Trunk/access check
             # checks.mode.check           (interfaces[filename], result_dict)
