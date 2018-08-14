@@ -31,17 +31,18 @@ if args.args.o:
 for filename in filenames[0]:
     # Define config file name
     config_name = filename.partition(config_directory)[2]
+
     # Create output html file full path if needed
     if html_directory:
         html_file = html_directory + config_name + '.html'
+
     # parsing configs
     parsing.parseconfigs(filename)
 
     # getting parse output
     interfaces = parsing.iface_local
     global_params = parsing.iface_global
-    print(interfaces)
-    print(global_params)
+
     # prepare results dictionary
     print('\n\n--------------------RESULTS FOR:', config_name[1:]+'--------------------')
     result_dict = {'Services': {}, 'EXEC password': {}, 'Users': {}, 'IP options': {'dhcp_snooping': {},
