@@ -44,12 +44,6 @@ def check(global_params):
                                                              'You may want to decrease it']
 
 # ip services section
-    if 'finger' in global_params['ip']['active_service']:
-        results_dict['IP options']['service']['finger'] = [0, 'ENABLED',
-                                                           'Disable it to prevent user to view other active users']
-    else:
-        results_dict['IP options']['service']['finger'] = [2, 'DISABLED']
-
     if 'identd' in global_params['ip']['active_service']:
         results_dict['IP options']['service']['identd'] = [0, 'ENABLED',
                                                            'Disable it to prevent user connection information leaks']
@@ -67,6 +61,14 @@ def check(global_params):
                                                                  'Disable it to prevent possible IOS image stealing']
     else:
         results_dict['IP options']['service']['bootp server'] = [2, 'DISABLED']
+
+    if float(global_params['version']) >= 12.1:
+        if 'finger' in global_params['ip']['active_service']:
+            results_dict['IP options']['service']['finger'] = [0, 'ENABLED',
+                                                               'Disable it to prevent user to view other active users']
+        else:
+            results_dict['IP options']['service']['finger'] = [2, 'DISABLED']
+
 
 # web server section
     if 'type' in global_params['ip']['http']:

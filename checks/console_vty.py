@@ -56,19 +56,19 @@ def check(global_params):
                                                                       'You may want to decrease it']
             if 'transp_in' in global_params['line'][line]:
                 if   global_params['line'][line]['transp_in'] == 'ssh':
-                    results_dict['Lines'][line]['inbound protocol'] = [2, 'SSH only']
+                    results_dict['Lines'][line]['inbound protocol'] = [2, 'SSH']
                 elif global_params['line'][line]['transp_in'] == 'none':
                     results_dict['Lines'][line]['inbound protocol'] = [2, 'NONE']
                 else:
-                    results_dict['Lines'][line]['inbound protocol'] = [1, 'Unsecure', 'You may want to turn ssh only '
+                    results_dict['Lines'][line]['inbound protocol'] = [1, 'UNSECURE', 'You may want to turn ssh only '
                                                                                       'connection on or disable it']
         if 'transp_out' in global_params['line'][line]:
             if   global_params['line'][line]['transp_out'] == 'ssh':
-                results_dict['Lines'][line]['outbound protocol'] = [2, 'SSH only']
+                results_dict['Lines'][line]['outbound protocol'] = [2, 'SSH']
             elif global_params['line'][line]['transp_out'] == 'none':
                 results_dict['Lines'][line]['outbound protocol'] = [2, 'NONE']
             else:
-                results_dict['Lines'][line]['outbound protocol'] = [1, 'Unsecure', 'You may want to turn ssh only '
+                results_dict['Lines'][line]['outbound protocol'] = [1, 'UNSECURE', 'You may want to turn ssh only '
                                                                                    'connection on or disable it']
 
     return results_dict

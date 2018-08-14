@@ -53,5 +53,10 @@ def check(global_params):
     else:
         results_dict['Services']['smart install'] = [0, 'ENABLED', 'Turn it off or block 4786 port (if "vstack" option '
                                                             'unavailable) to disable smart install configuration']
+    if float(global_params['version']) < 12.1:
+        if 'finger' in global_params['disable_service']:
+            results_dict['Services']['finger'] = [2, 'DISABLED']
+        else:
+            results_dict['Services']['finger'] = [0, 'ENABLED', 'Disable it to prevent user to view other active users']
 
     return results_dict
