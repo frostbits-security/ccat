@@ -13,9 +13,9 @@
 
 from re import findall
 
-def storm_lvl_check(lvl):
+def storm_lvl_check(lvl,storm_level):
     # return ([1,80] if float(lvl) < 80.0 else [0,lvl,80])
-    if float(lvl) < 80.0:
+    if float(lvl) < storm_level:
         return [2, lvl, 'Storm-control level should be less than 80']
     else:
         return [0, lvl, 'Storm-control level should be less than 80']
@@ -42,7 +42,7 @@ def iter_type(each, type_dct):
     return type_dct
 
 
-def check(iface_dct):
+def check(iface_dct,storm_level=80):
     # key  availability check
     dct = {}
     if 'storm control' in iface_dct and len(iface_dct['storm control']) != 0:
@@ -65,14 +65,14 @@ def check(iface_dct):
                             dct.update(
                                 {'storm level': [0, 'INCORRECT', 'Storm-control level should be less than 80(0.8)']})
                         else:
-                            dct.update({'storm level': storm_lvl_check(lvl_list[0])})
+                            dct.update({'storm level': storm_lvl_check(lvl_list[0],storm_level)})
                     else:
                         dct.update({'storm level': [0, 'INCORRECT', 'Storm-control level shouldn`t be equal']})
                 else:
                     if float(lvl_list[0]) == 0 or float(lvl_list[0]) == 100 or float(lvl_list[0]) == 1:
                         dct.update({'storm level': [0, 'Bad', 'Storm-control level shouldn`t be equal 1(100) or 0']})
                     else:
-                        dct.update({'storm level': storm_lvl_check(lvl_list[0])})
+                        dct.update({'storm level': storm_lvl_check(lvl_list[0],storm_level)})
 
                 # check storm-control traffic type
 
