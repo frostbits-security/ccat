@@ -70,22 +70,27 @@ for filename in filenames[0]:
             if 'loop' not in iface.lower() and 'vlan' not in iface.lower() and interfaces[iface][
                 'shutdown'] == 'no':
                 result_dict[iface] = {}
-                #result_dict[iface].update(checks.port_security.check(interfaces[iface]))
+                
                 result_dict[iface].update(checks.cdp.check(interfaces[iface]))
                 result_dict[iface].update(checks.dtp.check(interfaces[iface]))
 
                 stp_result = checks.stp.check(interfaces[iface], bpdu_flag)
-                port_result = checks.port_sec.check(interfaces)
+
                 if stp_result != 0:
                     result_dict[iface].update(stp_result)
-                if port_result != 0:
-                    result_dict[iface].update(port_result)
 
                 if args.args.storm_level:
                     result_dict[iface].update(checks.storm_control.check(interfaces[iface], args.args.storm_level))
                 else:
                     result_dict[iface].update(checks.storm_control.check(interfaces[iface]))
 
+                if args.args.max_number_mac:
+                    port_result =checks.port_security.check(interfaces[iface], args.args.max_number_mac)
+                else:
+                    port_result=checks.port_security.check(interfaces[iface])
+
+                if port_result != 0:
+                    result_dict[iface].update(port_result)
         else:
             result_dict[iface] = {'Unused Interface': [0, 'ENABLE', 'An interface that is not used must be disabled']}
 

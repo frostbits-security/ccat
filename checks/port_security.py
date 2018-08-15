@@ -6,13 +6,13 @@
 #        updated result dictionary
 
 
-def check(iface_dct):
+def check(iface_dct,max_mac=10):
     result={}
     if 'port-security' in iface_dct and len(iface_dct['port-security']) != 0:
         port_sec_dct=iface_dct['port-security']
 
         if 'maximum' in port_sec_dct:
-            if int(port_sec_dct['maximum'][0])>10:
+            if int(port_sec_dct['maximum'][0])>max_mac:
                 result.update({'Maximum for mac-address port-security': [0, port_sec_dct['maximum'][0], "Maximum for mac-address port-security should be less than 10"]})
             else:
                 result.update({'Maximum for mac-address port-security': [2, port_sec_dct['maximum'][0], "Maximum for mac-address port-security should be less than 10"]})
