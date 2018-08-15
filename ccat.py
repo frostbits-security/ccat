@@ -19,7 +19,7 @@ html_file        = None
 config_directory = args.args.config
 # Create directory for html files output or check its exist
 if args.args.o:
-    html_directory   = args.args.o
+    html_directory = args.args.o
     try:
         os.makedirs(html_directory, exist_ok=True)
     except OSError:
@@ -40,13 +40,14 @@ for filename in filenames[0]:
     parsing.parseconfigs(filename)
 
     # getting parse output
-    interfaces = parsing.iface_local
+    interfaces    = parsing.iface_local
     global_params = parsing.iface_global
 
+    print('\n\n--------------------RESULTS FOR:', config_name[1:] + '--------------------')
+
     # prepare results dictionary
-    print('\n\n--------------------RESULTS FOR:', config_name[1:]+'--------------------')
-    result_dict = {'Services': {}, 'EXEC password': {}, 'Users': {}, 'IP options': {'dhcp_snooping': {},
-                    'arp_inspection': {}, 'SSH': {}, 'service': {}, 'WEB server':{}}, 'Lines': {},'Spanning-tree':{}}
+    # WE CAN DELETE IT AND USE .update ATTRIBUTE TO FILL DICTIONARY, OTHERWISE SOME VALUES MIGHT BE EMPTY
+    result_dict = {'IP options': {'dhcp_snooping': {}, 'arp_inspection': {}}, 'Spanning-tree':{}}
 
     # global checks
     result_dict.update(checks.services   .check(global_params))
@@ -67,10 +68,9 @@ for filename in filenames[0]:
     # interface-only checks
     for iface in interfaces:
         if 'unknow_inface' not in interfaces[iface]:
-            if 'loop' not in iface.lower() and 'vlan' not in iface.lower() and interfaces[iface][
-                'shutdown'] == 'no':
+            if 'loop' not in iface.lower() and 'vlan' not in iface.lower() and interfaces[iface]['shutdown'] == 'no':
                 result_dict[iface] = {}
-                
+
                 result_dict[iface].update(checks.cdp.check(interfaces[iface]))
                 result_dict[iface].update(checks.dtp.check(interfaces[iface]))
 
