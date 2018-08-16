@@ -10,6 +10,7 @@ colorama.init()
 # OUTPUT: display colored options with its status
 # SAMPLE: - dhcp_snooping active        [DISABLED]
 class bcolors:
+    WHITE  = '\033[1;37m'
     BLUE   = '\033[1;34m'
     GREEN  = '\033[1;32m'
     YELLOW = '\033[1;33m'
@@ -30,8 +31,11 @@ def display_options(dictionary, full_name, html):
                 color   = bcolors.YELLOW
                 htmlclr = '#ff7f00'
             elif dictionary[key][0] == 2:
-                color   = bcolors.GREEN
+                color = bcolors.GREEN
                 htmlclr = 'green'
+            elif dictionary[key][0] == 3:
+                color   = bcolors.WHITE
+                htmlclr = 'black'
             # Print option and status to console
             print('{0:50} {1:1}'.format(' - '+full_name + key, '['+(color+dictionary[key][1]+bcolors.END)+']'))
             # Print option and status to html file if needed

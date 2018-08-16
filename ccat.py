@@ -70,23 +70,23 @@ for filename in filenames[0]:
         if 'unknow_inface' not in interfaces[iface]:
             if 'loop' not in iface.lower() and 'vlan' not in iface.lower() and interfaces[iface]['shutdown'] == 'no':
                 result_dict[iface] = {}
+
+                # If type is not defined - interface is working in Dynamic Auto mode
                 if 'type' not in interfaces[iface]:
-                    result_dict[iface] = {'Dynamic Auto mode': [0, 'ENABLE',
-                                                                'The interfaces of your switches must be in trunk or access mode.']}
+                    result_dict[iface] = {'type': [0, 'DYNAMIC', 'The interfaces of your switches must be in trunk or access mode.']}
+
                 # determine vlanmap type (critical/unknown/trusted) if vlanmap defined and interface has at least 1 vlan
-                if vlanmap and 'vlans' in interfaces[iface]:
-                    try:
-                        vlanmap_result, updated_dict = interface_type.determine(vlanmap, interfaces[iface])
-                        result_dict[iface].update(updated_dict)
-                    except:
-                        vlanmap_result = None
+                if vlanmap and interfaces[iface]['vlans']:
+                    result_dict[iface].update(interface_type.determine(vlanmap, interfaces[iface]))
+                    vlanmap_result = result_dict[iface]['vlanmap type'][1]
                 else:
                     vlanmap_result = None
-                # example with using vlanmap_result word
+
+
+                # example with using vlanmap_result type
                 result_dict[iface].update(checks.cdp .check(interfaces[iface], vlanmap_result))
 
                 result_dict[iface].update(checks.dtp .check(interfaces[iface]))
-                result_dict[iface].update(checks.mode.check(interfaces[iface]))
 
                 stp_result = checks.stp.check(interfaces[iface], bpdu_flag)
 
@@ -105,6 +105,9 @@ for filename in filenames[0]:
 
                 if port_result != 0:
                     result_dict[iface].update(port_result)
+
+                # access/trunk mode check
+                # result_dict[iface].update(checks.mode.check(interfaces[iface]))
         else:
             result_dict[iface] = {'Unused Interface': [0, 'ENABLE', 'An interface that is not used must be disabled']}
 
