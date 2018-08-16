@@ -6,9 +6,10 @@
 #        updated result dictionary
 #           {{'iface1': {'CDP': {'cdp': [severity(int), 'message', 'best practice']}, 'iface2':...}}
 #
+
 def cdp_check(result,scale,dct):
-    if 'cdp' in iface_dct:
-        if iface_dct['cdp'] == 'no':
+    if 'cdp' in dct:
+        if dct['cdp'] == 'no':
             result['Cisco Discovery Protocol(CDP)'] = [scale[1], 'DISABLED']
         else:
             result['Cisco Discovery Protocol(CDP)'] = [scale[0], 'ENABLED', 'CDP should not be enable']
