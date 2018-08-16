@@ -73,11 +73,13 @@ for filename in filenames[0]:
 
                 # determine vlanmap type (critical/unknown/trusted) if vlanmap defined and interface has at least 1 vlan
                 if vlanmap and 'vlans' in interfaces[iface]:
-                    vlanmap_result, updated_dict = interface_type.determine(vlanmap, interfaces[iface])
-                    result_dict[iface].update(updated_dict)
+                    try:
+                        vlanmap_result, updated_dict = interface_type.determine(vlanmap, interfaces[iface])
+                        result_dict[iface].update(updated_dict)
+                    except:
+                        vlanmap_result = None
                 else:
                     vlanmap_result = None
-
                 # example with using vlanmap_result word
                 result_dict[iface].update(checks.cdp .check(interfaces[iface], vlanmap_result))
 

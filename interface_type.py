@@ -14,6 +14,7 @@ def determine(vlanmap, interface):
 # Create empty dictionary and fill it: if interface is access - will be filled only 1 list, if interface is trunk - might
 # be filled some lists
     vlanmap_check = {'critical': [], 'unknown': [], 'trusted': []}
+    find = False
     area_num = 0
     for area in vlanmap:
         for vlan_vlanmap in area:
@@ -25,8 +26,10 @@ def determine(vlanmap, interface):
                         vlanmap_check['unknown'].append(config_vlan)
                     else:
                         vlanmap_check['trusted'].append(config_vlan)
+                    find = True
         area_num += 1
-
+    if find == False:
+        return 0
 # if 1 trunk interface has critical and trusted vlans - it may be bad for network segment so its warning type
     if vlanmap_check['critical'] and vlanmap_check['trusted']:
         result_dict['vlanmap warning'] = [1, 'Trusted and Critical vlans on interface']
@@ -40,5 +43,4 @@ def determine(vlanmap, interface):
     elif vlanmap_check['trusted']:
         result_dict['vlanmap type'] = [2, 'TRUSTED']
     vlanmap_result = result_dict['vlanmap type'][1]
-
     return vlanmap_result, result_dict
