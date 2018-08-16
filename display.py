@@ -31,7 +31,7 @@ def display_options(dictionary, full_name, html):
                 color   = bcolors.YELLOW
                 htmlclr = '#ff7f00'
             elif dictionary[key][0] == 2:
-                color = bcolors.GREEN
+                color   = bcolors.GREEN
                 htmlclr = 'green'
             elif dictionary[key][0] == 3:
                 color   = bcolors.WHITE
