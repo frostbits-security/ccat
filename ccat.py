@@ -3,6 +3,7 @@ import os
 import args
 import parsing
 import display
+import interface_type
 import checks
 from checks import *
 
@@ -12,7 +13,6 @@ filenames = args.getfilenames()
 print(args.args)
 # get vlanmap
 vlanmap = parsing.vlanmap_parse(filenames.pop(0))
-
 
 html_directory   = None
 html_file        = None
@@ -71,8 +71,18 @@ for filename in filenames[0]:
             if 'loop' not in iface.lower() and 'vlan' not in iface.lower() and interfaces[iface]['shutdown'] == 'no':
                 result_dict[iface] = {}
 
-                result_dict[iface].update(checks.cdp.check(interfaces[iface]))
-                result_dict[iface].update(checks.dtp.check(interfaces[iface]))
+                # determine vlanmap type (critical/unknown/trusted) if vlanmap defined and interface has at least 1 vlan
+                if vlanmap and 'vlans' in interfaces[iface]:
+                    vlanmap_result, updated_dict = interface_type.determine(vlanmap, interfaces[iface])
+                    result_dict[iface].update(updated_dict)
+                else:
+                    vlanmap_result = None
+
+                # example with using vlanmap_result word
+                result_dict[iface].update(checks.cdp .check(interfaces[iface], vlanmap_result))
+
+                result_dict[iface].update(checks.dtp .check(interfaces[iface]))
+                result_dict[iface].update(checks.mode.check(interfaces[iface]))
 
                 stp_result = checks.stp.check(interfaces[iface], bpdu_flag)
 
@@ -94,8 +104,6 @@ for filename in filenames[0]:
         else:
             result_dict[iface] = {'Unused Interface': [0, 'ENABLE', 'An interface that is not used must be disabled']}
 
-            # Trunk/access check
-            # checks.mode.check           (interfaces, result_dict)
 
     # processing results
     display.display_results(result_dict,html_file)
