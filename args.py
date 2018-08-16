@@ -41,8 +41,8 @@ def getfilenames():
     parser.add_argument("-v", action='store_true', help="show detailed info about found issues")
     parser.add_argument("--no-ipv6", action='store_true', help="if you're not using IPv6")
     parser.add_argument("--disabled-interfaces", action='store_true', help="check interfaces even if they are turned off")
-    parser.add_argument("--storm_level", type=float, help="to set up appropriate level for storm-control")
-    parser.add_argument("--max_number_mac", type=int, help="to set up maximum number of mac-addresses for port-security")
+    parser.add_argument("--storm_level", type=float, help="to set up appropriate level for storm-control (by default value=80)")
+    parser.add_argument("--max_number_mac", type=int, help="to set up maximum number of mac-addresses for port-security (by default value=10)")
     args = parser.parse_args()
     if not(args.config):
         print ('Usage example:\n  ccat  smth/config_folder -vl smth/vlanmap_folder -v\n\nFor more details try --help')

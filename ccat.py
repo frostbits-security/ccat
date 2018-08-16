@@ -70,7 +70,9 @@ for filename in filenames[0]:
         if 'unknow_inface' not in interfaces[iface]:
             if 'loop' not in iface.lower() and 'vlan' not in iface.lower() and interfaces[iface]['shutdown'] == 'no':
                 result_dict[iface] = {}
-
+                if 'type' not in interfaces[iface]:
+                    result_dict[iface] = {'Dynamic Auto mode': [0, 'ENABLE',
+                                                                'The interfaces of your switches must be in trunk or access mode.']}
                 # determine vlanmap type (critical/unknown/trusted) if vlanmap defined and interface has at least 1 vlan
                 if vlanmap and 'vlans' in interfaces[iface]:
                     try:
