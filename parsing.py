@@ -48,7 +48,7 @@ parse_ip_http         = NotAny(White()) + Suppress('ip http ')   + restOfLine
 authentication = Suppress('authentication ') + restOfLine
 authorization  = Suppress('authorization ')  + restOfLine
 accounting     = Suppress('accounting ')     + restOfLine
-
+parse_vtp      = Suppress('vtp ')            + restOfLine
 
 
 #
@@ -204,7 +204,18 @@ def _globalParse___http_attributes(line):
 
     return http_dict
 
-
+def _globalParse___vtp_attributes(vtp,dct):
+    parse_domain=Suppress('domain ')+restOfLine
+    parse_mode=Suppress('mode ')+restOfLine
+    try:
+        return util.int_dict_parse(parse_domain,vtp,'domain',dct)
+    except ParseException:
+        pass
+    try:
+        return util.int_dict_parse(parse_mode, vtp, 'mode', dct)
+    except ParseException:
+        pass
+    return 0
 # Console and vty line options parsing
 # INPUT:  line with console or vty line name
 # SAMPLE: vty 0 4
@@ -306,7 +317,8 @@ def global_parse(config):
     global parse_ip_http
     global authentication
     global authorization  
-    global accounting  
+    global accounting
+    global parse_vtp
 
     count_authen, count_author, count_acc = 1, 1, 1
     for line in config:
@@ -354,6 +366,14 @@ def global_parse(config):
             current_line = parse_username.parseString(line).asList()[-1]
             iface_global['users'].update(_globalParse___username_attributes(current_line))
             continue
+        except ParseException:
+            pass
+        try:
+
+            vtp=parse_vtp.parseString(line).asList()[-1]
+            result_parse_vtp=_globalParse___vtp_attributes(vtp,iface_global['vtp'])
+            if result_parse_vtp:
+                iface_global['vtp'] =result_parse_vtp
         except ParseException:
             pass
         # try:
@@ -442,13 +462,13 @@ def global_parse(config):
 # SAMPLE: example/10.164.132.1.conf
 # OUTPUT: interface options dictionary
 # SAMPLE: {'vlans': [], 'shutdown': 'no', 'description': '-= MGMT - core.nnn048.nnn =-'}
-def _interfaceParse___iface_attributes(config):    
+
+def _interfaceParse___iface_attributes(config, check_disabled):
     iface_list = get_attributes(config)[0]
     # if iface isn`t enable and unused
     if iface_list:
         iface_dict = {'shutdown': 'no', 'vlans': [], 'dhcp_snoop': {'mode': 'untrust'}, 'arp_insp': {'mode': 'untrust'},
                       'storm control': {}, 'port-security': {}, 'ipv6':{}}
-
         vlan_num = Word(nums + '-') + ZeroOrMore(Suppress(',') + Word(nums + '-'))
 
         parse_description = Suppress('description ') + restOfLine
@@ -458,14 +478,19 @@ def _interfaceParse___iface_attributes(config):
         parse_stp_port = Suppress('spanning-tree ') + restOfLine
         parse_dhcp_snoop = Suppress('ip dhcp snooping ') + restOfLine
         parse_arp_insp = Suppress('ip arp inspection ') + restOfLine
+        parse_source_guard = Suppress('ip verify source ') + restOfLine
         parse_vlans = Suppress('switchport ') + Suppress(MatchFirst('access vlan ' +
                                                                     ('trunk allowed vlan ' + Optional('add ')))) + vlan_num
 
         # Reserved options list is using due to 'shutdown' option is usually located at the end of the list, so it breaks cycle if interface is shutdown and function speed increases
         for option in iface_list[::-1]:
             if option == 'shutdown':
-                iface_dict = {'shutdown': 'yes'}
-                break
+                if check_disabled == True:
+                    iface_dict['shutdown'] = 'yes'
+                    pass
+                else:
+                    iface_dict = {'shutdown': 'yes'}
+                    break
             try:
                 iface_dict['description'] = parse_description.parseString(option).asList()[-1]
                 continue
@@ -521,13 +546,20 @@ def _interfaceParse___iface_attributes(config):
                 pass
             try:
                 arp_insp = parse_arp_insp.parseString(option).asList()[-1]
-                iface_dict['dhcp_snoop'] = __ifaceAttributes___ip_parse(arp_insp, iface_dict['arp_insp'])
+                iface_dict['arp_insp'] = __ifaceAttributes___ip_parse(arp_insp, iface_dict['arp_insp'])
                 continue
             except ParseException:
                 pass
             try:
                 stp_port = parse_stp_port.parseString(option).asList()[-1]
                 iface_dict['stp'] = stp_port
+                continue
+            except ParseException:
+                pass
+
+            try:
+                source_guard = parse_source_guard.parseString(option).asList()[-1]
+                iface_dict['source_guard'] = source_guard
                 continue
             except ParseException:
                 pass
@@ -645,31 +677,31 @@ def __ifaceAttributes___port_sec_parse(port,dct):
 # SAMPLE: ['example/10.164.132.1.conf','example/172.17.135.196.conf']
 # OUTPUT: interface options dictionary
 # SAMPLE: see on top of this file
-def interface_parse(config):
+def interface_parse(config, check_disabled):
     global parse_ipv6
     global parse_iface
     global iface_local
     for line in config:
         try:
             item = parse_iface.parseString(line).asList()[-1]
-            iface_local[item] = _interfaceParse___iface_attributes(config)
+            iface_local[item] = _interfaceParse___iface_attributes(config, check_disabled)
         except ParseException:
             pass      
     return 0
 
 # main function 
-def parseconfigs(filename):
+def parseconfigs(filename, check_disabled):
     global iface_local
     global iface_global
 
     
     iface_local = {}
-    iface_global = {'ip': {'dhcp_snooping': {'active': 'no'}, 'arp_inspection': {'active': 'no'},'ssh': {}, 'active_service': [], 'http':{}}, 'active_service': [], 'disable_service': [],'aaa': {}, 'users': {}, 'line': {}, 'stp': {}, 'ipv6':{}}
+    iface_global = {'ip': {'dhcp_snooping': {'active': 'no'}, 'arp_inspection': {'active': 'no'},'ssh': {}, 'active_service': [], 'http':{}}, 'active_service': [], 'disable_service': [],'aaa': {}, 'users': {}, 'line': {}, 'stp': {}, 'ipv6':{},'vtp':{}}
     with open(filename) as config:
         try:
             global_parse(config)
             config.seek(0)
-            interface_parse(config)
+            interface_parse(config, check_disabled)
         except Exception as e:
             print("Error in file "+filename)
             print(e)

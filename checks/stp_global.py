@@ -21,9 +21,10 @@ def _check__check_stp(global_dct):
     return (stp_res)
 
 def check(global_dct):
-    if 'stp' in global_dct:
+    if global_dct['stp']:
         flag=0
-        result=_check__check_stp(global_dct['stp'])
+        result={}
+        result['Spanning-tree options']=_check__check_stp(global_dct['stp'])
         if 'bpduguard' in global_dct['stp'] and 'portfast' in global_dct['stp'] and global_dct['stp']['portfast']==['default']:
             flag=3
         elif 'portfast' in global_dct['stp'] and global_dct['stp']['portfast']==['default']:
@@ -32,4 +33,3 @@ def check(global_dct):
             flag=1
 
         return (result,flag)
-
