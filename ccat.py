@@ -81,6 +81,11 @@ for filename in filenames[0]:
     result_dict.update(checks.ip_global  .check(global_params))
     result_dict.update(checks.console_vty.check(global_params))
 
+    result_vtp=checks.vtp.check(global_params)
+    if result_vtp:
+        result_dict.update(result_vtp)
+
+
     # global checks with nessesary flags for further interface checks
     result,      bpdu_flag = checks.stp_global       .check(global_params)
     result_dict.update(result)

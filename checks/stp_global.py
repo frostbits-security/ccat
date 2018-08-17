@@ -21,7 +21,7 @@ def _check__check_stp(global_dct):
     return (stp_res)
 
 def check(global_dct):
-    if 'stp' in global_dct:
+    if global_dct['stp']:
         flag=0
         result={}
         result['Spanning-tree options']=_check__check_stp(global_dct['stp'])

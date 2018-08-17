@@ -205,14 +205,13 @@ def _globalParse___vtp_attributes(vtp,dct):
     parse_mode=Suppress('mode ')+restOfLine
     try:
         return util.int_dict_parse(parse_domain,vtp,'domain',dct)
-        print(dct)
     except ParseException:
         pass
     try:
         return util.int_dict_parse(parse_mode, vtp, 'mode', dct)
     except ParseException:
         pass
-
+    return 0
 # Console and vty line options parsing
 # INPUT:  line with console or vty line name
 # SAMPLE: vty 0 4
@@ -363,7 +362,9 @@ def global_parse(config):
         try:
 
             vtp=parse_vtp.parseString(line).asList()[-1]
-            iface_global['vtp']=_globalParse___vtp_attributes(vtp,iface_global['vtp'])
+            result_parse_vtp=_globalParse___vtp_attributes(vtp,iface_global['vtp'])
+            if result_parse_vtp:
+                iface_global['vtp'] =result_parse_vtp
         except ParseException:
             pass
         # try:
