@@ -44,7 +44,7 @@ parse_ip_http         = NotAny(White()) + Suppress('ip http ')   + restOfLine
 authentication = Suppress('authentication ') + restOfLine
 authorization  = Suppress('authorization ')  + restOfLine
 accounting     = Suppress('accounting ')     + restOfLine
-
+parse_vtp      = Suppress('vtp ')            + restOfLine
 
 
 #
@@ -200,6 +200,18 @@ def _globalParse___http_attributes(line):
 
     return http_dict
 
+def _globalParse___vtp_attributes(vtp,dct):
+    parse_domain=Suppress('domain ')+restOfLine
+    parse_mode=Suppress('mode ')+restOfLine
+    try:
+        return util.int_dict_parse(parse_domain,vtp,'domain',dct)
+        print(dct)
+    except ParseException:
+        pass
+    try:
+        return util.int_dict_parse(parse_mode, vtp, 'mode', dct)
+    except ParseException:
+        pass
 
 # Console and vty line options parsing
 # INPUT:  line with console or vty line name
@@ -302,7 +314,8 @@ def global_parse(config):
     global parse_ip_http
     global authentication
     global authorization  
-    global accounting  
+    global accounting
+    global parse_vtp
 
     count_authen, count_author, count_acc = 1, 1, 1
     for line in config:
@@ -345,6 +358,12 @@ def global_parse(config):
             current_line = parse_username.parseString(line).asList()[-1]
             iface_global['users'].update(_globalParse___username_attributes(current_line))
             continue
+        except ParseException:
+            pass
+        try:
+
+            vtp=parse_vtp.parseString(line).asList()[-1]
+            iface_global['vtp']=_globalParse___vtp_attributes(vtp,iface_global['vtp'])
         except ParseException:
             pass
         # try:
@@ -641,7 +660,7 @@ def parseconfigs(filename, check_disabled):
 
     
     iface_local = {}
-    iface_global = {'ip': {'dhcp_snooping': {'active': 'no'}, 'arp_inspection': {'active': 'no'},'ssh': {}, 'active_service': [], 'http':{}}, 'active_service': [], 'disable_service': [],'aaa': {}, 'users': {}, 'line': {}, 'stp': {}}
+    iface_global = {'ip': {'dhcp_snooping': {'active': 'no'}, 'arp_inspection': {'active': 'no'},'ssh': {}, 'active_service': [], 'http':{}}, 'active_service': [], 'disable_service': [],'aaa': {}, 'users': {}, 'line': {}, 'stp': {},'vtp':{}}
     with open(filename) as config:
         try:
             global_parse(config)
