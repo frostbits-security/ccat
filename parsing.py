@@ -506,7 +506,7 @@ def _interfaceParse___iface_attributes(config):
                 pass
             try:
                 arp_insp = parse_arp_insp.parseString(option).asList()[-1]
-                iface_dict['dhcp_snoop'] = __ifaceAttributes___ip_parse(arp_insp, iface_dict['arp_insp'])
+                iface_dict['arp_insp'] = __ifaceAttributes___ip_parse(arp_insp, iface_dict['arp_insp'])
                 continue
             except ParseException:
                 pass

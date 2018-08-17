@@ -47,7 +47,7 @@ for filename in filenames[0]:
 
     # prepare results dictionary
     # WE CAN DELETE IT AND USE .update ATTRIBUTE TO FILL DICTIONARY, OTHERWISE SOME VALUES MIGHT BE EMPTY
-    result_dict = {'IP options': {'dhcp_snooping': {}, 'arp_inspection': {}}, 'Spanning-tree':{}}
+    result_dict = {'IP options': {'dhcp_snooping': {}, 'arp_inspection': {}} }
 
     # global checks
     result_dict.update(checks.services   .check(global_params))
@@ -56,7 +56,9 @@ for filename in filenames[0]:
     result_dict.update(checks.console_vty.check(global_params))
 
     result,bpdu_flag = checks.stp_global .check(global_params)
-    result_dict['Spanning-tree'].update(result)
+    result_dict.update(result)
+    result_dhcp,dhcp_flag=checks.dhcp_snoop_global.check(global_params,result_dict)
+    result_dict.update(result_dhcp)
 
     # Need to divide these checks to interfaces and global options (remain global checks here and add interface checks to
     # cycle below) to avoid more than 1 interfaces iteration (there are 2 here and 1 below now, thats not good for speed)
@@ -90,8 +92,13 @@ for filename in filenames[0]:
 
                 stp_result = checks.stp.check(interfaces[iface], bpdu_flag)
 
-                if stp_result != 0:
+                if stp_result:
                     result_dict[iface].update(stp_result)
+
+                dhcp_result = checks.dhcp_snooping.check(interfaces[iface], vlanmap, args.args.disabled_interfaces,dhcp_flag)
+
+                if dhcp_result:
+                    result_dict[iface].update(dhcp_result)
 
                 if args.args.storm_level:
                     result_dict[iface].update(checks.storm_control.check(interfaces[iface], args.args.storm_level))
@@ -99,11 +106,11 @@ for filename in filenames[0]:
                     result_dict[iface].update(checks.storm_control.check(interfaces[iface]))
 
                 if args.args.max_number_mac:
-                    port_result =checks.port_security.check(interfaces[iface], args.args.max_number_mac)
+                    port_result = checks.port_security.check(interfaces[iface], args.args.max_number_mac)
                 else:
                     port_result=checks.port_security.check(interfaces[iface])
 
-                if port_result != 0:
+                if port_result:
                     result_dict[iface].update(port_result)
 
                 # access/trunk mode check
