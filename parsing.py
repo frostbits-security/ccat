@@ -30,6 +30,10 @@ parse_enable_password = Suppress('enable') + MatchFirst(['secret','password']) +
 parse_active_service  = Suppress('service ')                     + restOfLine
 parse_disable_service = Suppress('no service ')                  + restOfLine
 parse_version         = Suppress('version ')                     + restOfLine
+parse_ipv6            = Suppress('ipv6 ')                        + restOfLine
+parse_ipv6_sourceguard= Suppress('source-guard ')                + restOfLine
+parse_ipv6_snooping   = Suppress('snooping ')                    + restOfLine
+parse_ipv6_raguard    = Suppress('nd raguard ')                  + restOfLine
 parse_model           = Suppress('boot system flash bootflash:') + restOfLine
 parse_username        = Suppress('username ')                    + restOfLine
 parse_aaa             = Suppress('aaa ')                         + restOfLine
@@ -286,7 +290,7 @@ def _globalParse___line_attributes(config):
 
 def global_parse(config):
     global iface_global
-
+    global parse_ipv6
     global parse_enable_password 
     global parse_active_service  
     global parse_disable_service 
@@ -318,6 +322,11 @@ def global_parse(config):
             pass
         try:
             iface_global['active_service'].append(parse_active_service.parseString(line).asList()[-1])
+            continue
+        except ParseException:
+            pass
+        try:
+            iface_global['ipv6'](parse_ipv6.parseString(option).asList()[-1])
             continue
         except ParseException:
             pass
@@ -433,12 +442,12 @@ def global_parse(config):
 # SAMPLE: example/10.164.132.1.conf
 # OUTPUT: interface options dictionary
 # SAMPLE: {'vlans': [], 'shutdown': 'no', 'description': '-= MGMT - core.nnn048.nnn =-'}
-def _interfaceParse___iface_attributes(config):
+def _interfaceParse___iface_attributes(config):    
     iface_list = get_attributes(config)[0]
     # if iface isn`t enable and unused
     if iface_list:
         iface_dict = {'shutdown': 'no', 'vlans': [], 'dhcp_snoop': {'mode': 'untrust'}, 'arp_insp': {'mode': 'untrust'},
-                      'storm control': {}, 'port-security': {}}
+                      'storm control': {}, 'port-security': {}, 'ipv6':{}}
 
         vlan_num = Word(nums + '-') + ZeroOrMore(Suppress(',') + Word(nums + '-'))
 
@@ -486,6 +495,12 @@ def _interfaceParse___iface_attributes(config):
                 continue
             except ParseException:
                 pass
+            try:
+                ipv6 = parse_ipv6.parseString(option).asList()[-1]
+                __ifaceAttributes___ipv6_parse(ipv6, iface_dict['ipv6'])
+                continue
+            except ParseException:
+                pass
             if option == 'switchport nonegotiate':
                 iface_dict['dtp'] = 'no'
                 continue
@@ -520,6 +535,23 @@ def _interfaceParse___iface_attributes(config):
     else:
         return {'unknow_inface':1}
 
+def __ifaceAttributes___ipv6_parse(ipv6, dct):
+    global parse_ipv6_sourceguard
+    global parse_ipv6_raguard
+    try:
+        dct=util.int_dict_parse(parse_ipv6_sourceguard, ipv6, 'source-guard', dct)
+        tmp=dct['source-guard'][0].split(' ')
+        dct['source-guard']={tmp[0]:tmp[1]}
+        return dct
+    except ParseException:
+        pass
+    try:
+        dct=util.int_dict_parse(parse_ipv6_raguard, ipv6, 'ra-guard', dct)
+        tmp=dct['ra-guard'][0].split(' ')
+        dct['ra-guard']={tmp[0]:tmp[1]}
+        return dct
+    except ParseException:
+        pass
 
 # Dhcp snooping/Arp inspection option parsing
 # Input:
@@ -572,6 +604,7 @@ def __ifaceAttributes___storm_check(storm,dct):
         pass
 
 
+
 # Port-security option parsing
 # Input:
 #        string, which start with word 'port-security'
@@ -613,6 +646,7 @@ def __ifaceAttributes___port_sec_parse(port,dct):
 # OUTPUT: interface options dictionary
 # SAMPLE: see on top of this file
 def interface_parse(config):
+    global parse_ipv6
     global parse_iface
     global iface_local
     for line in config:
@@ -630,7 +664,7 @@ def parseconfigs(filename):
 
     
     iface_local = {}
-    iface_global = {'ip': {'dhcp_snooping': {'active': 'no'}, 'arp_inspection': {'active': 'no'},'ssh': {}, 'active_service': [], 'http':{}}, 'active_service': [], 'disable_service': [],'aaa': {}, 'users': {}, 'line': {}, 'stp': {}}
+    iface_global = {'ip': {'dhcp_snooping': {'active': 'no'}, 'arp_inspection': {'active': 'no'},'ssh': {}, 'active_service': [], 'http':{}}, 'active_service': [], 'disable_service': [],'aaa': {}, 'users': {}, 'line': {}, 'stp': {}, 'ipv6':{}}
     with open(filename) as config:
         try:
             global_parse(config)
