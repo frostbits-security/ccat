@@ -72,7 +72,7 @@ for filename in filenames[0]:
         print('\n\n--------------------RESULTS FOR:', config_name[1:] + '--------------------')
 
     # prepare results dictionary
-    # WE CAN DELETE IT AND USE .update ATTRIBUTE TO FILL DICTIONARY
+    # WE MUST DELETE IT AND USE .update ATTRIBUTE TO FILL DICTIONARY
     result_dict = {'IP options': {'dhcp_snooping': {}, 'arp_inspection': {}} }
 
     # global checks
