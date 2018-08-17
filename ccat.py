@@ -57,6 +57,8 @@ for filename in filenames[0]:
 
     result,bpdu_flag = checks.stp_global .check(global_params)
     result_dict.update(result)
+    result_arp,arp_flag = checks.arp_insp_global .check(global_params,result_dict)
+    result_dict.update(result_arp)
     result_dhcp,dhcp_flag=checks.dhcp_snoop_global.check(global_params,result_dict)
     result_dict.update(result_dhcp)
 
@@ -99,6 +101,12 @@ for filename in filenames[0]:
 
                 if dhcp_result:
                     result_dict[iface].update(dhcp_result)
+
+                arp_result = checks.arp_inspection.check(interfaces[iface], vlanmap, args.args.disabled_interfaces,
+                                                         arp_flag)
+
+                if arp_result:
+                    result_dict[iface].update(arp_result)
 
                 if args.args.storm_level:
                     result_dict[iface].update(checks.storm_control.check(interfaces[iface], args.args.storm_level))
