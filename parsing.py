@@ -433,13 +433,12 @@ def global_parse(config):
 # SAMPLE: example/10.164.132.1.conf
 # OUTPUT: interface options dictionary
 # SAMPLE: {'vlans': [], 'shutdown': 'no', 'description': '-= MGMT - core.nnn048.nnn =-'}
-def _interfaceParse___iface_attributes(config):
+def _interfaceParse___iface_attributes(config, check_disabled):
     iface_list = get_attributes(config)[0]
     # if iface isn`t enable and unused
     if iface_list:
         iface_dict = {'shutdown': 'no', 'vlans': [], 'dhcp_snoop': {'mode': 'untrust'}, 'arp_insp': {'mode': 'untrust'},
                       'storm control': {}, 'port-security': {}}
-
         vlan_num = Word(nums + '-') + ZeroOrMore(Suppress(',') + Word(nums + '-'))
 
         parse_description = Suppress('description ') + restOfLine
@@ -455,8 +454,12 @@ def _interfaceParse___iface_attributes(config):
         # Reserved options list is using due to 'shutdown' option is usually located at the end of the list, so it breaks cycle if interface is shutdown and function speed increases
         for option in iface_list[::-1]:
             if option == 'shutdown':
-                iface_dict = {'shutdown': 'yes'}
-                break
+                if check_disabled == True:
+                    iface_dict['shutdown'] = 'yes'
+                    pass
+                else:
+                    iface_dict = {'shutdown': 'yes'}
+                    break
             try:
                 iface_dict['description'] = parse_description.parseString(option).asList()[-1]
                 continue
@@ -612,19 +615,19 @@ def __ifaceAttributes___port_sec_parse(port,dct):
 # SAMPLE: ['example/10.164.132.1.conf','example/172.17.135.196.conf']
 # OUTPUT: interface options dictionary
 # SAMPLE: see on top of this file
-def interface_parse(config):
+def interface_parse(config, check_disabled):
     global parse_iface
     global iface_local
     for line in config:
         try:
             item = parse_iface.parseString(line).asList()[-1]
-            iface_local[item] = _interfaceParse___iface_attributes(config)
+            iface_local[item] = _interfaceParse___iface_attributes(config, check_disabled)
         except ParseException:
             pass      
     return 0
 
 # main function 
-def parseconfigs(filename):
+def parseconfigs(filename, check_disabled):
     global iface_local
     global iface_global
 
@@ -635,7 +638,7 @@ def parseconfigs(filename):
         try:
             global_parse(config)
             config.seek(0)
-            interface_parse(config)
+            interface_parse(config, check_disabled)
         except Exception as e:
             print("Error in file "+filename)
             print(e)

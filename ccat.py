@@ -9,11 +9,14 @@ from checks import *
 
 # get filenames from args
 filenames = args.getfilenames()
+
 # debug output
 print(args.args)
+
 # get vlanmap
 vlanmap = parsing.vlanmap_parse(filenames.pop(0))
 
+# variables for html output option
 html_directory   = None
 html_file        = None
 config_directory = args.args.config
@@ -26,9 +29,15 @@ if args.args.o:
         html_directory = html_directory[:-1] + '\\'
         os.makedirs(html_directory, exist_ok=True)
 
+# check shutdown interfaces flag
+if args.args.disabled_interfaces:
+    check_disabled = True
+else:
+    check_disabled = False
 
 # processing configs one by one
 for filename in filenames[0]:
+
     # Define config file name
     config_name = filename.partition(config_directory)[2]
 
@@ -37,7 +46,7 @@ for filename in filenames[0]:
         html_file = html_directory + config_name + '.html'
 
     # parsing configs
-    parsing.parseconfigs(filename)
+    parsing.parseconfigs(filename, check_disabled)
 
     # getting parse output
     interfaces    = parsing.iface_local
@@ -46,7 +55,7 @@ for filename in filenames[0]:
     print('\n\n--------------------RESULTS FOR:', config_name[1:] + '--------------------')
 
     # prepare results dictionary
-    # WE CAN DELETE IT AND USE .update ATTRIBUTE TO FILL DICTIONARY, OTHERWISE SOME VALUES MIGHT BE EMPTY
+    # WE CAN DELETE IT AND USE .update ATTRIBUTE TO FILL DICTIONARY
     result_dict = {'IP options': {'dhcp_snooping': {}, 'arp_inspection': {}} }
 
     # global checks
@@ -55,11 +64,14 @@ for filename in filenames[0]:
     result_dict.update(checks.ip_global  .check(global_params))
     result_dict.update(checks.console_vty.check(global_params))
 
-    result,bpdu_flag = checks.stp_global .check(global_params)
+    # global checks with nessesary flags for further interface checks
+    result,      bpdu_flag = checks.stp_global       .check(global_params)
     result_dict.update(result)
-    result_arp,arp_flag = checks.arp_insp_global .check(global_params,result_dict)
+
+    result_arp,   arp_flag = checks.arp_insp_global  .check(global_params,result_dict)
     result_dict.update(result_arp)
-    result_dhcp,dhcp_flag=checks.dhcp_snoop_global.check(global_params,result_dict)
+
+    result_dhcp, dhcp_flag = checks.dhcp_snoop_global.check(global_params,result_dict)
     result_dict.update(result_dhcp)
 
     # Need to divide these checks to interfaces and global options (remain global checks here and add interface checks to
@@ -69,19 +81,33 @@ for filename in filenames[0]:
     # checks.dhcp_snooping.check  (global_params, interfaces, vlanmap, args.args.disabled_interfaces, result_dict)
 
 
-    # interface-only checks
+    # interface checks
     for iface in interfaces:
+
+        # check interface if it has at least 1 options
         if 'unknow_inface' not in interfaces[iface]:
-            if 'loop' not in iface.lower() and 'vlan' not in iface.lower() and interfaces[iface]['shutdown'] == 'no':
+
+            # skip loopback and vlan interfaces
+            if 'loop' not in iface.lower() and 'vlan' not in iface.lower():
+
+                # skip shutdown interfaces if there was not --disabled-interfaces argument
+                if   interfaces[iface]['shutdown'] == 'yes' and check_disabled == False:
+                    continue
+
                 result_dict[iface] = {}
+
+                # set DISABLE status if interface is shutdown and disabled-interfaces argument is true
+                if interfaces[iface]['shutdown'] == 'yes' and check_disabled == True:
+                    result_dict[iface]['status'] = [3,'DISABLED']
 
                 # If type is not defined - interface is working in Dynamic Auto mode
                 if 'type' not in interfaces[iface]:
-                    result_dict[iface] = {'type': [0, 'DYNAMIC', 'The interfaces of your switches must be in trunk or access mode.']}
+                    result_dict[iface]['mode'] = [0, 'DYNAMIC', 'The interfaces of your switches must be in trunk or access mode.']
 
                 # determine vlanmap type (critical/unknown/trusted) if vlanmap defined and interface has at least 1 vlan
                 if vlanmap and interfaces[iface]['vlans']:
                     result_dict[iface].update(interface_type.determine(vlanmap, interfaces[iface]))
+                    # set vlanmap result as 'CRITICAL' / 'UNKNOWN' / 'TRUSTED'
                     vlanmap_result = result_dict[iface]['vlanmap type'][1]
                 else:
                     vlanmap_result = None
@@ -125,7 +151,6 @@ for filename in filenames[0]:
                 # result_dict[iface].update(checks.mode.check(interfaces[iface]))
         else:
             result_dict[iface] = {'Unused Interface': [0, 'ENABLE', 'An interface that is not used must be disabled']}
-
 
     # processing results
     display.display_results(result_dict,html_file)
