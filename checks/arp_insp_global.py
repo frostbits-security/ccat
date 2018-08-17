@@ -1,7 +1,7 @@
 import util
 
 
-def check(global_params, vlanmap, allinterf, result_dict):
+def check(global_params, result_dict):
     enabled = 0
     snooping_vlans = []
     result_dict['ip']['ARP inspection'] = {}
