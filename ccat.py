@@ -2,7 +2,7 @@
 import os
 import args
 import parsing
-import progressbar
+#import progressbar
 import display
 import interface_type
 import checks
@@ -91,13 +91,6 @@ for filename in filenames[0]:
     result_dhcp, dhcp_flag = checks.dhcp_snoop_global.check(global_params,result_dict)
     result_dict.update(result_dhcp)
 
-    # Need to divide these checks to interfaces and global options (remain global checks here and add interface checks to
-    # cycle below) to avoid more than 1 interfaces iteration (there are 2 here and 1 below now, thats not good for speed)
-    #
-    # checks.arp_inspection.check (global_params, interfaces, vlanmap, args.args.disabled_interfaces, result_dict)
-    # checks.dhcp_snooping.check  (global_params, interfaces, vlanmap, args.args.disabled_interfaces, result_dict)
-
-
     # interface checks
     for iface in interfaces:
 
@@ -132,8 +125,8 @@ for filename in filenames[0]:
 
                 # example with using vlanmap_result type
                 result_dict[iface].update(checks.cdp .check(interfaces[iface], vlanmap_result))
-
                 result_dict[iface].update(checks.dtp .check(interfaces[iface]))
+                result_dict[iface].update(checks.source_guard.check(interfaces[iface],dhcp_flag))
 
                 stp_result = checks.stp.check(interfaces[iface], bpdu_flag)
 
@@ -163,6 +156,7 @@ for filename in filenames[0]:
 
                 if port_result:
                     result_dict[iface].update(port_result)
+
 
                 # access/trunk mode check
                 # result_dict[iface].update(checks.mode.check(interfaces[iface]))

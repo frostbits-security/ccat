@@ -448,6 +448,7 @@ def _interfaceParse___iface_attributes(config, check_disabled):
         parse_stp_port = Suppress('spanning-tree ') + restOfLine
         parse_dhcp_snoop = Suppress('ip dhcp snooping ') + restOfLine
         parse_arp_insp = Suppress('ip arp inspection ') + restOfLine
+        parse_source_guard = Suppress('ip verify source ') + restOfLine
         parse_vlans = Suppress('switchport ') + Suppress(MatchFirst('access vlan ' +
                                                                     ('trunk allowed vlan ' + Optional('add ')))) + vlan_num
 
@@ -516,6 +517,13 @@ def _interfaceParse___iface_attributes(config, check_disabled):
             try:
                 stp_port = parse_stp_port.parseString(option).asList()[-1]
                 iface_dict['stp'] = stp_port
+                continue
+            except ParseException:
+                pass
+
+            try:
+                source_guard = parse_source_guard.parseString(option).asList()[-1]
+                iface_dict['source_guard'] = source_guard
                 continue
             except ParseException:
                 pass
