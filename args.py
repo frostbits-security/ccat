@@ -38,6 +38,7 @@ def getfilenames():
     parser.add_argument("config", type=str, nargs='?', default=0, help="full path to the folder with config(s)")
     parser.add_argument("-vl", type=str, help="path to vlanmap (file that determine how critical is certain vlan, you can find example in 'example' folder)")
     parser.add_argument("-o", type=str, help="path to output html files directory")
+    parser.add_argument("--no-console-display", action='store_true', help="to output analysis results only in html files directory")
     parser.add_argument("--no-ipv6", action='store_true', help="if you're not using IPv6")
     parser.add_argument("--disabled-interfaces", action='store_true', help="check interfaces even if they are turned off")
     parser.add_argument("--storm_level", type=float, help="to set up appropriate level for storm-control (by default value=80)")
@@ -45,5 +46,8 @@ def getfilenames():
     args = parser.parse_args()
     if not(args.config):
         print ('Usage example:\n  ccat  smth/config_folder -vl smth/vlanmap_folder -v\n\nFor more details try --help')
+        exit()
+    if args.no_console_display and not args.o:
+        print('\nYou should define html files directory with -o key to use this options\n\nFor more details try --help')
         exit()
     return _getargs___arg_parser(args.config, args.vl)

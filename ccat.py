@@ -2,6 +2,7 @@
 import os
 import args
 import parsing
+import progressbar
 import display
 import interface_type
 import checks
@@ -35,6 +36,21 @@ if args.args.disabled_interfaces:
 else:
     check_disabled = False
 
+# output results only into html files directory
+if args.args.no_console_display:
+    no_console_display = True
+else:
+    no_console_display = False
+
+# start progress bar for html output files
+if no_console_display:
+    config_number = len(filenames[0])
+    config_checked = 0
+    bar = progressbar.ProgressBar(maxval=config_number, widgets=[
+        progressbar.Bar(left='[', marker='=', right=']'), # Прогресс
+        progressbar.SimpleProgress(),
+    ]).start()
+
 # processing configs one by one
 for filename in filenames[0]:
 
@@ -52,7 +68,8 @@ for filename in filenames[0]:
     interfaces    = parsing.iface_local
     global_params = parsing.iface_global
 
-    print('\n\n--------------------RESULTS FOR:', config_name[1:] + '--------------------')
+    if no_console_display == False:
+        print('\n\n--------------------RESULTS FOR:', config_name[1:] + '--------------------')
 
     # prepare results dictionary
     # WE CAN DELETE IT AND USE .update ATTRIBUTE TO FILL DICTIONARY
@@ -153,7 +170,17 @@ for filename in filenames[0]:
             result_dict[iface] = {'Unused Interface': [0, 'ENABLE', 'An interface that is not used must be disabled']}
 
     # processing results
-    display.display_results(result_dict,html_file)
+    display.display_results(result_dict,html_file, no_console_display)
+
+    # update progress bar if it is enabled
+    if no_console_display:
+        config_checked += 1
+        bar.update(config_checked)
+
+# finish progress bar
+if no_console_display:
+    bar.finish()
+
 
 # Do we really need scoring system ?
 #
