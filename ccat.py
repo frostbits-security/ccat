@@ -112,7 +112,7 @@ for filename in filenames[0]:
 
                 # set DISABLE status if interface is shutdown and disabled-interfaces argument is true
                 if interfaces[iface]['shutdown'] == 'yes' and check_disabled:
-                    result_dict[iface]['status'] = [3,'DISABLED']
+                    result_dict[iface]['status'] = [3,'SHUTDOWN']
 
                 # If type is not defined - interface is working in Dynamic Auto mode
                 if 'type' not in interfaces[iface]:

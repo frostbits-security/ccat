@@ -140,15 +140,15 @@ def _globalParse___stp_attributes(stp,dct):
     parse_bpdu     = Suppress('portfast bpduguard ')+ restOfLine
     parse_loop     = Suppress('loopguard ')         + restOfLine
     try:
-        return util.int_dict_parse(parse_bpdu, stp, 'bpduguard', dct)
+        return util.int_dict_parse(parse_bpdu,     stp, 'bpduguard', dct)
     except ParseException:
         pass
     try:
-        return util.int_dict_parse(parse_loop, stp, 'loopguard', dct)
+        return util.int_dict_parse(parse_loop,     stp, 'loopguard', dct)
     except ParseException:
         pass
     try:
-        return util.int_dict_parse(parse_portfast, stp, 'portfast', dct)
+        return util.int_dict_parse(parse_portfast, stp, 'portfast',  dct)
     except ParseException:
         pass
     return 0
@@ -203,14 +203,14 @@ def _globalParse___http_attributes(line):
 
 # ADD COMMENT PLS
 def _globalParse___vtp_attributes(vtp,dct):
-    parse_domain=Suppress('domain ')+restOfLine
-    parse_mode=Suppress('mode ')+restOfLine
+    parse_domain = Suppress('domain ') + restOfLine
+    parse_mode   = Suppress('mode ')   + restOfLine
     try:
-        return util.int_dict_parse(parse_domain,vtp,'domain',dct)
+        return util.int_dict_parse(parse_domain ,vtp, 'domain', dct)
     except ParseException:
         pass
     try:
-        return util.int_dict_parse(parse_mode, vtp, 'mode', dct)
+        return util.int_dict_parse(parse_mode,   vtp, 'mode',   dct)
     except ParseException:
         pass
     return 0
@@ -605,8 +605,8 @@ def __ifaceAttributes___ipv6_parse(ipv6, dct):
 # Output:
 #        dictionary with settings
 def __ifaceAttributes___ip_parse(dhcp_snoop, dct):
-    parse_mode=Word(alphas)
-    parse_rate=Suppress('limit rate ')+restOfLine
+    parse_mode = Word(alphas)
+    parse_rate = Suppress('limit rate ') + restOfLine
     try:
         return util.int_dict_parse(parse_rate, dhcp_snoop, 'limit', dct)
     except ParseException:
