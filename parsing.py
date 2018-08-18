@@ -338,8 +338,23 @@ def global_parse(config):
         except ParseException:
             pass
         try:
-            iface_global['ipv6'](parse_ipv6.parseString(line).asList()[-1])
-            continue
+            curr=parse_ipv6.parseString(line).asList()[-1]
+            try:
+                tmp=parse_ipv6_raguard.parseString(curr).asList()[-1].split(' ')
+                iface_global['ipv6']['raguard'][tmp[0]]=tmp[1]
+            except ParseException:
+                pass
+            try:
+                tmp=parse_ipv6_sourceguard.parseString(curr).asList()[-1].split(' ')
+                iface_global['ipv6']['source-guard'][tmp[0]]=tmp[1]
+            except ParseException:
+                pass
+            try:
+                tmp=parse_ipv6_snooping.parseString(curr).asList()[-1].split(' ')
+                iface_global['ipv6']['snooping'][tmp[0]]=tmp[1]
+            except ParseException:
+                pass
+        
         except ParseException:
             pass
         try:
@@ -696,7 +711,7 @@ def parseconfigs(filename, check_disabled):
 
     
     iface_local = {}
-    iface_global = {'ip': {'dhcp_snooping': {'active': 'no'}, 'arp_inspection': {'active': 'no'},'ssh': {}, 'active_service': [], 'http':{}}, 'active_service': [], 'disable_service': [],'aaa': {}, 'users': {}, 'line': {}, 'stp': {}, 'ipv6':{},'vtp':{}}
+    iface_global = {'ip': {'dhcp_snooping': {'active': 'no'}, 'arp_inspection': {'active': 'no'},'ssh': {}, 'active_service': [], 'http':{}}, 'active_service': [], 'disable_service': [],'aaa': {}, 'users': {}, 'line': {}, 'stp': {}, 'ipv6':{'raguard':{},'source-guard':{},'snooping':{}},'vtp':{}}
     with open(filename) as config:
         try:
             global_parse(config)
