@@ -338,7 +338,7 @@ def global_parse(config):
         except ParseException:
             pass
         try:
-            iface_global['ipv6'](parse_ipv6.parseString(option).asList()[-1])
+            iface_global['ipv6'](parse_ipv6.parseString(line).asList()[-1])
             continue
         except ParseException:
             pass
