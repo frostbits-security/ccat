@@ -2,7 +2,7 @@
 import os
 import args
 import parsing
-#import progressbar
+import progressbar
 import display
 import interface_type
 import checks
@@ -21,7 +21,7 @@ vlanmap = parsing.vlanmap_parse(filenames.pop(0))
 html_directory   = None
 html_file        = None
 config_directory = args.args.config
-# Create directory for html files output or check its exist
+# Create directory for html files output or check its existence
 if args.args.o:
     html_directory = args.args.o
     try:
@@ -65,10 +65,10 @@ for filename in filenames[0]:
     parsing.parseconfigs(filename, check_disabled)
 
     # getting parse output
-    interfaces    = parsing.iface_local
     global_params = parsing.iface_global
+    interfaces    = parsing.iface_local
 
-    if no_console_display == False:
+    if not no_console_display:
         print('\n\n--------------------RESULTS FOR:', config_name[1:] + '--------------------')
 
     # prepare results dictionary
@@ -85,8 +85,7 @@ for filename in filenames[0]:
     if result_vtp:
         result_dict.update(result_vtp)
 
-
-    # global checks with nessesary flags for further interface checks
+    # global checks with necessary flags for further interface checks
     result,      bpdu_flag = checks.stp_global       .check(global_params)
     result_dict.update(result)
 
@@ -100,19 +99,19 @@ for filename in filenames[0]:
     for iface in interfaces:
 
         # check interface if it has at least 1 options
-        if 'unknow_inface' not in interfaces[iface]:
+        if 'unknown_inface' not in interfaces[iface]:
 
             # skip loopback and vlan interfaces
             if 'loop' not in iface.lower() and 'vlan' not in iface.lower():
 
                 # skip shutdown interfaces if there was not --disabled-interfaces argument
-                if   interfaces[iface]['shutdown'] == 'yes' and check_disabled == False:
+                if   interfaces[iface]['shutdown'] == 'yes' and not check_disabled:
                     continue
 
                 result_dict[iface] = {}
 
                 # set DISABLE status if interface is shutdown and disabled-interfaces argument is true
-                if interfaces[iface]['shutdown'] == 'yes' and check_disabled == True:
+                if interfaces[iface]['shutdown'] == 'yes' and check_disabled:
                     result_dict[iface]['status'] = [3,'DISABLED']
 
                 # If type is not defined - interface is working in Dynamic Auto mode
@@ -166,7 +165,7 @@ for filename in filenames[0]:
                 # access/trunk mode check
                 # result_dict[iface].update(checks.mode.check(interfaces[iface]))
         else:
-            result_dict[iface] = {'Unused Interface': [0, 'ENABLE', 'An interface that is not used must be disabled']}
+            result_dict[iface] = {'Unused Interface': [0, 'ENABLED', 'An interface that is not used must be disabled']}
 
     # processing results
     display.display_results(result_dict,html_file, no_console_display)

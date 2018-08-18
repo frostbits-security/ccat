@@ -1,14 +1,11 @@
+# Display to console and html files config check results
 # Use display_results function for options display!
 
 # Colored output for windows
 import colorama
 colorama.init()
 
-# Options display
-# INPUT:  result dictionary of 1 section, option full name
-# SAMPLE: {'dhcp_snooping': {'active': [0, 'DISABLED', 'Turn it off to prevent spoofing attack']}}
-# OUTPUT: display colored options with its status
-# SAMPLE: - dhcp_snooping active        [DISABLED]
+
 class bcolors:
     WHITE  = '\033[1;37m'
     BLUE   = '\033[1;34m'
@@ -18,6 +15,11 @@ class bcolors:
     END    = '\033[0m'
 
 
+# Options display
+# Input:  result dictionary of 1 section, option full name
+# Sample:    {'dhcp_snooping': {'active': [0, 'DISABLED', 'Turn it off to prevent spoofing attack']}}
+# Output: display colored options with its status
+# Sample:    - dhcp_snooping active        [DISABLED]
 def display_options(dictionary, full_name, html, no_console_display):
     color = ''
     htmlclr = ''
@@ -39,7 +41,7 @@ def display_options(dictionary, full_name, html, no_console_display):
                 htmlclr = 'black'
 
             # Print option and status to console if needed
-            if no_console_display == False:
+            if not no_console_display:
                 print('{0:50} {1:1}'.format(' - '+full_name + key, '['+(color+dictionary[key][1]+bcolors.END)+']'))
 
             # Print option and status to html file if needed
@@ -52,16 +54,17 @@ def display_options(dictionary, full_name, html, no_console_display):
                 except IndexError:
                     pass
         else:
-            # go deeper in dictionary structure
+            # Go deeper in dictionary structure
             full_name += key + ' '
             display_options(dictionary[key],full_name,html, no_console_display)
             full_name = ''
 
+
 # Results display
-# INPUT:  result dictionary
-# SAMPLE: {'ip':{...}, 'active_service': {...},...}
-# OUTPUT: colored separated options display
-# SAMPLE: ip
+# Input:  result dictionary
+# Sample:    {'ip':{...}, 'active_service': {...},...}
+# Output: colored separated options display
+# Sample:    ip
 #          - dhcp_snooping active        [DISABLED]
 def display_results(dictionary,html_file, no_console_display):
     if html_file:
@@ -72,7 +75,7 @@ def display_results(dictionary,html_file, no_console_display):
                 full_name = ''
 
                 # Print field name to console if needed
-                if no_console_display == False:
+                if not no_console_display:
                     print('\n', bcolors.BLUE + key + bcolors.END)
 
                 # Print field name to html file

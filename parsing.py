@@ -1,20 +1,18 @@
 # Cisco config parsing
-# Creating 2 dictionaries with global and local options.
+# Create 2 dictionaries with global and interface options
 #
 # Global dictionary
-# {'file1.txt': {'ip': {'dhcp_snooping': {...}, 'arp_inspection': {...}, 'ssh': {...}, 'active_service': [...]}
+# {'ip': {'dhcp_snooping': {...}, 'arp_inspection': {...}, 'ssh': {...}, 'active_service': [...], 'http': {...}},
 #                'active_service': [...], 'disable_service': [...], 'aaa': {'authentication': {...},
-#                'authorization': {...}, 'accounting': {...}}, 'users': {...}, 'line': {...}, 'stp': {...},
-#                'enable_password': '5'/'7', 'version': '...'}
-#  'file2.txt': {...}}
+#                'authorization': {...}, 'accounting': {...}}, 'users': {...}, 'line': {...}, 'stp': {...}, 'ipv6': {...},
+#                'vtp':{...} , 'version': '...', 'model': '...', 'enable_password': '...'}
 #
 # Interface dictionary
-# {'file1.txt': {'vlans': [...], 'shutdown': 'yes'/'no', 'type': 'access'/'trunk', 'port-security': {'mac-address': ['type','mac'},
-#                'description': '...', 'storm-control': {'level': {'type', 'range'}, 'action': '...'}, 'cdp': 'yes/no',
-#                'dhcp_snoop': {...}, 'arp_insp': {...}}
-#  'file2.txt': {...}}
-#
-#
+# {'Interface_1': {'vlans': [...], 'shutdown': '...', 'type': '...', 'port-security': {...}, 'dhcp_snoop': {...},
+#                 'arp_insp': {...}, 'ipv6': {...}, 'storm-control': {...}, 'cdp': '...', 'dtp': {...},
+#                 'description': '...'},
+# 'Interface_2': {...}}
+
 
 from pyparsing import Suppress, Optional, restOfLine, ParseException, MatchFirst, Word, nums, ZeroOrMore, NotAny, White,\
                       Or, printables, oneOf, alphas, OneOrMore
@@ -51,12 +49,11 @@ accounting     = Suppress('accounting ')     + restOfLine
 parse_vtp      = Suppress('vtp ')            + restOfLine
 
 
-#
 # Parse any attributes with whitespace as first symbol into list
-# INPUT:  line with futher options (starts with whitespaces)
-# SAMPLE: interface Loopback1
-# OUTPUT: futher options list, next line (otherwise program may skip next line due to cursor placement)
-# SAMPLE: ['description -= MGMT - core.nnn048.nnn =-', 'ip address 172.21.24.140 255.255.255.255'], '!'
+# Input:  line with futher options (starts with whitespaces)
+# Sample:    interface Loopback1
+# Output: further options list, next line (otherwise program may skip next line due to cursor placement)
+# Sample:    ['description -= MGMT - core.nnn048.nnn =-', 'ip address 172.21.24.140 255.255.255.255'], '!'
 def get_attributes (config):
     options_list = []
     option = White(exact = 1) + Suppress(Optional(White())) + restOfLine
@@ -72,16 +69,16 @@ def get_attributes (config):
     return options_list, next_line
 
 
-# Username options parsing
-# INPUT:  line with user options
-# SAMPLE: vasya privilege 15 secret 5 $1$0P5Q$9h/ZPJj8T0iHu9DL/Ejt30
-# OUTPUT: user's options dictionary
-# SAMPLE: {'vasya': {'password_type': '5', 'privilege': '15'}}
+# Parse username options
+# Input:  line with user options
+# Sample:    vasya privilege 15 secret 5 $1$0k5Q$3h/ZPjj8T0iHu9DL/Ejt30
+# Output: user's options dictionary
+# Sample:    {'vasya': {'password_type': '5', 'privilege': '15'}}
 def _globalParse___username_attributes (line):
     username_dict = {}
-    username       = (Word(printables))                                          ('user')
-    privilege      = (Suppress('privilege')                        + Word(nums)) ('priv_num')
-    password_type  = (Suppress(MatchFirst(['secret', 'password'])) + Word(nums)) ('pass_type')
+    username       = (Word(printables))                                            ('user')
+    privilege      = (Suppress('privilege')                          + Word(nums)) ('priv_num')
+    password_type  = (Suppress(MatchFirst(['secret', 'password']))   + Word(nums)) ('pass_type')
     parse_username = (username + Optional(privilege) + password_type + Suppress(restOfLine))
     result = parse_username.parseString(line)
 
@@ -94,11 +91,11 @@ def _globalParse___username_attributes (line):
     return username_dict
 
 
-# AAA options parsing
-# INPUT:  line with AAA options, type of AAA, login count
-# SAMPLE: login default group radius local, authentication, 1
-# OUTPUT: AAA option dictionary
-# SAMPLE: {'login1': {'list': 'default', 'methods': ['radius', 'local']}}
+# Parse AAA options
+# Input:  line with AAA options, type of AAA, login count
+# Sample:    login default group radius local, authentication, 1
+# Output: AAA option dictionary
+# Sample:    {'login1': {'list': 'default', 'methods': ['radius', 'local']}}
 def _globalParse___aaa_attributes(line, type, count_aaa):
     aaa_dict = {}
 
@@ -138,7 +135,6 @@ def _globalParse___aaa_attributes(line, type, count_aaa):
 #        dictionary for settings
 # Output:
 #        dictionary with settings
-#
 def _globalParse___stp_attributes(stp,dct):
     parse_portfast = Suppress('portfast ')          + restOfLine
     parse_bpdu     = Suppress('portfast bpduguard ')+ restOfLine
@@ -158,38 +154,38 @@ def _globalParse___stp_attributes(stp,dct):
     return 0
 
 
-# Ssh options parsing
-# INPUT:  line with ssh option
-# SAMPLE: ip ssh time-out 30
-# OUTPUT: ssh option dictionary
-# SAMPLE: {'time-out': '30'}
+# Parse SSH options
+# Input:  line with ssh option
+# Sample:    ip ssh time-out 30
+# Output: ssh option dictionary
+# Sample:    {'time-out': '30'}
 def _globalParse___ssh_attributes(line):
     ssh_dict = {}
     ssh_option = (Word(alphas + '-')) ('option')
     ssh_value  = (restOfLine)         ('value')
-    result = (ssh_option + White() + ssh_value).parseString(line)
+    result     = (ssh_option + White() + ssh_value).parseString(line)
 
-    if result.option == 'logging':
-        ssh_dict['logging-events'] = 'yes'
+    if   result.option == 'logging':
+        ssh_dict['logging-events']         = 'yes'
     elif result.option == 'authentication-retries':
         ssh_dict['authentication_retries'] = result.value.split()[0]
     elif result.option == 'port':
-        ssh_dict['port_rotary'] = result.value.split()[0]
+        ssh_dict['port_rotary']            = result.value.split()[0]
     elif result.option == 'maxstartups':
-        ssh_dict['maxstartups'] = result.value.split()[0]
+        ssh_dict['maxstartups']            = result.value.split()[0]
     elif result.option == 'time-out':
-        ssh_dict['time-out'] = result.value.split()[0]
+        ssh_dict['time-out']               = result.value.split()[0]
     elif result.option == 'version':
-        ssh_dict['version'] = result.value.split()[0]
+        ssh_dict['version']                = result.value.split()[0]
 
     return ssh_dict
 
 
-# Http options parsing
-# INPUT:  line with http option
-# SAMPLE: ip http secure-server
-# OUTPUT: http option dictionary
-# SAMPLE: {'type': 'HTTPS'}
+# Parse HTTP options
+# Input:  line with http option
+# Sample:    ip http secure-server
+# Output: http option dictionary
+# Sample:    {'type': 'HTTPS'}
 def _globalParse___http_attributes(line):
     http_dict = {}
 
@@ -204,6 +200,8 @@ def _globalParse___http_attributes(line):
 
     return http_dict
 
+
+# ADD COMMENT PLS
 def _globalParse___vtp_attributes(vtp,dct):
     parse_domain=Suppress('domain ')+restOfLine
     parse_mode=Suppress('mode ')+restOfLine
@@ -216,11 +214,13 @@ def _globalParse___vtp_attributes(vtp,dct):
     except ParseException:
         pass
     return 0
-# Console and vty line options parsing
-# INPUT:  line with console or vty line name
-# SAMPLE: vty 0 4
-# OUTPUT: console or line options dictionary, next line (otherwise program will skip next line due to cursor placement)
-# SAMPLE: {'log_syng': 'no', 'access-class': {'name': 'ssh-in', 'type': 'in'}, 'privilege': '15'}, 'line vty 5 15'
+
+
+# Parse console and vty line options
+# Input:  line with console or vty line name
+# Sample:    vty 0 4
+# Output: console or line options dictionary, next line (otherwise program will skip next line due to cursor placement)
+# Sample:    {'log_syng': 'no', 'access-class': {'name': 'ssh-in', 'type': 'in'}, 'privilege': '15'}, 'line vty 5 15'
 def _globalParse___line_attributes(config):
     line_list, next_line = get_attributes(config)
     line_dict = {'log_syng': 'no', 'no_exec': 'no', 'access-class': {}}
@@ -258,17 +258,17 @@ def _globalParse___line_attributes(config):
         except ParseException:
             pass
         try:
-            line_dict['pass_type'] = parse_pass_type.parseString(option).asList()[-1]
+            line_dict['pass_type']  = parse_pass_type.parseString(option).asList()[-1]
             continue
         except ParseException:
             pass
         try:
-            line_dict['privilege'] = parse_privilege.parseString(option).asList()[-1]
+            line_dict['privilege']  = parse_privilege.parseString(option).asList()[-1]
             continue
         except ParseException:
             pass
         try:
-            line_dict['transp_in'] = parse_transp_in.parseString(option).asList()[-1]
+            line_dict['transp_in']  = parse_transp_in.parseString(option).asList()[-1]
             continue
         except ParseException:
             pass
@@ -278,7 +278,7 @@ def _globalParse___line_attributes(config):
         except ParseException:
             pass
         try:
-            line_dict['rotary'] = parse_rotary.parseString(option).asList()[-1]
+            line_dict['rotary']     = parse_rotary.parseString(option).asList()[-1]
             continue
         except ParseException:
             pass
@@ -293,13 +293,13 @@ def _globalParse___line_attributes(config):
     return line_dict, next_line
 
 
-# Global options parsing
-# INPUT:  files list to parse
-# SAMPLE: ['example/10.164.132.1.conf','example/172.17.135.196.conf']
-# OUTPUT: global options dictionary
-# SAMPLE: see on top of this file
-
+# Parse global options
+# Input:  files list to parse
+# Sample:    ['example/10.164.132.1.conf','example/172.17.135.196.conf']
+# Output: global options dictionary
+# Sample:    see on top of this file
 def global_parse(config):
+
     global iface_global
     global parse_ipv6
     global parse_enable_password 
@@ -320,7 +320,7 @@ def global_parse(config):
     global accounting
     global parse_vtp
 
-    count_authen, count_author, count_acc = 1, 1, 1
+    # count_authen, count_author, count_acc = 1, 1, 1
     for line in config:
         try:
             iface_global['version'] = parse_version.parseString(line).asList()[0]
@@ -373,7 +373,7 @@ def global_parse(config):
                 if iface_global['enable_password'][0] != 'secret':
                     iface_global['enable_password'] = current_line
             except KeyError:
-                iface_global['enable_password'] = current_line
+                iface_global['enable_password']     = current_line
             continue
         except ParseException:
             pass
@@ -384,11 +384,10 @@ def global_parse(config):
         except ParseException:
             pass
         try:
-
             vtp=parse_vtp.parseString(line).asList()[-1]
             result_parse_vtp=_globalParse___vtp_attributes(vtp,iface_global['vtp'])
             if result_parse_vtp:
-                iface_global['vtp'] =result_parse_vtp
+                iface_global['vtp'] = result_parse_vtp
         except ParseException:
             pass
         # try:
@@ -426,8 +425,6 @@ def global_parse(config):
                 iface_global['ip']['dhcp_snooping']['vlans']  = current_line
         except ParseException:
             pass
-        
-        
         try:
             current_line = parse_ip_arp.parseString(line).asList()
             iface_global['ip']['arp_inspection']['active'] = 'yes'
@@ -471,51 +468,45 @@ def global_parse(config):
             pass
 
 
-
 # Interface attributes parsing
-# INPUT:  open file with cursor on interface line
-# SAMPLE: example/10.164.132.1.conf
-# OUTPUT: interface options dictionary
-# SAMPLE: {'vlans': [], 'shutdown': 'no', 'description': '-= MGMT - core.nnn048.nnn =-'}
-
+# Input:  open file with cursor on interface line
+# Sample:    example/10.10.1.1.conf
+# Output: interface options dictionary
+# Sample:    {'vlans': [], 'shutdown': 'no', 'description': '-= MGMT - core.nnn048.nnn =-'}
 def _interfaceParse___iface_attributes(config, check_disabled):
     iface_list = get_attributes(config)[0]
     # if iface isn`t enable and unused
     if iface_list:
         iface_dict = {'shutdown': 'no', 'vlans': [], 'dhcp_snoop': {'mode': 'untrust'}, 'arp_insp': {'mode': 'untrust'},
                       'storm control': {}, 'port-security': {}, 'ipv6':{}}
-        vlan_num = Word(nums + '-') + ZeroOrMore(Suppress(',') + Word(nums + '-'))
 
-        parse_description = Suppress('description ') + restOfLine
-        parse_type = Suppress('switchport mode ') + restOfLine
-        parse_storm = Suppress('storm-control ') + restOfLine
-        parse_port_sec = Suppress('switchport port-security ') + restOfLine
-        parse_stp_port = Suppress('spanning-tree ') + restOfLine
-        parse_dhcp_snoop = Suppress('ip dhcp snooping ') + restOfLine
-        parse_arp_insp = Suppress('ip arp inspection ') + restOfLine
-        parse_source_guard = Suppress('ip verify source ') + restOfLine
-        parse_vlans = Suppress('switchport ') + Suppress(MatchFirst('access vlan ' +
+        vlan_num           = Word(nums + '-')                      + ZeroOrMore(Suppress(',') + Word(nums + '-'))
+        parse_description  = Suppress('description ')              + restOfLine
+        parse_type         = Suppress('switchport mode ')          + restOfLine
+        parse_storm        = Suppress('storm-control ')            + restOfLine
+        parse_port_sec     = Suppress('switchport port-security ') + restOfLine
+        parse_stp_port     = Suppress('spanning-tree ')            + restOfLine
+        parse_dhcp_snoop   = Suppress('ip dhcp snooping ')         + restOfLine
+        parse_arp_insp     = Suppress('ip arp inspection ')        + restOfLine
+        parse_source_guard = Suppress('ip verify source ')         + restOfLine
+        parse_vlans        = Suppress('switchport ')               + Suppress(MatchFirst('access vlan ' +
                                                                     ('trunk allowed vlan ' + Optional('add ')))) + vlan_num
 
         # Reserved options list is using due to 'shutdown' option is usually located at the end of the list, so it breaks cycle if interface is shutdown and function speed increases
         for option in iface_list[::-1]:
             if option == 'shutdown':
-                if check_disabled == True:
+                if check_disabled:
                     iface_dict['shutdown'] = 'yes'
                     pass
                 else:
                     iface_dict = {'shutdown': 'yes'}
                     break
-            try:
-                iface_dict['description'] = parse_description.parseString(option).asList()[-1]
+            if option == 'switchport nonegotiate':
+                iface_dict['dtp'] = 'no'
                 continue
-            except ParseException:
-                pass
-            try:
-                iface_dict['type'] = parse_type.parseString(option).asList()[-1]
+            if option == 'no cdp enable':
+                iface_dict['cdp'] = 'no'
                 continue
-            except ParseException:
-                pass
             try:
                 vlan_add = parse_vlans.parseString(option).asList()
                 for unit in vlan_add:
@@ -530,58 +521,64 @@ def _interfaceParse___iface_attributes(config, check_disabled):
             except ParseException:
                 pass
             try:
+                iface_dict['description']   = parse_description.parseString(option).asList()[-1]
+                continue
+            except ParseException:
+                pass
+            try:
+                iface_dict['type']          = parse_type.parseString(option).asList()[-1]
+                continue
+            except ParseException:
+                pass
+            try:
                 storm_control = parse_storm.parseString(option).asList()[-1]
                 iface_dict['storm control'] = __ifaceAttributes___storm_check(storm_control, iface_dict['storm control'])
                 continue
             except ParseException:
                 pass
             try:
-                ipv6 = parse_ipv6.parseString(option).asList()[-1]
-                __ifaceAttributes___ipv6_parse(ipv6, iface_dict['ipv6'])
-                continue
-            except ParseException:
-                pass
-            if option == 'switchport nonegotiate':
-                iface_dict['dtp'] = 'no'
-                continue
-            if option == 'no cdp enable':
-                iface_dict['cdp'] = 'no'
-                continue
-            try:
-                port_sec = parse_port_sec.parseString(option).asList()[-1]
+                port_sec      = parse_port_sec.parseString(option).asList()[-1]
                 iface_dict['port-security'] = __ifaceAttributes___port_sec_parse(port_sec, iface_dict['port-security'])
                 continue
             except ParseException:
                 pass
             try:
-                dhcp_snoop = parse_dhcp_snoop.parseString(option).asList()[-1]
-                iface_dict['dhcp_snoop'] = __ifaceAttributes___ip_parse(dhcp_snoop, iface_dict['dhcp_snoop'])
+                dhcp_snoop    = parse_dhcp_snoop.parseString(option).asList()[-1]
+                iface_dict['dhcp_snoop']    = __ifaceAttributes___ip_parse(dhcp_snoop, iface_dict['dhcp_snoop'])
                 continue
             except ParseException:
                 pass
             try:
-                arp_insp = parse_arp_insp.parseString(option).asList()[-1]
-                iface_dict['arp_insp'] = __ifaceAttributes___ip_parse(arp_insp, iface_dict['arp_insp'])
+                arp_insp      = parse_arp_insp.parseString(option).asList()[-1]
+                iface_dict['arp_insp']      = __ifaceAttributes___ip_parse(arp_insp, iface_dict['arp_insp'])
                 continue
             except ParseException:
                 pass
             try:
-                stp_port = parse_stp_port.parseString(option).asList()[-1]
-                iface_dict['stp'] = stp_port
+                stp_port      = parse_stp_port.parseString(option).asList()[-1]
+                iface_dict['stp']           = stp_port
+                continue
+            except ParseException:
+                pass
+            try:
+                source_guard  = parse_source_guard.parseString(option).asList()[-1]
+                iface_dict['source_guard']  = source_guard
+                continue
+            except ParseException:
+                pass
+            try:
+                ipv6          = parse_ipv6.parseString(option).asList()[-1]
+                __ifaceAttributes___ipv6_parse(ipv6, iface_dict['ipv6'])
                 continue
             except ParseException:
                 pass
 
-            try:
-                source_guard = parse_source_guard.parseString(option).asList()[-1]
-                iface_dict['source_guard'] = source_guard
-                continue
-            except ParseException:
-                pass
         return iface_dict
     else:
-        return {'unknow_inface':1}
+        return {'unknown_inface':1}
 
+
+# ADD COMMENT PLS
 def __ifaceAttributes___ipv6_parse(ipv6, dct):
     global parse_ipv6_sourceguard
     global parse_ipv6_raguard
@@ -600,13 +597,13 @@ def __ifaceAttributes___ipv6_parse(ipv6, dct):
     except ParseException:
         pass
 
+
 # Dhcp snooping/Arp inspection option parsing
 # Input:
 #        string, which start with word 'ip dhcp snooping'/ 'ip arp inspection'
 #        dictionary for settings
 # Output:
 #        dictionary with settings
-#
 def __ifaceAttributes___ip_parse(dhcp_snoop, dct):
     parse_mode=Word(alphas)
     parse_rate=Suppress('limit rate ')+restOfLine
@@ -626,12 +623,11 @@ def __ifaceAttributes___ip_parse(dhcp_snoop, dct):
 #        dictionary for storm-control settings
 # Output:
 #        dictionary with storm-control settings
-#
 def __ifaceAttributes___storm_check(storm,dct):
 
-    parse_level  = Word(alphas) + Suppress('level ') + restOfLine
+    parse_level  = Word(alphas)        + Suppress('level ')            + restOfLine
     parse_action = Suppress('action ') + Word(alphas)
-    parse_type   = Word(alphas) + Suppress(Optional("include")) + Word(alphas)
+    parse_type   = Word(alphas)        + Suppress(Optional("include")) + Word(alphas)
     try:
         value = parse_level.parseString(storm).asList()
         if 'level' in dct:
@@ -646,10 +642,9 @@ def __ifaceAttributes___storm_check(storm,dct):
     except ParseException:
         pass
     try:
-        return util.int_dict_parse(parse_type, storm, 'type', dct)
+        return util.int_dict_parse(parse_type,   storm, 'type',   dct)
     except ParseException:
         pass
-
 
 
 # Port-security option parsing
@@ -658,7 +653,6 @@ def __ifaceAttributes___storm_check(storm,dct):
 #        dictionary for port-security settings
 # Output:
 #        dictionary with port-security settings
-#
 def __ifaceAttributes___port_sec_parse(port,dct):
     parse_aging_time = Suppress('aging time ')  + restOfLine
     parse_aging_type = Suppress('aging type ')  + restOfLine
@@ -666,32 +660,32 @@ def __ifaceAttributes___port_sec_parse(port,dct):
     parse_max        = Suppress('maximum ')     + restOfLine
     parse_mac        = Suppress('mac-address ') + Optional('sticky') + restOfLine
     try:
-        return util.int_dict_parse(parse_aging_time, port, 'aging time', dct)
+        return util.int_dict_parse(parse_aging_time, port, 'aging time',  dct)
     except ParseException:
         pass
     try:
-        return util.int_dict_parse(parse_aging_type, port, 'aging type', dct)
+        return util.int_dict_parse(parse_aging_type, port, 'aging type',  dct)
     except ParseException:
         pass
     try:
-        return util.int_dict_parse(parse_violat, port, 'violation', dct)
+        return util.int_dict_parse(parse_violat,     port, 'violation',   dct)
     except ParseException:
         pass
     try:
-        return util.int_dict_parse(parse_mac, port, 'mac-address', dct)
+        return util.int_dict_parse(parse_mac,        port, 'mac-address', dct)
     except ParseException:
         pass
     try:
-        return util.int_dict_parse(parse_max, port, 'maximum', dct)
+        return util.int_dict_parse(parse_max,        port, 'maximum',     dct)
     except ParseException:
         pass
 
 
-# Interface options parsing
-# INPUT:  files list to parse
-# SAMPLE: ['example/10.164.132.1.conf','example/172.17.135.196.conf']
-# OUTPUT: interface options dictionary
-# SAMPLE: see on top of this file
+# Parse interface options
+# Input:  files list to parse
+# Sample:    'example/10.10.1.1.conf'
+# Output: interface options dictionary
+# Sample:    see on top of this file
 def interface_parse(config, check_disabled):
     global parse_ipv6
     global parse_iface
@@ -704,12 +698,12 @@ def interface_parse(config, check_disabled):
             pass      
     return 0
 
+
 # main function 
 def parseconfigs(filename, check_disabled):
     global iface_local
     global iface_global
 
-    
     iface_local = {}
     iface_global = {'ip': {'dhcp_snooping': {'active': 'no'}, 'arp_inspection': {'active': 'no'},'ssh': {}, 'active_service': [], 'http':{}}, 'active_service': [], 'disable_service': [],'aaa': {}, 'users': {}, 'line': {}, 'stp': {}, 'ipv6':{'raguard':{},'source-guard':{},'snooping':{}},'vtp':{}}
     with open(filename) as config:
@@ -722,21 +716,6 @@ def parseconfigs(filename, check_disabled):
             print(e)
     return 0
 
-# OUTPUT FOR DEBUG
-# filenames = []
-#
-# interfaces=interface_parse(filenames)
-# global_params=global_parse(filenames)
-#
-# for fname in filenames:
-#     print('\n', fname, 'global options:\n')
-#     for key in global_params[fname]:
-#         print(key, global_params[fname][key])
-#
-#     print('\n', fname, 'interface options:\n')
-#     for key in interfaces[fname]:
-#         print(key, interfaces[fname][key])
-
 
 # vlanmap parsing, returns list of three lists with ints
 # returns 0 if no vlanmap given
@@ -746,8 +725,8 @@ def vlanmap_parse(filename):
         res=[]
         try:
             res.append(vlanmap['critical_area']) #critical
-            res.append(vlanmap['unknown_area']) #unknown
-            res.append(vlanmap['trusted_area']) #trusted
+            res.append(vlanmap['unknown_area'])  #unknown
+            res.append(vlanmap['trusted_area'])  #trusted
             cnt=0
             for zone in res:
                 for i in zone:

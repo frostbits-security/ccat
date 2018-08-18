@@ -53,7 +53,7 @@ def check(global_params):
 
             if 'privilege'    in global_params['line'][line]:
                 if global_params['line'][line]['privilege'] == '15':
-                    results_dict['Lines'][line]['privilege level']  = [1, 'High privilege level', 'You may want to decrease it']
+                    results_dict['Lines'][line]['privilege level']  = [1, '15', 'You may want to decrease it']
 
             if 'transp_in'    in global_params['line'][line]:
                 if   global_params['line'][line]['transp_in'] == 'ssh':

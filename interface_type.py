@@ -7,12 +7,11 @@
 #           'CRITICAL'/'UNKNOWN'/'TRUSTED'
 #       vlanmap options dictionary
 #           {'vlanmap warning': [1, 'Trusted and Critical vlans on interface'], 'vlanmap type': [2, 'CRITICAL']}
-#
 def determine(vlanmap, interface):
     result_dict = {}
 
-# Create empty dictionary and fill it: if interface is access - will be filled only 1 list, if interface is trunk - might
-# be filled some lists
+    # Create empty dictionary and fill it: if interface is access - will be filled only 1 list, if interface is trunk -
+    # might be filled some lists
     vlanmap_check = {'critical': [], 'unknown': [], 'trusted': []}
     find = False
     area_num = 0
@@ -30,13 +29,14 @@ def determine(vlanmap, interface):
 
 
     # if interface vlans are not in vlanmap - vlanmap type will be set as UNKNOWN
-    if find == False:
+    if not find:
         result_dict['vlanmap type'] = [3, 'UNKNOWN']
 
-    else:
-    # If interface has at least 1 critical vlan - it's vlanmap type will be set as CRITICAL, if 0 criticals vlans, but
+
+    # If interface has at least 1 critical vlan - it's vlanmap type will be set as CRITICAL, if 0 critical vlans, but
     # at least 1 unknown vlan - vlanmap type will be set as UNKNOWN, if interface has only trusted vlans - vlanmap type
     # will be set as TRUSTED
+    else:
         if vlanmap_check['critical']:
             result_dict['vlanmap type'] = [3, 'CRITICAL']
         elif vlanmap_check['unknown']:
