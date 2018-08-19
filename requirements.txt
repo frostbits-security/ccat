@@ -1,3 +1,4 @@
 argparse>=1.0.0
 pyparsing>=2.0.0
 colorama>=0.3.0
+progressbar>=2.0.0

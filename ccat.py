@@ -11,9 +11,6 @@ from checks import *
 # get filenames from args
 filenames = args.getfilenames()
 
-# debug output
-print(args.args)
-
 # get vlanmap
 vlanmap = parsing.vlanmap_parse(filenames.pop(0))
 
@@ -67,6 +64,14 @@ for filename in filenames[0]:
     # getting parse output
     global_params = parsing.iface_global
     interfaces    = parsing.iface_local
+    # debug output
+    if(args.args.debug):
+        print("\n\n[DEBUG] args:")
+        print(args.args)
+        print("\n\n[DEBUG] global:")
+        print(global_params)
+        print("\n\n[DEBUG] iface:")
+        print(interfaces)
 
     if not no_console_display:
         print('\n\n--------------------RESULTS FOR:', config_name[1:] + '--------------------')
