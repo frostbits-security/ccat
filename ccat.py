@@ -142,13 +142,13 @@ for filename in filenames[0]:
                 if stp_result:
                     result_dict[iface].update(stp_result)
 
-                dhcp_result = checks.dhcp_snooping.check(interfaces[iface], vlanmap, args.args.disabled_interfaces,dhcp_flag)
+                dhcp_result = checks.dhcp_snooping.check(interfaces[iface], vlanmap, args.args.disabled_interfaces,dhcp_flag,vlanmap_result)
 
                 if dhcp_result:
                     result_dict[iface].update(dhcp_result)
 
                 arp_result = checks.arp_inspection.check(interfaces[iface], vlanmap, args.args.disabled_interfaces,
-                                                         arp_flag)
+                                                         arp_flag,vlanmap_result)
 
                 if arp_result:
                     result_dict[iface].update(arp_result)

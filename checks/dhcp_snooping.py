@@ -1,5 +1,4 @@
-def check(iface_params, vlanmap, allinterf, enabled):
-    result_dict = {}
+def dhcp_check(iface_params, vlanmap, allinterf, enabled,result_dict,scale):
     if (enabled):
         try:
             iface_snoop = iface_params['dhcp_snoop']
@@ -28,17 +27,31 @@ def check(iface_params, vlanmap, allinterf, enabled):
                 #     # push first number
                 #     chkres = int(iface_snoop['limit'][0].split(' ')[0]) > 100
                 if (chkres):
-                    result_dict['DHCP snooping']['rate limit'] = [1, 'Too high','DHCP starvation prevention is inefficient']
+                    result_dict['DHCP snooping']['rate limit'] = [scale[1], 'Too high','DHCP starvation prevention is inefficient']
                 else:
-                    result_dict['DHCP snooping']['rate limit'] = [2, 'OK','DHCP starvation prevention is efficient']
+                    result_dict['DHCP snooping']['rate limit'] = [scale[2], 'OK','DHCP starvation prevention is efficient']
 
             else:
-                result_dict['DHCP snooping']['rate limit'] = [1, 'Not set', 'Needed to prevent DHCP starvation']
+                result_dict['DHCP snooping']['rate limit'] = [scale[1], 'Not set', 'Needed to prevent DHCP starvation']
         # check if trusted interface is marked as trusted in vlamap
         elif ((mode == 'trust') and vlanmap and iface_vlans):
             if (set(vlanmap[2]).isdisjoint(iface_vlans)):
-                result_dict['DHCP snooping']['vlans'] = [0, 'Interface set as trusted, but vlanmap is different',
+                result_dict['DHCP snooping']['vlans'] = [scale[0], 'Interface set as trusted, but vlanmap is different',
                                                          'This interface is not trusted according to vlanmap, but marked as trusted. Unauthorized DHCP server can work here']
         else:
             result_dict = 0
     return result_dict
+
+def check(iface_params, vlanmap, allinterf, enabled, vlanmap_type):
+    result = {}
+
+# If this network segment is TRUSTED - enabled cdp is not a red type of threat, it will be colored in orange
+    if vlanmap_type == 'TRUSTED':
+        dhcp_check(iface_params, vlanmap, allinterf, enabled,result,[1,1,2])
+
+# Otherwise if network segment is CRITICAL or UNKNOWN or vlanmap is not defined - enabled cdp is a red type of threat
+    else:
+        dhcp_check(iface_params, vlanmap, allinterf, enabled,result, [0,1, 2])
+
+    return result
+
