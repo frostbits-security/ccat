@@ -134,7 +134,7 @@ for filename in filenames[0]:
 
                 # example with using vlanmap_result type
                 result_dict[iface].update(checks.cdp .check(interfaces[iface], vlanmap_result))
-                result_dict[iface].update(checks.dtp .check(interfaces[iface]))
+                result_dict[iface].update(checks.dtp .check(global_params,interfaces[iface],vlanmap_result))
                 result_dict[iface].update(checks.source_guard.check(interfaces[iface],dhcp_flag, vlanmap_result))
 
                 stp_result = checks.stp.check(interfaces[iface], bpdu_flag, vlanmap_result)
