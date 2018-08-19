@@ -149,9 +149,9 @@ for filename in filenames[0]:
                     result_dict[iface].update(arp_result)
 
                 if args.args.storm_level:
-                    result_dict[iface].update(checks.storm_control.check(interfaces[iface], args.args.storm_level))
+                    result_dict[iface].update(checks.storm_control.check(interfaces[iface], vlanmap_result, args.args.storm_level))
                 else:
-                    result_dict[iface].update(checks.storm_control.check(interfaces[iface]))
+                    result_dict[iface].update(checks.storm_control.check(interfaces[iface], vlanmap_result))
 
                 if args.args.max_number_mac:
                     port_result = checks.port_security.check(interfaces[iface], args.args.max_number_mac)
