@@ -12,9 +12,9 @@ def cdp_check(result,scale,dct):
         if dct['cdp'] == 'no':
             result['Cisco Discovery Protocol(CDP)'] = [scale[1], 'DISABLED']
         else:
-            result['Cisco Discovery Protocol(CDP)'] = [scale[0], 'ENABLED', 'CDP should not be enable']
+            result['Cisco Discovery Protocol(CDP)'] = [scale[0], 'ENABLED', 'CDP should not be enabled']
     else:
-        result['Cisco Discovery Protocol(CDP)'] = [scale[0], 'ENABLED', 'CDP should not be enable']
+        result['Cisco Discovery Protocol(CDP)'] = [scale[0], 'ENABLED', 'CDP should not be enabled']
     return result
 
 def check(iface_dct, vlanmap_type):

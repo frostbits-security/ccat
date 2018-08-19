@@ -23,9 +23,9 @@ def stp_check(iface_dct,flag,result,scale):
                 result['Portfast'] = [scale[0], 'DISABLED', 'The portfast must be enabled on the access port']
         else:
             if 'stp' in iface_dct and 'portfast trunk' in iface_dct['stp'] and flag == 1:
-                result['Portfast on a trunk port'] = [scale[0], 'WARNING', 'The portfast is on a trunk port']
+                result['Portfast on a trunk port'] = [scale[0], 'WARNING', 'The portfast is enabled on a trunk port']
             elif 'stp' in iface_dct and 'portfast trunk' in iface_dct['stp'] and flag == 0:
-                result['Portfast on a trunk port'] = [scale[0], 'WARNING', 'The portfast is on a trunk port and bpduguard disable']
+                result['Portfast on a trunk port'] = [scale[0], 'WARNING', 'The portfast is enabled on a trunk port and bpduguard is disabled']
         return result
     return 0
 

@@ -130,7 +130,7 @@ for filename in filenames[0]:
                 # example with using vlanmap_result type
                 result_dict[iface].update(checks.cdp .check(interfaces[iface], vlanmap_result))
                 result_dict[iface].update(checks.dtp .check(interfaces[iface]))
-                result_dict[iface].update(checks.source_guard.check(interfaces[iface],dhcp_flag))
+                result_dict[iface].update(checks.source_guard.check(interfaces[iface],dhcp_flag, vlanmap_result))
 
                 stp_result = checks.stp.check(interfaces[iface], bpdu_flag, vlanmap_result)
 
@@ -154,9 +154,9 @@ for filename in filenames[0]:
                     result_dict[iface].update(checks.storm_control.check(interfaces[iface], vlanmap_result))
 
                 if args.args.max_number_mac:
-                    port_result = checks.port_security.check(interfaces[iface], args.args.max_number_mac)
+                    port_result = checks.port_security.check(interfaces[iface], vlanmap_result, args.args.max_number_mac)
                 else:
-                    port_result=checks.port_security.check(interfaces[iface])
+                    port_result=checks.port_security.check(interfaces[iface], vlanmap_result)
 
                 if port_result:
                     result_dict[iface].update(port_result)

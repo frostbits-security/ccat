@@ -18,7 +18,7 @@ def storm_lvl_check(lvl,storm_level,scale):
     if float(lvl) < storm_level:
         return [scale[2], lvl]
     else:
-        return [scale[0], lvl, 'Storm-control level should be less than 80']
+        return [scale[0], lvl, 'The Storm Control level should be less than 80']
 
 
 # check storm-control traffic type
@@ -63,14 +63,14 @@ def _storm_check(iface_dct,storm_level,scale,dct):
                                 lvl_list[0]) == 100 or float(lvl_list[1]) == 100 or float(
                             lvl_list[0]) == 1 or float(lvl_list[1]) == 1:
                             dct.update(
-                                {'The traffic Storm Control level': [scale[0], 'INCORRECT', 'Storm Control level should be less than 80(0.8)']})
+                                {'The traffic Storm Control level': [scale[0], 'INCORRECT', 'The Storm Control level should be less than 80(0.8)']})
                         else:
                             dct.update({'The traffic Storm Control level': storm_lvl_check(lvl_list[0],storm_level,scale)})
                     else:
-                        dct.update({'The traffic Storm Control level': [scale[0], 'INCORRECT', 'Storm Control level shouldn`t be equal']})
+                        dct.update({'The traffic Storm Control level': [scale[0], 'INCORRECT', 'Levels of the Storm Control do not have to be equal']})
                 else:
                     if float(lvl_list[0]) == 0 or float(lvl_list[0]) == 100 or float(lvl_list[0]) == 1:
-                        dct.update({'The traffic Storm Control level': [scale[0], 'INCORRECT', 'Storm Control level shouldn`t be equal 1(100) or 0']})
+                        dct.update({'The traffic Storm Control level': [scale[0], 'INCORRECT', 'The Storm Control level does not have to be equal 1(100) or 0']})
                     else:
                         dct.update({'The traffic Storm Control level': storm_lvl_check(lvl_list[0],storm_level,scale)})
 
@@ -79,7 +79,7 @@ def _storm_check(iface_dct,storm_level,scale,dct):
                 check_storm_type(lvl_type, dct, 0,scale)
         else:
             dct.update(
-                {'The traffic Storm Control level': [scale[0], 'DISABLED', 'Storm-control level should be turn on']})
+                {'The traffic Storm Control level': [scale[0], 'DISABLED', 'Storm-control level should be enabled']})
 
         if 'type' in storm_dct:
             dct.update(check_storm_type(storm_dct['type'], dct, 1,scale))
@@ -87,11 +87,11 @@ def _storm_check(iface_dct,storm_level,scale,dct):
         for each in ['broadcast', 'multicast', 'unicast']:
             if each not in dct:
                 if each == 'unicast':
-                    dct.update({each.capitalize()+' traffic Storm Control': [scale[1], 'DISABLED', each.capitalize() + ' Storm Control should be turn on']})
+                    dct.update({each.capitalize()+' traffic Storm Control': [scale[1], 'DISABLED', each.capitalize() + ' Storm Control should be enabled']})
                 else:
-                    dct.update({each.capitalize()+' traffic Storm Control': [scale[0], 'DISABLED', each.capitalize() + ' Storm Control should be turn on']})
+                    dct.update({each.capitalize()+' traffic Storm Control': [scale[0], 'DISABLED', each.capitalize() + ' Storm Control should be  enabled']})
     else:
-        dct.update({'Traffic Storm Control': [scale[0], 'DISABLED', 'Storm Control should be enable']})
+        dct.update({'Traffic Storm Control': [scale[0], 'DISABLED', 'Storm Control should be enabled']})
         return dct
 
     return dct

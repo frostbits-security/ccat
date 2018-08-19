@@ -13,11 +13,11 @@ def _check__check_stp(global_dct):
     for option in stp_res:
         if option.lower() in global_dct:
             if global_dct[option.lower()][0]=='default':
-                stp_res[option]=[2,'OK',option.capitalize()+' should be turn on']
+                stp_res[option]=[2,'OK',option.capitalize()+' should be turned on']
             else:
-                stp_res[option] = [1, 'WARNING', option.capitalize() + ' should be turn on']
+                stp_res[option] = [1, 'WARNING', option.capitalize() + ' should be turned on']
         else:
-            stp_res[option] = [1, 'WARNING', option.capitalize() + ' should be turn on']
+            stp_res[option] = [1, 'WARNING', option.capitalize() + ' should be turned on']
     return (stp_res)
 
 def check(global_dct):
