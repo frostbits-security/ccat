@@ -8,28 +8,40 @@
 #           {{'iface1': {'STP': {'portfast': [severity(int), 'message', 'best practice']}, 'iface2':...}}
 #
 
-def check(iface_dct,flag):
-    result = {}
+def stp_check(iface_dct,flag,result,scale):
+    # result = {}
     if 'type' in iface_dct:
         if iface_dct['type'] == 'access':
             if flag==3:
                 return 0
             elif 'stp' in iface_dct:
                 if iface_dct['stp'] == 'portfast' and flag == 1:
-                    result['portfast'] = [2, 'OK', 'A portfast should be enable on access port']
+                    result['Portfast'] = [scale[1], 'ENABLED']
                 elif iface_dct['stp'] == 'portfast' and flag == 2:
-                    result['portfast'] = [1, 'BPDUGUARD DISABLE', 'A portfast enable but bpduguard disable']
+                    result['Portfast'] = [scale[0], 'BPDUGUARD DISABLED', 'The portfast is enabled but bpduguard is disabled']
             else:
-                result['portfast'] = [1, 'DISABLE', 'A portfast should be enable on access port']
+                result['Portfast'] = [scale[0], 'DISABLED', 'The portfast must be enabled on the access port']
         else:
             if 'stp' in iface_dct and 'portfast trunk' in iface_dct['stp'] and flag == 1:
-                result['portfast on trunk'] = [1, 'WARNING', 'A Portfast is on trunk port']
+                result['Portfast on a trunk port'] = [scale[0], 'WARNING', 'The portfast is on a trunk port']
             elif 'stp' in iface_dct and 'portfast trunk' in iface_dct['stp'] and flag == 0:
-                result['portfast on trunk'] = [1, 'WARNING', 'A Portfast is on trunk port and bpduguard disable']
+                result['Portfast on a trunk port'] = [scale[0], 'WARNING', 'The portfast is on a trunk port and bpduguard disable']
         return result
     return 0
 
+def check(iface_dct,flag, vlanmap_type):
+    result = {}
 
+# If this network segment is TRUSTED - enabled cdp is not a red type of threat, it will be colored in orange
+    if vlanmap_type == 'TRUSTED':
+        stp_check(iface_dct,flag,result,[1,2])
+
+# Otherwise if network segment is CRITICAL or UNKNOWN or vlanmap is not defined - enabled cdp is a red type of threat
+    else:
+        stp_check(iface_dct,flag,result, [0, 2])
+
+
+    return result
 
 
 
