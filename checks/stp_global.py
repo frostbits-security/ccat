@@ -9,10 +9,10 @@
 #
 
 def _check__check_stp(global_dct):
-    stp_res = {'portfast':0,'loopguard':0,'bpduguard':0}
+    stp_res = {'Portfast':0,'Loopguard':0,'Bpduguard':0}
     for option in stp_res:
-        if option in global_dct:
-            if global_dct[option][0]=='default':
+        if option.lower() in global_dct:
+            if global_dct[option.lower()][0]=='default':
                 stp_res[option]=[2,'OK',option.capitalize()+' should be turn on']
             else:
                 stp_res[option] = [1, 'WARNING', option.capitalize() + ' should be turn on']
