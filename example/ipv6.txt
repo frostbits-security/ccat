@@ -1,0 +1,150 @@
+!
+! Last configuration change at 00:04:11 MSK Thu Aug 16 2018
+!
+version 15.2
+service timestamps debug datetime msec
+service timestamps log datetime msec
+no service password-encryption
+service compress-config
+!
+hostname CiscoIOUL215.2d-1
+!
+boot-start-marker
+boot-end-marker
+!
+!
+logging discriminator EXCESS severity drops 6 msg-body drops EXCESSCOLL 
+logging buffered 50000
+logging console discriminator EXCESS
+!
+no aaa new-model
+clock timezone MSK 3 0
+!         
+!         
+!         
+!         
+!         
+no ip icmp rate-limit unreachable
+!         
+!         
+!         
+no ip domain-lookup
+ip cef    
+ipv6 nd raguard policy ROUTER
+!         
+ipv6 nd raguard attach-policy ROUTER
+ipv6 snooping policy HOST
+!         
+ipv6 snooping policy ROUTER
+!         
+ipv6 source-guard policy ROUTER
+!         
+ipv6 source-guard policy SG
+!         
+ipv6 source-guard attach-policy SG
+no ipv6 cef
+!         
+!         
+!         
+spanning-tree mode rapid-pvst
+spanning-tree extend system-id
+!         
+vlan internal allocation policy ascending
+!         
+ip tcp synwait-time 5
+!         
+!         
+!         
+!         
+!         
+!         
+!         
+!         
+!         
+!         
+!         
+!         
+!         
+interface Port-channel1
+ ipv6 nd raguard attach-policy ROUTER
+ ipv6 source-guard attach-policy SG
+ shutdown
+!         
+interface Ethernet0/0
+ shutdown
+!         
+interface Ethernet0/1
+ shutdown
+!         
+interface Ethernet0/2
+ shutdown
+!         
+interface Ethernet0/3
+ shutdown
+!         
+interface Ethernet1/0
+ shutdown
+!         
+interface Ethernet1/1
+ shutdown
+!         
+interface Ethernet1/2
+ shutdown
+!         
+interface Ethernet1/3
+ shutdown
+!         
+interface Ethernet2/0
+ shutdown
+!         
+interface Ethernet2/1
+ shutdown
+!         
+interface Ethernet2/2
+ shutdown
+!         
+interface Ethernet2/3
+ shutdown
+!         
+interface Ethernet3/0
+ shutdown
+!         
+interface Ethernet3/1
+ shutdown
+!         
+interface Ethernet3/2
+ shutdown
+!         
+interface Ethernet3/3
+ shutdown
+!         
+interface Vlan1
+ no ip address
+ shutdown 
+!         
+ip forward-protocol nd
+!         
+!         
+no ip http server
+no ip http secure-server
+!         
+!         
+!         
+!         
+!         
+control-plane
+!         
+!         
+line con 0
+ exec-timeout 0 0
+ privilege level 15
+ logging synchronous
+line aux 0
+ exec-timeout 0 0
+ privilege level 15
+ logging synchronous
+line vty 0 4
+ login    
+!         
+!         
+end  
