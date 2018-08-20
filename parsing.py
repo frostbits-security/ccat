@@ -62,7 +62,7 @@ def get_attributes (config):
         option_parse = option.parseString(next_line)
         while option_parse[0] == ' ':
             options_list.append(option_parse[-1])
-            next_line = config.readline()
+            next_line    = config.readline()
             option_parse = option.parseString(next_line)
     except:
         pass
@@ -189,14 +189,14 @@ def _globalParse___ssh_attributes(line):
 def _globalParse___http_attributes(line):
     http_dict = {}
 
-    if line == 'server':
-        http_dict['type'] = 'http'
-    elif line == 'secure-server':
-        http_dict['type'] = 'https'
+    if   line            == 'server':
+        http_dict['type']            = 'http'
+    elif line            == 'secure-server':
+        http_dict['type']            = 'https'
     elif line.split()[0] == 'max-connections':
         http_dict['max_connections'] = line.split()[-1]
     elif line.split()[0] == 'port':
-        http_dict['port'] = line.split()[-1]
+        http_dict['port']            = line.split()[-1]
 
     return http_dict
 

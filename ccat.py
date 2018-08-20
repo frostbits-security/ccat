@@ -79,7 +79,7 @@ for filename in filenames[0]:
 
     # prepare results dictionary
     # WE MUST DELETE IT AND USE .update ATTRIBUTE TO FILL DICTIONARY
-    result_dict = {'IP options': {'dhcp_snooping': {}, 'arp_inspection': {}} }
+    result_dict = {}
 
     # global checks
     result_dict.update(checks.services   .check(global_params))
