@@ -9,8 +9,8 @@ def check(iface_dct):
     result = {}
     if 'type' in iface_dct:
         if iface_dct['type'] == 'access':
-            result['type'] = [2, 'ACCESS']
+            result['type'] = [3, 'ACCESS']
         else:
-            result['type'] = [2, 'TRUNK']
+            result['type'] = [3, 'TRUNK']
 
     return result

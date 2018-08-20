@@ -36,12 +36,14 @@ def check(global_params):
     else:
         results_dict['Services']['config']            = [2, 'DISABLED']
 
-    if 'udp-small-servers'  in global_params['active_service']:
+    # TCP and UDP small services are enabled by default on Cisco IOS software Release 11.2 and earlier. These commands
+    # are disabled by default on Cisco IOS software Software Versions 11.3 and later.
+    if 'udp-small-servers'  in global_params['active_service'] or float(global_params['version']) <= 11.2:
         results_dict['Services']['udp small servers'] = [0, 'ENABLED', 'Turn it off to prevent potential information leak and DOS attack']
     else:
         results_dict['Services']['udp small servers'] = [2, 'DISABLED']
 
-    if 'tcp-small-servers'  in global_params['active_service']:
+    if 'tcp-small-servers'  in global_params['active_service'] or float(global_params['version']) <= 11.2:
         results_dict['Services']['tcp small servers'] = [0, 'ENABLED', 'Turn it off to prevent potential information leak and DOS attack']
     else:
         results_dict['Services']['tcp small servers'] = [2, 'DISABLED']
