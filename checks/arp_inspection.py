@@ -1,7 +1,26 @@
 #############################
 # ARP inspection check
 
-def arp_check(iface_params, vlanmap, allinterf, enabled,result_dict,scale):
+import util
+
+
+def check_global(global_params, result_dict):
+    enabled = 0
+    snooping_vlans = []
+    result_dict['IP options']['ARP inspection'] = {}
+
+    # globals
+    if (global_params['ip']['arp_inspection']['active'] == 'yes'):
+        enabled = 1
+        result_dict['IP options']['ARP inspection'] = [2, 'ENABLED']
+        if ('vlans' in global_params['ip']['arp_inspection']):
+            snooping_vlans = util.intify(global_params['ip']['arp_inspection']['vlans'])
+    else:
+        result_dict['IP options']['ARP inspection'] = [0, 'DISABLED', 'Turn it on to prevent spoofing attack']
+    return result_dict, enabled
+
+def check_iface(iface_params, vlanmap_type, allinterf, enabled):
+    result_dict={}
     ### Interfaces
     # result_dict = {}
     if (enabled):
@@ -22,23 +41,10 @@ def arp_check(iface_params, vlanmap, allinterf, enabled,result_dict,scale):
                 result_dict['ARP inspection'] = {}
             mode = iface_arp['mode']
 
-            if ((mode == 'trust') and vlanmap and iface_vlans):
-                if (set(vlanmap[2]).isdisjoint(iface_vlans)):
-                    result_dict[i]['ARP inspection']['vlans'] = [scale,
+            if ((mode == 'trust') and  not(vlanmap_type=='TRUSTED')):
+                result_dict[i]['ARP inspection']['vlans'] = [0,
                                                                  'Interface set as trusted, but vlanmap is different',
                                                                  'This interface is not trusted according to vlanmap, but marked as trusted. ARP spoofing is possible.']
             else:
                 result_dict = 0
     return result_dict
-
-def check(iface_params, vlanmap, allinterf, enabled,vlanmap_type):
-    result = {}
-# If this network segment is TRUSTED - enabled cdp is not a red type of threat, it will be colored in orange
-    if vlanmap_type == 'TRUSTED':
-        arp_check(iface_params, vlanmap, allinterf, enabled, result, 1)
-
-# Otherwise if network segment is CRITICAL or UNKNOWN or vlanmap is not defined - enabled cdp is a red type of threat
-    else:
-        arp_check(iface_params, vlanmap, allinterf, enabled, result, 0)
-    return result
-

@@ -24,7 +24,8 @@ def check_iface(iface_params, vlanmap_type, allinterf, enabled):
             if 'limit' in iface_snoop:
                 chkres = 0
                 chkres = int(iface_snoop['limit'][0]) > 100
-                # need to handle something like '100 burst 10'
+                # TODO: need to handle something like '100 burst 10'
+                # TODO: i belive it was here, but broken by someone (check git history)
                 # except:
                 #     print(int(iface_snoop['limit'][0].split(' ')[0]))
                 #     # push first number
@@ -37,7 +38,7 @@ def check_iface(iface_params, vlanmap_type, allinterf, enabled):
             else:
                 result_dict['DHCP snooping']['rate limit'] = [1, 'Not set', 'Needed to prevent DHCP starvation']
         # check if trusted interface is marked as trusted in vlamap
-        elif ((mode == 'trust') and (vlanmap_type == 'TRUSTED')):
+        elif ((mode == 'trust') and not (vlanmap_type == 'TRUSTED')):
             result_dict['DHCP snooping']['vlans'] = [0, 'Interface set as trusted, but vlanmap is different',
                                                      'This interface is not trusted according to vlanmap, but marked as trusted. Unauthorized DHCP server can work here']
         else:

@@ -95,7 +95,7 @@ for filename in filenames[0]:
     result,      bpdu_flag = checks.stp_global       .check(global_params)
     result_dict.update(result)
 
-    result_arp,   arp_flag = checks.arp_insp_global  .check(global_params,result_dict)
+    result_arp,   arp_flag = checks.arp_inspection.check_global(global_params,result_dict)
     result_dict.update(result_arp)
 
     result_dhcp, dhcp_flag = checks.dhcp_snooping.check_global(global_params,result_dict)
@@ -149,8 +149,8 @@ for filename in filenames[0]:
                 if dhcp_result:
                     result_dict[iface].update(dhcp_result)
 
-                arp_result = checks.arp_inspection.check(interfaces[iface], vlanmap, args.args.disabled_interfaces,
-                                                         arp_flag,vlanmap_result)
+                arp_result = checks.arp_inspection.check_iface(interfaces[iface], vlanmap_result, args.args.disabled_interfaces,
+                                                         arp_flag)
 
                 if arp_result:
                     result_dict[iface].update(arp_result)
