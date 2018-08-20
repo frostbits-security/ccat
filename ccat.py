@@ -64,6 +64,7 @@ for filename in filenames[0]:
     # getting parse output
     global_params = parsing.iface_global
     interfaces    = parsing.iface_local
+
     # debug output
     if(args.args.debug):
         print("\n\n[DEBUG] args:")
@@ -104,7 +105,7 @@ for filename in filenames[0]:
     for iface in interfaces:
 
         # check interface if it has at least 1 options
-        if 'unknown_inface' not in interfaces[iface]:
+        if 'unknown_iface' not in interfaces[iface]:
 
             # skip loopback and vlan interfaces
             if 'loop' not in iface.lower() and 'vlan' not in iface.lower():
@@ -132,9 +133,10 @@ for filename in filenames[0]:
                     vlanmap_result = None
 
 
-                # example with using vlanmap_result type
+                # check cdp, dtp, mop and source guard options on current interface
                 result_dict[iface].update(checks.cdp .check(interfaces[iface], vlanmap_result))
                 result_dict[iface].update(checks.dtp .check(global_params,interfaces[iface],vlanmap_result))
+                result_dict[iface].update(checks.mop .check(interfaces[iface], vlanmap_result, iface))
                 result_dict[iface].update(checks.source_guard.check(interfaces[iface],dhcp_flag, vlanmap_result))
 
                 stp_result = checks.stp.check(interfaces[iface], bpdu_flag, vlanmap_result)

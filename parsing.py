@@ -477,7 +477,7 @@ def _interfaceParse___iface_attributes(config, check_disabled):
     iface_list = get_attributes(config)[0]
     # if iface isn`t enable and unused
     if iface_list:
-        iface_dict = {'shutdown': 'no', 'vlans': [], 'dhcp_snoop': {'mode': 'untrust'}, 'arp_insp': {'mode': 'untrust'},
+        iface_dict = {'shutdown': 'no', 'vlans': [], 'cdp': 'yes', 'dhcp_snoop': {'mode': 'untrust'}, 'arp_insp': {'mode': 'untrust'},
                       'storm control': {}, 'port-security': {}, 'ipv6':{}}
 
         vlan_num           = Word(nums + '-')                      + ZeroOrMore(Suppress(',') + Word(nums + '-'))
@@ -506,6 +506,12 @@ def _interfaceParse___iface_attributes(config, check_disabled):
                 continue
             if option == 'no cdp enable':
                 iface_dict['cdp'] = 'no'
+                continue
+            if   option == 'no mop enabled':
+                iface_dict['mop'] = 'no'
+                continue
+            elif option == 'mop enabled':
+                iface_dict['mop'] = 'yes'
                 continue
             try:
                 vlan_add = parse_vlans.parseString(option).asList()
@@ -575,7 +581,7 @@ def _interfaceParse___iface_attributes(config, check_disabled):
 
         return iface_dict
     else:
-        return {'unknown_inface':1}
+        return {'unknown_iface':1}
 
 
 # ADD COMMENT PLS

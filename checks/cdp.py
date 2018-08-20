@@ -1,18 +1,14 @@
 # CDP interface options check
 # Input:
 #        interface dictionary
-#        config result dictionary
+#        interface type from vlanmap
 # Output:
-#        updated result dictionary
-#           {{'iface1': {'CDP': {'cdp': [severity(int), 'message', 'best practice']}, 'iface2':...}}
+#        result dictionary
+#           {'Cisco Discovery Protocol(CDP)': {'cdp': [severity(int), 'message', 'best practice']}
 #
-
 def cdp_check(result,scale,dct):
-    if 'cdp' in dct:
-        if dct['cdp'] == 'no':
-            result['Cisco Discovery Protocol(CDP)'] = [scale[1], 'DISABLED']
-        else:
-            result['Cisco Discovery Protocol(CDP)'] = [scale[0], 'ENABLED', 'CDP should not be enabled']
+    if dct['cdp'] == 'no':
+        result['Cisco Discovery Protocol(CDP)'] = [scale[1], 'DISABLED']
     else:
         result['Cisco Discovery Protocol(CDP)'] = [scale[0], 'ENABLED', 'CDP should not be enabled']
     return result
