@@ -86,6 +86,7 @@ for filename in filenames[0]:
     result_dict.update(checks.users      .check(global_params))
     result_dict.update(checks.ip_global  .check(global_params))
     result_dict.update(checks.console_vty.check(global_params))
+    result_dict.update(checks.lldp       .check(global_params))
 
     result_vtp=checks.vtp.check(global_params)
     if result_vtp:

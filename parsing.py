@@ -32,6 +32,7 @@ parse_ipv6            = Suppress('ipv6 ')                        + restOfLine
 parse_ipv6_sourceguard= Suppress('source-guard ')                + restOfLine
 parse_ipv6_snooping   = Suppress('snooping ')                    + restOfLine
 parse_ipv6_raguard    = Suppress('nd raguard ')                  + restOfLine
+parse_lldp            = Suppress('lldp ')                        + restOfLine
 parse_model           = Suppress('boot system flash bootflash:') + restOfLine
 parse_username        = Suppress('username ')                    + restOfLine
 parse_aaa             = Suppress('aaa ')                         + restOfLine
@@ -322,6 +323,11 @@ def global_parse(config):
 
     # count_authen, count_author, count_acc = 1, 1, 1
     for line in config:
+        try:
+            iface_global['lldp'] = parse_lldp.parseString(line).asList()[0]
+            continue
+        except ParseException:
+            pass
         try:
             iface_global['version'] = parse_version.parseString(line).asList()[0]
             continue
