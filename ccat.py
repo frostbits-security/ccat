@@ -98,7 +98,7 @@ for filename in filenames[0]:
     result_arp,   arp_flag = checks.arp_insp_global  .check(global_params,result_dict)
     result_dict.update(result_arp)
 
-    result_dhcp, dhcp_flag = checks.dhcp_snoop_global.check(global_params,result_dict)
+    result_dhcp, dhcp_flag = checks.dhcp_snooping.check_global(global_params,result_dict)
     result_dict.update(result_dhcp)
 
     # interface checks
@@ -144,7 +144,7 @@ for filename in filenames[0]:
                 if stp_result:
                     result_dict[iface].update(stp_result)
 
-                dhcp_result = checks.dhcp_snooping.check(interfaces[iface], vlanmap, args.args.disabled_interfaces,dhcp_flag,vlanmap_result)
+                dhcp_result = checks.dhcp_snooping.check_iface(interfaces[iface], vlanmap_result, args.args.disabled_interfaces,dhcp_flag)
 
                 if dhcp_result:
                     result_dict[iface].update(dhcp_result)
