@@ -36,16 +36,14 @@ def check(global_params):
     else:
         results_dict['Services']['config']            = [2, 'DISABLED']
 
-    # TCP and UDP small services are enabled by default on Cisco IOS software Release 11.2 and earlier. These commands
-    # are disabled by default on Cisco IOS software Software Versions 11.3 and later.
-    if 'udp-small-servers'  in global_params['active_service'] or float(global_params['version']) <= 11.2:
+    if   'udp-small-servers' in global_params['active_service']:
         results_dict['Services']['udp small servers'] = [0, 'ENABLED', 'Turn it off to prevent potential information leak and DOS attack']
-    else:
+    elif 'udp-small-servers' in global_params['disable_service']:
         results_dict['Services']['udp small servers'] = [2, 'DISABLED']
 
-    if 'tcp-small-servers'  in global_params['active_service'] or float(global_params['version']) <= 11.2:
+    if   'tcp-small-servers' in global_params['active_service']:
         results_dict['Services']['tcp small servers'] = [0, 'ENABLED', 'Turn it off to prevent potential information leak and DOS attack']
-    else:
+    elif 'tcp-small-servers' in global_params['disable_service']:
         results_dict['Services']['tcp small servers'] = [2, 'DISABLED']
 
 
@@ -62,6 +60,18 @@ def check(global_params):
                 results_dict['Services']['smart install'] = [2, 'DISABLED']
             else:
                 results_dict['Services']['smart install'] = [0, 'ENABLED', 'Turn it off or block 4786 port (if "vstack" option unavailable) to disable smart install configuration']
+
+        # TCP and UDP small services are enabled by default on Cisco IOS software Release 11.2 and earlier. These commands
+        # are disabled by default on Cisco IOS software Software Versions 11.3 and later.
+        if 'udp small servers' not in results_dict['Services'] and float(global_params['version']) <= 11.2:
+            results_dict['Services']['udp small servers'] = [0, 'ENABLED', 'Turn it off to prevent potential information leak and DOS attack']
+        else:
+            results_dict['Services']['udp small servers'] = [2, 'DISABLED']
+
+        if 'tcp small servers' not in results_dict['Services'] and float(global_params['version']) <= 11.2:
+            results_dict['Services']['tcp small servers'] = [0, 'ENABLED', 'Turn it off to prevent potential information leak and DOS attack']
+        else:
+            results_dict['Services']['tcp small servers'] = [2, 'DISABLED']
 
 
     return results_dict
