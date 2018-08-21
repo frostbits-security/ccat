@@ -78,7 +78,6 @@ for filename in filenames[0]:
         print('\n\n--------------------RESULTS FOR:', config_name[1:] + '--------------------')
 
     # prepare results dictionary
-    # WE MUST DELETE IT AND USE .update ATTRIBUTE TO FILL DICTIONARY
     result_dict = {}
 
     # global checks
@@ -86,6 +85,7 @@ for filename in filenames[0]:
     result_dict.update(checks.users      .check(global_params))
     result_dict.update(checks.ip_global  .check(global_params))
     result_dict.update(checks.console_vty.check(global_params))
+    result_dict.update(checks.lldp       .check(global_params))
 
     result_vtp=checks.vtp.check(global_params)
     if result_vtp:
@@ -150,6 +150,9 @@ for filename in filenames[0]:
                     vlanmap_result = None
 
 
+                # access/trunk mode check
+                result_dict[iface].update(checks.mode.check(interfaces[iface]))
+
                 # check cdp, dtp, mop and source guard options on current interface
                 result_dict[iface].update(checks.cdp .check(interfaces[iface], vlanmap_result))
                 result_dict[iface].update(checks.dtp .check(global_params,interfaces[iface],vlanmap_result))
@@ -199,8 +202,6 @@ for filename in filenames[0]:
                     result_dict[iface].update(port_result)
 
 
-                # access/trunk mode check
-                # result_dict[iface].update(checks.mode.check(interfaces[iface]))
         else:
             result_dict[iface] = {'Unused Interface': [0, 'ENABLED', 'An interface that is not used must be disabled']}
 

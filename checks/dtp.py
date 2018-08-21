@@ -9,17 +9,14 @@
 
 def dtp_check(global_dct,iface_dct,result,scale):
 
-    if 'version' in global_dct and float(global_dct['version'])>12.2:
-        print(float(global_dct['version']))
-        result['Dynamic Trunking Protocol(DTP)'] = [scale[1], 'DISABLED']
-    else:
-        if 'dtp' in iface_dct:
-            if iface_dct['dtp'] == 'no':
-                result['Dynamic Trunking Protocol(DTP)'] = [scale[1], 'DISABLED']
-            else:
-                result['Dynamic Trunking Protocol(DTP)'] = [scale[0], 'ENABLED', 'DTP should not be enable']
+    if 'dtp' in iface_dct:
+        if iface_dct['dtp'] == 'no':
+            result['Dynamic Trunking Protocol(DTP)'] = [scale[1], 'DISABLED']
         else:
-            result['Dynamic Trunking Protocol(DTP)'] = [scale[0], 'ENABLED', 'DTP should not be enable']
+            result['Dynamic Trunking Protocol(DTP)'] = [scale[0], 'ENABLED', 'DTP should not be enabled']
+    else:
+        result['Dynamic Trunking Protocol(DTP)'] = [scale[0], 'ENABLED', 'DTP should not be enabled']
+
     return result
 
 
