@@ -24,4 +24,3 @@ python3`ccat.py config_directory -vl vlmap.txt -o result_html_files_directory --
 ## Installation  
 
 `pip3 -r requirements.txt`  
-`python3 setup.py install`  
