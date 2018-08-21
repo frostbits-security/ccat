@@ -32,6 +32,8 @@ parse_ipv6            = Suppress('ipv6 ')                        + restOfLine
 parse_ipv6_sourceguard= Suppress('source-guard ')                + restOfLine
 parse_ipv6_snooping   = Suppress('snooping ')                    + restOfLine
 parse_ipv6_raguard    = Suppress('nd raguard ')                  + restOfLine
+parse_ipv6_destinationguard    = Suppress('destination-guard ')                  + restOfLine
+parse_ipv6_dhcpguard    = Suppress('dhcp guard ')                  + restOfLine
 parse_model           = Suppress('boot system flash bootflash:') + restOfLine
 parse_username        = Suppress('username ')                    + restOfLine
 parse_aaa             = Suppress('aaa ')                         + restOfLine
@@ -354,6 +356,16 @@ def global_parse(config):
                 iface_global['ipv6']['snooping'][tmp[0]]=tmp[1]
             except ParseException:
                 pass
+            try:
+                tmp=parse_ipv6_dhcpguard.parseString(curr).asList()[-1].split(' ')
+                iface_global['ipv6']['dhcp-guard'][tmp[0]]=tmp[1]
+            except ParseException:
+                pass
+            try:
+                tmp=parse_ipv6_destinationguard.parseString(curr).asList()[-1].split(' ')
+                iface_global['ipv6']['destination-guard'][tmp[0]]=tmp[1]
+            except ParseException:
+                pass
         
         except ParseException:
             pass
@@ -583,23 +595,34 @@ def _interfaceParse___iface_attributes(config, check_disabled):
     else:
         return {'unknown_iface':1}
 
+# TODO: description
+def ___ipv6_parse___subparser(parser,ptype,ipv6,dct):
+    dct=util.int_dict_parse(parser, ipv6, ptype, dct)
+    tmp=dct[ptype][0].split(' ')
+    dct[ptype]={tmp[0]:tmp[1]}
+    return dct
 
-# ADD COMMENT PLS
+
+# TODO: description
 def __ifaceAttributes___ipv6_parse(ipv6, dct):
     global parse_ipv6_sourceguard
     global parse_ipv6_raguard
+    global parse_ipv6_destinationguard
+    global parse_ipv6_dhcpguard 
     try:
-        dct=util.int_dict_parse(parse_ipv6_sourceguard, ipv6, 'source-guard', dct)
-        tmp=dct['source-guard'][0].split(' ')
-        dct['source-guard']={tmp[0]:tmp[1]}
-        return dct
+        return ___ipv6_parse___subparser(parse_ipv6_sourceguard,'source-guard',ipv6,dct)
     except ParseException:
         pass
     try:
-        dct=util.int_dict_parse(parse_ipv6_raguard, ipv6, 'ra-guard', dct)
-        tmp=dct['ra-guard'][0].split(' ')
-        dct['ra-guard']={tmp[0]:tmp[1]}
-        return dct
+        return ___ipv6_parse___subparser(parse_ipv6_raguard,'ra-guard',ipv6,dct)
+    except ParseException:
+        pass
+    try:
+        return ___ipv6_parse___subparser(parse_ipv6_destinationguard,'destination-guard',ipv6,dct)
+    except ParseException:
+        pass
+    try:
+        return ___ipv6_parse___subparser(parse_ipv6_dhcpguard,'dhcp-guard',ipv6,dct)
     except ParseException:
         pass
 

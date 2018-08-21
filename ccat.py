@@ -101,6 +101,23 @@ for filename in filenames[0]:
     result_dhcp, dhcp_flag = checks.dhcp_snooping.check_global(global_params,result_dict)
     result_dict.update(result_dhcp)
 
+    result_dict['IPv6 options']={}
+
+    result_raguard, raguard_flag = checks.ipv6.raguard_global(global_params,result_dict)
+    result_dict.update(result_raguard)
+
+    result_snooping, snooping_flag = checks.ipv6.snooping_global(global_params,result_dict)
+    result_dict.update(result_snooping)
+
+    result_sourceguard, sourceguard_flag = checks.ipv6.sourceguard_global(global_params,result_dict)
+    result_dict.update(result_sourceguard)
+
+    result_dhcpguard, dhcpguard_flag = checks.ipv6.dhcpguard_global(global_params,result_dict)
+    result_dict.update(result_dhcpguard)
+
+    result_destinationguard, destinationguard_flag = checks.ipv6.destinationguard_global(global_params,result_dict)
+    result_dict.update(result_destinationguard)
+
     # interface checks
     for iface in interfaces:
 
@@ -154,7 +171,20 @@ for filename in filenames[0]:
 
                 if arp_result:
                     result_dict[iface].update(arp_result)
-
+                result_dict[iface]['IPv6']={}
+                sourceguard_result = checks.ipv6.sourceguard_iface(interfaces[iface], vlanmap_result, args.args.disabled_interfaces,sourceguard_flag)
+                if sourceguard_result:
+                    result_dict[iface]['IPv6'].update(sourceguard_result)
+                raguard_result = checks.ipv6.raguard_iface(interfaces[iface], vlanmap_result, args.args.disabled_interfaces,raguard_flag)
+                if raguard_result:
+                    result_dict[iface]['IPv6'].update(raguard_result)
+                destinationguard_result = checks.ipv6.destinationguard_iface(interfaces[iface], vlanmap_result, args.args.disabled_interfaces,destinationguard_flag)
+                if destinationguard_result:
+                    result_dict[iface]['IPv6'].update(destinationguard_result)
+                dhcpguard_result = checks.ipv6.dhcpguard_iface(interfaces[iface], vlanmap_result, args.args.disabled_interfaces,dhcpguard_flag)
+                if dhcpguard_result:
+                    result_dict[iface]['IPv6'].update(dhcpguard_result)
+                
                 if args.args.storm_level:
                     result_dict[iface].update(checks.storm_control.check(interfaces[iface], vlanmap_result, args.args.storm_level))
                 else:

@@ -68,7 +68,6 @@ ip tcp synwait-time 5
 interface Port-channel1
  ipv6 nd raguard attach-policy ROUTER
  ipv6 source-guard attach-policy SG
- shutdown
 !         
 interface Ethernet0/0
  shutdown
