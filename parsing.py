@@ -325,6 +325,8 @@ def global_parse(config):
 
     # count_authen, count_author, count_acc = 1, 1, 1
     for line in config:
+        if 'no cdp run' in line:
+            iface_global['cdp']=1
         try:
             iface_global['lldp'] = parse_lldp.parseString(line).asList()[0]
             continue

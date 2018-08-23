@@ -8,7 +8,7 @@
 #           {{'iface1': {'STP': {'portfast': [severity(int), 'message', 'best practice']}, 'iface2':...}}
 #
 
-def stp_check(iface_dct,flag,result,scale):
+def _iface_check__stp_check(iface_dct,flag,result,scale):
     # result = {}
     if 'type' in iface_dct:
         if iface_dct['type'] == 'access':
@@ -29,19 +29,45 @@ def stp_check(iface_dct,flag,result,scale):
         return result
     return 0
 
-def check(iface_dct,flag, vlanmap_type):
+def iface_check(iface_dct,flag, vlanmap_type):
     result = {}
 
 # If this network segment is TRUSTED - enabled cdp is not a red type of threat, it will be colored in orange
     if vlanmap_type == 'TRUSTED':
-        stp_check(iface_dct,flag,result,[1,2])
+        _iface_check__stp_check(iface_dct,flag,result,[1,2])
 
 # Otherwise if network segment is CRITICAL or UNKNOWN or vlanmap is not defined - enabled cdp is a red type of threat
     else:
-        stp_check(iface_dct,flag,result, [0, 2])
-
+        _iface_check__stp_check(iface_dct,flag,result, [0, 2])
 
     return result
+
+
+def _global_check__check_stp(global_dct):
+    stp_res = {'Portfast':0,'Loopguard':0,'Bpduguard':0}
+    for option in stp_res:
+        if option.lower() in global_dct:
+            if global_dct[option.lower()][0]=='default':
+                stp_res[option]=[2,'OK',option.capitalize()+' should be turned on']
+            else:
+                stp_res[option] = [1, 'WARNING', option.capitalize() + ' should be turned on']
+        else:
+            stp_res[option] = [1, 'WARNING', option.capitalize() + ' should be turned on']
+    return (stp_res)
+
+def global_check(global_dct):
+    if 'stp' in global_dct:
+        flag=0
+        result={}
+        result['Spanning-tree options']=_global_check__check_stp(global_dct['stp'])
+        if 'bpduguard' in global_dct['stp'] and 'portfast' in global_dct['stp'] and global_dct['stp']['portfast']==['default']:
+            flag=3
+        elif 'portfast' in global_dct['stp'] and global_dct['stp']['portfast']==['default']:
+            flag=2
+        elif 'bpduguard' in global_dct['stp']:
+            flag=1
+
+        return (result,flag)
 
 
 

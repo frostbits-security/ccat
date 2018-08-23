@@ -87,12 +87,16 @@ for filename in filenames[0]:
     result_dict.update(checks.console_vty.check(global_params))
     result_dict.update(checks.lldp       .check(global_params))
 
+    result_cdp,cdp_flag=checks.cdp.global_check(global_params)
+    if result_cdp:
+        result_dict.update(result_cdp)
+
     result_vtp=checks.vtp.check(global_params)
     if result_vtp:
         result_dict.update(result_vtp)
 
     # global checks with necessary flags for further interface checks
-    result,      bpdu_flag = checks.stp_global       .check(global_params)
+    result,      bpdu_flag = checks.stp       .global_check(global_params)
     result_dict.update(result)
 
     result_arp,   arp_flag = checks.arp_inspection.check_global(global_params,result_dict)
@@ -154,12 +158,15 @@ for filename in filenames[0]:
                 result_dict[iface].update(checks.mode.check(interfaces[iface]))
 
                 # check cdp, dtp, mop and source guard options on current interface
-                result_dict[iface].update(checks.cdp .check(interfaces[iface], vlanmap_result))
                 result_dict[iface].update(checks.dtp .check(global_params,interfaces[iface],vlanmap_result))
                 result_dict[iface].update(checks.mop .check(interfaces[iface], vlanmap_result, iface))
                 result_dict[iface].update(checks.source_guard.check(interfaces[iface],dhcp_flag, vlanmap_result))
 
-                stp_result = checks.stp.check(interfaces[iface], bpdu_flag, vlanmap_result)
+                cdp_result=checks.cdp.iface_check(interfaces[iface], vlanmap_result, cdp_flag)
+                if cdp_result:
+                    result_dict[iface].update(cdp_result)
+
+                stp_result = checks.stp.iface_check(interfaces[iface], bpdu_flag, vlanmap_result)
 
                 if stp_result:
                     result_dict[iface].update(stp_result)
