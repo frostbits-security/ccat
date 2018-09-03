@@ -15,7 +15,7 @@ def check(global_params):
         else:
             results_dict['IP options']['SSH']['version']                = [0, '1', 'Turn on SSH 2 mode only to secure you connection']
     else:
-        results_dict    ['IP options']['SSH']['version']                = [1, 'Both', 'Not SSH version 2 mode only, you may want to turn this mode on']
+        results_dict    ['IP options']['SSH']['version']                = [1, 'BOTH', 'Not SSH version 2 mode only, you may want to turn this mode on']
 
     if 'authentication_retries' in global_params['ip']['ssh']:
         if int(global_params['ip']['ssh']['authentication_retries']) > 5:

@@ -1,13 +1,11 @@
-
 # STP interface options check
 # Input:
 #        interface dictionary
 #        config result dictionary
 # Output:
 #        updated result dictionary
-#           {{'iface1': {'STP': {'portfast': [severity(int), 'message', 'best practice']}, 'iface2':...}}
+#            {'STP': {'portfast': [severity(int), 'message', 'best practice']}
 #
-
 def stp_check(iface_dct,flag,result,scale):
     # result = {}
     if 'type' in iface_dct:

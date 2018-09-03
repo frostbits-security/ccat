@@ -6,5 +6,5 @@ def check(global_dct):
         elif 'domain' in global_dct['vtp']:
             result['VLAN Trunking Protocol(VTP) mode'] = [1, 'Server/Client', 'VTP should be turned off']
     else:
-        result['VLAN Trunking Protocol(VTP)'] = [2, 'DISABLE', 'VTP should be turned off']
+        result['VLAN Trunking Protocol(VTP)'] = [2, 'DISABLED']
     return {'VLAN Trunking Protocol':result}
