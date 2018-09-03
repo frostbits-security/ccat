@@ -11,11 +11,11 @@
 from re import findall
 
 def __storm_check___storm_lvl_check(lvl,storm_level,scale):
-    # return ([1,80] if float(lvl) < 80.0 else [0,lvl,80])
+    # return ([1,80] if float(lvl) < storm_level else [0,lvl,80])
     if float(lvl) < storm_level:
         return [scale[2], lvl]
     else:
-        return [scale[0], lvl, 'The Storm Control level should be less than 80']
+        return [scale[0], lvl, 'The Storm Control level should be less than '+str(storm_level)]
 
 
 # check storm-control traffic type
@@ -27,7 +27,7 @@ def __storm_check___check_storm_type(type_storm, result, flag,scale):
     else:
         type_dct = __check_storm_type___iter_type(type_storm, type_dct)
     for each in type_dct:
-        if type_dct[each] == 1:
+        if type_dct[each]:
             result.update({each.capitalize()+' traffic Storm Control': [scale[2], 'ENABLED']})
 
     return result
@@ -80,11 +80,12 @@ def _check___storm_check(iface_dct,storm_level,scale,dct):
 
         if 'type' in storm_dct:
             dct.update(__storm_check___check_storm_type(storm_dct['type'], dct, 1,scale))
-
-        for each in ['broadcast', 'multicast', 'unicast']:
+            
+        # if no information about traffic type is available than add it
+        for each in ['Broadcast traffic Storm Control', 'Multicast traffic Storm Control', 'Unicast traffic Storm Control']:
             if each not in dct:
-                if each == 'unicast':
-                    dct.update({each.capitalize()+' traffic Storm Control': [scale[1], 'DISABLED', each.capitalize() + ' Storm Control should be enabled']})
+                if each == 'Unicast traffic Storm Control':
+                    dct.update({each: [scale[1], 'DISABLED', each.capitalize() + ' Storm Control should be enabled']})
                 else:
                     dct.update({each.capitalize()+' traffic Storm Control': [scale[0], 'DISABLED', each.capitalize() + ' Storm Control should be  enabled']})
     else:
@@ -102,7 +103,6 @@ def check(iface_dct, vlanmap_type,storm_level=80):
 # Otherwise if network segment is CRITICAL or UNKNOWN or vlanmap is not defined - enabled cdp is a red type of threat
     else:
         _check___storm_check(iface_dct, storm_level, [0,1, 2], result)
-
 
     return result
 
