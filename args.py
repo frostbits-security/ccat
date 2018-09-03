@@ -33,7 +33,7 @@ def _getargs___arg_parser(config, vlanmap):
             result.append([config])
     except OSError:
         exit()
-    return res
+    return result
 
 
 # module main, returns list of filepaths list[0] is vlanmap, others are configs
