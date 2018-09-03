@@ -7,7 +7,7 @@ import os
 # to make possible access to args from main module
 args=0
 
-def _getargs___arg_parser(config_folder, vlanmap):
+def _getargs___arg_parser(config, vlanmap):
     res = []
     if vlanmap:
         if os.path.exists(vlanmap):
@@ -18,10 +18,16 @@ def _getargs___arg_parser(config_folder, vlanmap):
     else:
         res.append(0)
     try:
-        config_lst = [config_folder + '/' + i for i in os.listdir(config_folder)]
-        if vlanmap in config_lst:
-            config_lst.remove(vlanmap)
-        res.append(config_lst)
+
+        if os.path.isdir(config):
+            config_lst = [config + '/' + i for i in os.listdir(config)]
+            if vlanmap in config_lst:
+                config_lst.remove(vlanmap)
+            res.append(config_lst)
+
+        elif os.path.isfile(config):
+            res.append([config])
+
     except OSError:
         print('The directory doesn`t exist!')
         exit()
