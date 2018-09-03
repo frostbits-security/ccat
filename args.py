@@ -1,6 +1,12 @@
-# command line arguments parsing
-# input: full path of the directory with config[s]+ filename of vlanmap
+# Command line arguments parsing
+# Input:
+#        full path of the configuration_file/directory with config[s]
+#        filename of vlanmap
+# Output:
+#        list of config[s]+vlanmap
+#
 # vlanmap structure can be seen in example folder (vlmap.txt)
+
 import argparse
 import os
 
@@ -8,28 +14,24 @@ import os
 args=0
 
 def _getargs___arg_parser(config, vlanmap):
-    res = []
+    result = []
     if vlanmap:
         if os.path.exists(vlanmap):
-            res.append(vlanmap)
+            result.append(vlanmap)
         else:
             print('Error opening vlanmap')
             exit()
     else:
-        res.append(0)
+        result.append(0)
     try:
-
         if os.path.isdir(config):
             config_lst = [config + '/' + i for i in os.listdir(config)]
             if vlanmap in config_lst:
                 config_lst.remove(vlanmap)
-            res.append(config_lst)
-
+            result.append(config_lst)
         elif os.path.isfile(config):
-            res.append([config])
-
+            result.append([config])
     except OSError:
-        print('The directory doesn`t exist!')
         exit()
     return res
 
