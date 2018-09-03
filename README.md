@@ -5,7 +5,7 @@ This tool is designed to analyze the configuration files of Cisco devices. The l
 
 ## Usage  
 
-`ccat config_directory -vl vlmap.txt -o result_html_files_directory --storm_level 40.0 --max_number_mac 100  --disabled-interfaces --no-console-display` 
+`python3 ccat.py config_directory -vl vlmap.txt -o result_html_files_directory --storm_level 40.0 --max_number_mac 100  --disabled-interfaces --no-console-display` 
 
 **config_directory** - path to directory with configuration files
 
@@ -24,4 +24,3 @@ This tool is designed to analyze the configuration files of Cisco devices. The l
 ## Installation  
 
 `pip3 -r requirements.txt`  
-`python3 setup.py install`  
