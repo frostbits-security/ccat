@@ -18,8 +18,8 @@ from pyparsing import Suppress, Optional, restOfLine, ParseException, MatchFirst
     Or, printables, oneOf, alphas, OneOrMore
 from json import load
 import util
-import parsing_check
-from parsing_check import *
+import parsing_checks
+from parsing_checks import *
 
 iface_local = {}
 parse_iface = Suppress('interface ') + restOfLine
@@ -373,7 +373,7 @@ def global_parse(config):
             pass
         try:
             vtp = parse_vtp.parseString(line).asList()[-1]
-            result_parse_vtp = parsing_check.vtp._globalParse___vtp_attributes(vtp, iface_global['vtp'])
+            result_parse_vtp = parsing_checks.vtp._globalParse___vtp_attributes(vtp, iface_global['vtp'])
             if result_parse_vtp:
                 iface_global['vtp'] = result_parse_vtp
         except ParseException:
@@ -440,7 +440,7 @@ def global_parse(config):
             pass
         try:
             stp_str = parse_stp.parseString(line).asList()[-1]
-            stp_line = parsing_check.stp_global._globalParse___stp_attributes(stp_str, iface_global['stp'])
+            stp_line = parsing_checks.stp_global._globalParse___stp_attributes(stp_str, iface_global['stp'])
             if stp_line != 0:
                 iface_global['stp'].update(stp_line)
             continue
@@ -528,7 +528,7 @@ def _interfaceParse___iface_attributes(config, check_disabled):
                 pass
             try:
                 storm_control = parse_storm.parseString(option).asList()[-1]
-                iface_dict['storm control'] = parsing_check.storm_control.__ifaceAttributes___storm_check(storm_control,
+                iface_dict['storm control'] = parsing_checks.storm_control.__ifaceAttributes___storm_check(storm_control,
                                                                                                    iface_dict[
                                                                                                        'storm control'])
                 continue
@@ -536,19 +536,19 @@ def _interfaceParse___iface_attributes(config, check_disabled):
                 pass
             try:
                 port_sec = parse_port_sec.parseString(option).asList()[-1]
-                iface_dict['port-security'] = parsing_check.port_security.__ifaceAttributes___port_sec_parse(port_sec, iface_dict['port-security'])
+                iface_dict['port-security'] = parsing_checks.port_security.__ifaceAttributes___port_sec_parse(port_sec, iface_dict['port-security'])
                 continue
             except ParseException:
                 pass
             try:
                 dhcp_snoop = parse_dhcp_snoop.parseString(option).asList()[-1]
-                iface_dict['dhcp_snoop'] = parsing_check.ip_iface.__ifaceAttributes___ip_parse(dhcp_snoop, iface_dict['dhcp_snoop'])
+                iface_dict['dhcp_snoop'] = parsing_checks.ip_iface.__ifaceAttributes___ip_parse(dhcp_snoop, iface_dict['dhcp_snoop'])
                 continue
             except ParseException:
                 pass
             try:
                 arp_insp = parse_arp_insp.parseString(option).asList()[-1]
-                iface_dict['arp_insp'] = parsing_check.ip_iface.__ifaceAttributes___ip_parse(arp_insp, iface_dict['arp_insp'])
+                iface_dict['arp_insp'] = parsing_checks.ip_iface.__ifaceAttributes___ip_parse(arp_insp, iface_dict['arp_insp'])
                 continue
             except ParseException:
                 pass
