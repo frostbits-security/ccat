@@ -43,7 +43,7 @@ def getfilenames():
     parser = argparse.ArgumentParser(formatter_class=argparse.RawDescriptionHelpFormatter,
                                      description="Cisco Configuration Analysis Tool",
                                      epilog='Usage example:\n  ccat  smth/config_folder -vl smth/vlanmap_folder -v')
-    parser.add_argument("config", type=str, nargs='?', default=0, help="full path to the folder with config(s)")
+    parser.add_argument("config", type=str, nargs='?', default=0, help="full path to the configuration file or folder with config(s)")
     parser.add_argument("-vl", type=str, help="path to vlanmap (file that determine how critical is certain vlan, you can find example in 'example' folder)")
     parser.add_argument("-o", type=str, help="path to output html files directory")
     parser.add_argument("--no-console-display", action='store_true', help="to output analysis results only in html files directory")
