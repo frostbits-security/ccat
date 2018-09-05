@@ -42,7 +42,10 @@ parse_stp                   = Suppress('spanning-tree ')               + restOfL
 parse_vtp                   = Suppress('vtp ')                         + restOfLine
 parse_line                  = Suppress('line ')                        + restOfLine
 parse_ip_ssh                = Suppress('ip ssh ')                      + restOfLine
+parse_arp_proxy             = Suppress('ip arp proxy ')                + restOfLine
 parse_vstack                = Suppress('no') + 'vstack'
+
+
 
 parse_enable_password = Suppress('enable') + MatchFirst(['secret', 'password']) + Optional(Word(nums) + Suppress(White(exact=1))) + Suppress(restOfLine)
 parse_ip_dhcp         = NotAny(White()) + Suppress('ip dhcp snooping') + Optional(Suppress('vlan') + Word(nums) + ZeroOrMore(Suppress(',') + Word(nums)))
@@ -255,6 +258,12 @@ def global_parse(config):
             pass
 
         try:
+            iface_global['arp_proxy'] = parse_arp_proxy.parseString(line).asList()[-1]
+            continue
+        except ParseException:
+            pass
+
+        try:
             while line != '!':
                 item = parse_line.parseString(line).asList()[-1]
                 iface_global['line'][item], next_line = parsing_checks.lines._globalParse___line_attributes(config)
@@ -280,14 +289,15 @@ def _interfaceParse___iface_attributes(config, check_disabled):
 
         vlan_num = Word(nums + '-') + ZeroOrMore(Suppress(',') + Word(nums + '-'))
 
-        parse_description  = Suppress('description ')              + restOfLine
-        parse_type         = Suppress('switchport mode ')          + restOfLine
-        parse_storm        = Suppress('storm-control ')            + restOfLine
-        parse_port_sec     = Suppress('switchport port-security ') + restOfLine
-        parse_stp_port     = Suppress('spanning-tree ')            + restOfLine
-        parse_dhcp_snoop   = Suppress('ip dhcp snooping ')         + restOfLine
-        parse_arp_insp     = Suppress('ip arp inspection ')        + restOfLine
-        parse_source_guard = Suppress('ip verify source ')         + restOfLine
+        parse_description     = Suppress('description ')              + restOfLine
+        parse_type            = Suppress('switchport mode ')          + restOfLine
+        parse_storm           = Suppress('storm-control ')            + restOfLine
+        parse_port_sec        = Suppress('switchport port-security ') + restOfLine
+        parse_stp_port        = Suppress('spanning-tree ')            + restOfLine
+        parse_dhcp_snoop      = Suppress('ip dhcp snooping ')         + restOfLine
+        parse_arp_insp        = Suppress('ip arp inspection ')        + restOfLine
+        parse_source_guard    = Suppress('ip verify source ')         + restOfLine
+        parse_arp_proxy_iface = Optional(Word(alphas))   + Suppress('ip proxy-arp')
 
         parse_vlans = Suppress('switchport ') + Suppress(MatchFirst('access vlan ' + ('trunk allowed vlan ' + Optional('add ')))) + vlan_num
 
@@ -376,6 +386,12 @@ def _interfaceParse___iface_attributes(config, check_disabled):
             try:
                 ipv6 = parse_ipv6.parseString(option).asList()[-1]
                 __ifaceAttributes___ipv6_parse(ipv6, iface_dict['ipv6'])
+                continue
+            except ParseException:
+                pass
+            try:
+                arp_proxy_iface = parse_arp_proxy_iface.parseString(option).asList()[-1]
+                iface_dict['arp_proxy'] = arp_proxy_iface
                 continue
             except ParseException:
                 pass
