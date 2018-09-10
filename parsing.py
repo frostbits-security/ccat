@@ -53,9 +53,10 @@ parse_ip_arp          = NotAny(White()) + Suppress('ip arp inspection') + Suppre
 parse_ip_service      = NotAny(White()) + Suppress('ip') + MatchFirst(['finger', 'identd', 'source-route', 'bootp server'])
 parse_ip_http         = NotAny(White()) + Suppress('ip http ') + restOfLine
 
-authentication = Suppress('authentication ') + restOfLine
-authorization  = Suppress('authorization ')  + restOfLine
-accounting     = Suppress('accounting ')     + restOfLine
+# aaa_authorization  = Suppress('authorization ')  + restOfLine
+aaa_authentication = Suppress('authentication ') + restOfLine
+aaa_accounting     = Suppress('accounting ')     + restOfLine
+aaa_groups         = Suppress('group server ')   + restOfLine
 
 
 # Parse global options
@@ -79,9 +80,9 @@ def global_parse(config):
     global parse_ip_arp
     global parse_ip_service
     global parse_ip_http
-    global authentication
-    global authorization
-    global accounting
+    global aaa_authentication
+    # global aaa_authorization
+    global aaa_accounting
     global parse_vtp
 
     count_authen, count_author, count_acc = 1, 1, 1
@@ -185,23 +186,32 @@ def global_parse(config):
         try:
             current_line = parse_aaa.parseString(line).asList()[-1]
             try:
-                current_line = authentication.parseString(current_line).asList()[-1]
+                current_line = aaa_groups.parseString(current_line)[0].split()
+                iface_global['aaa'].setdefault('groups',{})
+                iface_global['aaa']['groups'].setdefault(current_line[0],[])
+                iface_global['aaa']['groups'][current_line[0]].append(current_line[1])
+                continue
+            except ParseException:
+                pass
+
+            try:
+                current_line = aaa_authentication.parseString(current_line).asList()[-1]
                 iface_global['aaa'].setdefault('authentication',{})
                 iface_global['aaa']['authentication'].update(parsing_checks.aaa._globalParse___aaa_attributes(current_line,'authentication',count_authen))
                 count_authen += 1
                 continue
             except ParseException:
                 pass
+            # try:
+            #     current_line = aaa_authorization.parseString(current_line).asList()[-1]
+            #     iface_global['aaa'].setdefault('authorization',{})
+            #     iface_global['aaa']['authorization'].update(parsing_checks.aaa._globalParse___aaa_attributes(current_line,'authorization',count_author))
+            #     count_author += 1
+            #     continue
+            # except ParseException:
+            #     pass
             try:
-                current_line = authorization.parseString(current_line).asList()[-1]
-                iface_global['aaa'].setdefault('authorization',{})
-                iface_global['aaa']['authorization'].update(parsing_checks.aaa._globalParse___aaa_attributes(current_line,'authorization',count_author))
-                count_author += 1
-                continue
-            except ParseException:
-                pass
-            try:
-                current_line = accounting.parseString(current_line).asList()[-1]
+                current_line = aaa_accounting.parseString(current_line).asList()[-1]
                 iface_global['aaa'].setdefault('accounting',{})
                 iface_global['aaa']['accounting'].update(parsing_checks.aaa._globalParse___aaa_attributes(current_line,'accounting',count_acc))
                 count_acc += 1

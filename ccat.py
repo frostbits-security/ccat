@@ -82,10 +82,11 @@ for filename in filenames[0]:
 
     # global checks
     result_dict.update(checks.services.check(global_params))
-    result_dict.update(checks.users.check(global_params))
+    # result_dict.update(checks.users.check(global_params))
     result_dict.update(checks.ip_global.check(global_params))
     result_dict.update(checks.console_vty.check(global_params))
     result_dict.update(checks.lldp.check(global_params))
+    result_dict.update(checks.aaa.check(global_params))
 
     result_cdp, cdp_flag = checks.cdp.global_check(global_params)
     if result_cdp:

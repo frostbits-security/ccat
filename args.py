@@ -9,6 +9,7 @@
 
 import argparse
 import os
+from sys import exit
 
 # to make possible access to args from main module
 args=0
