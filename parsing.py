@@ -39,7 +39,7 @@ parse_lldp                  = Suppress('lldp ')                        + restOfL
 parse_username              = Suppress('username ')                    + restOfLine
 parse_aaa                   = Suppress('aaa ')                         + restOfLine
 parse_stp                   = Suppress('spanning-tree ')               + restOfLine
-parse_vtp                   = Suppress('vtp ')                         + restOfLine
+# parse_vtp                   = Suppress('vtp ')                         + restOfLine
 parse_line                  = Suppress('line ')                        + restOfLine
 parse_ip_ssh                = Suppress('ip ssh ')                      + restOfLine
 parse_arp_proxy             = Suppress('ip arp proxy ')                + restOfLine
@@ -58,6 +58,7 @@ aaa_authentication = Suppress('authentication ') + restOfLine
 aaa_accounting     = Suppress('accounting ')     + restOfLine
 aaa_groups         = Suppress('group server ')   + restOfLine
 
+utill=lambda parse_meth,featur_str:parse_meth.parseString(featur_str).asList()
 
 # Parse global options
 # Input:  files list to parse
@@ -83,11 +84,81 @@ def global_parse(config):
     global aaa_authentication
     # global aaa_authorization
     global aaa_accounting
-    global parse_vtp
+    # global parse_vtp
 
     count_authen, count_author, count_acc = 1, 1, 1
 
+
+
+    # it is attempt to do class
+
+    def catch_exception(func):
+        def wrapper(slf):
+            try:
+                func(slf)
+            except ParseException:
+                pass
+
+        return wrapper
+
+    def catch_exception1(func):
+        def wrapper(slf):
+            try:
+                func(slf)
+            except AttributeError:
+                pass
+
+        return wrapper
+
+    class VTP:
+
+        def __init__(self):
+            self.dct = {}
+
+
+        def new_line(self,line):
+            parse_vtp = Suppress('vtp ') + restOfLine
+
+            try:
+                self.vtp_str = parse_vtp.parseString(line).asList()[-1]
+                self.info_domain()
+                print('info_domain',self.info_domain())
+                self.info_mode()
+                print('info_mode', self.info_mode())
+            except ParseException:
+                pass
+
+
+        def add_dct(self):
+            iface_global['vtp'] = self.dct
+            print(self.dct)
+
+        @catch_exception
+        def parse_domain(self):
+            domain = Suppress('domain ') + restOfLine
+            self.domain = utill(domain, self.vtp_str)
+
+        @catch_exception
+        def parse_mode(self):
+            mode = Suppress('mode ') + restOfLine
+            self.mode = utill(mode, self.vtp_str)
+
+        @catch_exception1
+        def info_mode(self):
+            self.parse_mode()
+            self.dct['mode'] = self.mode
+
+        @catch_exception1
+        def info_domain(self):
+            self.parse_domain()
+            self.dct['domain'] = self.domain
+
+    cl_vtp = VTP()
+
+
+
     for line in config:
+        cl_vtp.new_line(line)
         if 'no cdp run' in line:
             iface_global['cdp'] = 1
 
@@ -175,13 +246,15 @@ def global_parse(config):
         except ParseException:
             pass
 
-        try:
-            vtp = parse_vtp.parseString(line).asList()[-1]
-            result_parse_vtp = parsing_checks.vtp._globalParse___vtp_attributes(vtp, iface_global['vtp'])
-            if result_parse_vtp:
-                iface_global['vtp'] = result_parse_vtp
-        except ParseException:
-            pass
+
+
+        # try:
+        #     vtp = parse_vtp.parseString(line).asList()[-1]
+        #     result_parse_vtp = parsing_checks.vtp._globalParse___vtp_attributes(vtp, iface_global['vtp'])
+        #     if result_parse_vtp:
+        #         iface_global['vtp'] = result_parse_vtp
+        # except ParseException:
+        #     pass
 
         try:
             current_line = parse_aaa.parseString(line).asList()[-1]
@@ -281,7 +354,7 @@ def global_parse(config):
             continue
         except ParseException:
             pass
-
+    cl_vtp.add_dct()
 
 # Interface attributes parsing
 # Input:  open file with cursor on interface line
