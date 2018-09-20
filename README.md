@@ -4,6 +4,13 @@ Cisco Config Anaysis Tool
 This tool is designed to analyze the configuration files of Cisco devices. The list of checks is based on the Cisco Guide to Harden Cisco IOS Devices.
 
 ## Usage  
+The simplest way to use:
+`python3 ccat.py configuration_file`
+
+Windows:
+`ccat.exe configuration_file`
+
+Extended options:
 
 `python3 ccat.py config_directory -vl vlmap.txt -o result_html_files_directory --storm_level 40.0 --max_number_mac 100  --disabled-interfaces --no-console-display` 
 
