@@ -60,6 +60,24 @@ aaa_groups         = Suppress('group server ')   + restOfLine
 
 utill=lambda parse_meth,featur_str:parse_meth.parseString(featur_str).asList()
 
+
+def catch_exception(func):
+    def wrapper(slf):
+        try:
+            func(slf)
+        except ParseException:
+            pass
+    return wrapper
+
+
+def catch_exception1(func):
+    def wrapper(slf):
+        try:
+            func(slf)
+        except AttributeError:
+            pass
+    return wrapper
+
 # Parse global options
 # Input:  files list to parse
 # Sample:    ['example/10.164.132.1.conf','example/172.17.135.196.conf']
@@ -92,23 +110,7 @@ def global_parse(config):
 
     # it is attempt to do class
 
-    def catch_exception(func):
-        def wrapper(slf):
-            try:
-                func(slf)
-            except ParseException:
-                pass
 
-        return wrapper
-
-    def catch_exception1(func):
-        def wrapper(slf):
-            try:
-                func(slf)
-            except AttributeError:
-                pass
-
-        return wrapper
 
     class VTP:
 
@@ -118,20 +120,17 @@ def global_parse(config):
 
         def new_line(self,line):
             parse_vtp = Suppress('vtp ') + restOfLine
-
             try:
                 self.vtp_str = parse_vtp.parseString(line).asList()[-1]
                 self.info_domain()
-                print('info_domain',self.info_domain())
                 self.info_mode()
-                print('info_mode', self.info_mode())
             except ParseException:
                 pass
 
 
         def add_dct(self):
             iface_global['vtp'] = self.dct
-            print(self.dct)
+
 
         @catch_exception
         def parse_domain(self):
@@ -153,9 +152,8 @@ def global_parse(config):
             self.parse_domain()
             self.dct['domain'] = self.domain
 
+
     cl_vtp = VTP()
-
-
 
     for line in config:
         cl_vtp.new_line(line)
@@ -246,15 +244,6 @@ def global_parse(config):
         except ParseException:
             pass
 
-
-
-        # try:
-        #     vtp = parse_vtp.parseString(line).asList()[-1]
-        #     result_parse_vtp = parsing_checks.vtp._globalParse___vtp_attributes(vtp, iface_global['vtp'])
-        #     if result_parse_vtp:
-        #         iface_global['vtp'] = result_parse_vtp
-        # except ParseException:
-        #     pass
 
         try:
             current_line = parse_aaa.parseString(line).asList()[-1]
@@ -361,6 +350,7 @@ def global_parse(config):
 # Sample:    example/10.10.1.1.conf
 # Output: interface options dictionary
 # Sample:    {'vlans': [], 'shutdown': 'no', 'description': '-= MGMT - core.nnn048.nnn =-'}
+
 def _interfaceParse___iface_attributes(config, check_disabled):
     iface_list = util.get_attributes(config)[0]
 
@@ -374,7 +364,6 @@ def _interfaceParse___iface_attributes(config, check_disabled):
 
         parse_description     = Suppress('description ')              + restOfLine
         parse_type            = Suppress('switchport mode ')          + restOfLine
-        parse_storm           = Suppress('storm-control ')            + restOfLine
         parse_port_sec        = Suppress('switchport port-security ') + restOfLine
         parse_stp_port        = Suppress('spanning-tree ')            + restOfLine
         parse_dhcp_snoop      = Suppress('ip dhcp snooping ')         + restOfLine
@@ -384,8 +373,65 @@ def _interfaceParse___iface_attributes(config, check_disabled):
 
         parse_vlans = Suppress('switchport ') + Suppress(MatchFirst('access vlan ' + ('trunk allowed vlan ' + Optional('add ')))) + vlan_num
 
+        class Storm:
+
+            def __init__(self):
+                self.dct = {'type': []}
+
+            def new_line(self,line):
+                parse_storm = Suppress('storm-control ') + restOfLine
+
+                try:
+                    self.storm_line = parse_storm.parseString(line).asList()[-1]
+                    self.level_info()
+                    self.action_info()
+                    self.type_info()
+                except ParseException:
+                    pass
+
+            @catch_exception
+            def parse_level(self):
+                parse_level = Word(alphas) + Suppress('level ') + restOfLine
+                value = parse_level.parseString(self.storm_line).asList()
+                if 'level' in self.dct:
+                    self.dct['level'].append(value)
+                else:
+                    self.dct['level'] = [value]
+
+            @catch_exception
+            def parse_action(self):
+                action = Suppress('action ') + Word(alphas)
+                self.action = utill(action, self.storm_line)
+
+            @catch_exception
+            def parse_type(self):
+                type = Word(alphas) + Suppress(Optional("include")) + Word(alphas)
+                self.type = utill(type, self.storm_line)
+
+            @catch_exception1
+            def action_info(self):
+                self.parse_action()
+                self.dct['action'] = self.action
+
+            @catch_exception1
+            def type_info(self):
+                self.parse_type()
+
+                for each in self.type:
+
+                    if each not in self.dct['type'] and each in ['broadcast', 'multicast', 'unicast']:
+                        self.dct['type'].append(each)
+
+            @catch_exception1
+            def level_info(self):
+                self.parse_level()
+
+        cl_storm = Storm()
+
         # Reserved options list is using due to 'shutdown' option is usually located at the end of the list, so it breaks cycle if interface is shutdown and function speed increases
         for option in iface_list[::-1]:
+            cl_storm.new_line(option)
+            iface_dict['storm control']=cl_storm.dct
             if option == 'shutdown':
                 if check_disabled:
                     iface_dict['shutdown'] = 'yes'
@@ -428,14 +474,7 @@ def _interfaceParse___iface_attributes(config, check_disabled):
                 continue
             except ParseException:
                 pass
-            try:
-                storm_control = parse_storm.parseString(option).asList()[-1]
-                iface_dict['storm control'] = parsing_checks.storm_control.__ifaceAttributes___storm_check(storm_control,
-                                                                                                   iface_dict[
-                                                                                                       'storm control'])
-                continue
-            except ParseException:
-                pass
+
             try:
                 port_sec = parse_port_sec.parseString(option).asList()[-1]
                 iface_dict['port-security'] = parsing_checks.port_security.__ifaceAttributes___port_sec_parse(port_sec, iface_dict['port-security'])
