@@ -31,11 +31,11 @@ def _iface_check__stp_check(iface_dct,flag,result,scale):
 def iface_check(iface_dct,flag, vlanmap_type):
     result = {}
 
-# If this network segment is TRUSTED - enabled cdp is not a red type of threat, it will be colored in orange
+# If this network segment is TRUSTED
     if vlanmap_type == 'TRUSTED':
         _iface_check__stp_check(iface_dct,flag,result,[1,2])
 
-# Otherwise if network segment is CRITICAL or UNKNOWN or vlanmap is not defined - enabled cdp is a red type of threat
+# Otherwise if network segment is CRITICAL or UNKNOWN or vlanmap is not defined
     else:
         _iface_check__stp_check(iface_dct,flag,result, [0, 2])
 
