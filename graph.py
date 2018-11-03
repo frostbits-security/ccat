@@ -21,7 +21,8 @@ def draw_plot(switches_dict):
     print('..............FULL....SETS.............')
     print(sets)
 
-    # Filling set1 as RED nodes on graph and set2 as BLUE nodes
+    # Filling set1 as RED nodes on graph and set2 as BLUE nodes: LIKE PAIR OF DEVICE NAME + INTERFACE NAME
+    # and ITS VLANS [('dev_name_int_name', [4,5,6),('dev_name_int_name2', [4,5,6,7,8)]
     sets1 = sets.copy()
     x = 0
     for xxx in sets:
@@ -53,7 +54,7 @@ def draw_plot(switches_dict):
     print('..............................G EDGES......................')
     print(G.edges)
 
-    # lst1 - list of sets1 nodes, lst2 - list of sets2 nodes
+    # lst1 - list of sets1 nodes, lst2 - list of sets2 nodes: LIKE VLAN NUMBERS [1,4,6,7]
     lst1 = []
     for item in sets1:
         lst1.append(item[0])
