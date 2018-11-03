@@ -6,6 +6,7 @@ import progressbar
 import display
 import interface_type
 import checks
+import graph
 from checks import *
 
 # get filenames from args
@@ -47,6 +48,9 @@ if no_console_display:
         progressbar.Bar(left='[', marker='=', right=']'),  # Прогресс
         progressbar.SimpleProgress(),
     ]).start()
+
+# Creating dictionary for drawing graph
+dict_for_drawing_plot = {}
 
 # processing configs one by one
 for filename in filenames[0]:
@@ -128,6 +132,9 @@ for filename in filenames[0]:
     if arp_proxy_flag:
         result_dict.update(arp_proxy)
 
+    # Adding device name to dictionary
+    dict_for_drawing_plot.update({config_name: {}})
+
     # interface checks
     for iface in interfaces:
 
@@ -140,6 +147,10 @@ for filename in filenames[0]:
                 # skip shutdown interfaces if there was not --disabled-interfaces argument
                 if interfaces[iface]['shutdown'] == 'yes' and not check_disabled:
                     continue
+
+                # If an interface has any vlans - it is added to dictionary for graph
+                if interfaces[iface]['vlans']:
+                    dict_for_drawing_plot[config_name].update({iface: interfaces[iface]['vlans']})
 
                 result_dict[iface] = {}
 
@@ -241,6 +252,15 @@ for filename in filenames[0]:
 # finish progress bar
 if no_console_display:
     bar.finish()
+
+# Debug output with structure of dictionary for drawing
+for item1 in dict_for_drawing_plot:
+    print(item1)
+    for item2 in dict_for_drawing_plot[item1]:
+        print('____', item2, '---', dict_for_drawing_plot[item1][item2])
+
+# Draw gpaph
+graph.draw_plot(dict_for_drawing_plot)
 
 # Do we really need scoring system ?
 #

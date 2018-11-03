@@ -1,41 +1,85 @@
 import networkx as nx
 import matplotlib.pyplot as plt
 
-# 4 switches
-hr={'Ethernet0/0': {'unknown_iface': 1}, 'Ethernet0/1': {'shutdown': 'no', 'vlans': [10, 20], 'cdp': 'yes', 'dhcp_snoop': {'mode': 'untrust'}, 'arp_insp': {'mode': 'untrust'}, 'storm control': {'type': []}, 'port-security': {}, 'ipv6': {}, 'type': 'trunk'}, 'Ethernet0/2': {'unknown_iface': 1}, 'Ethernet0/3': {'unknown_iface': 1}, 'Ethernet1/0': {'unknown_iface': 1}, 'Ethernet1/1': {'shutdown': 'no', 'vlans': [30], 'cdp': 'yes', 'dhcp_snoop': {'mode': 'untrust'}, 'arp_insp': {'mode': 'untrust'}, 'storm control': {'type': []}, 'port-security': {}, 'ipv6': {}, 'type': 'trunk'}, 'Ethernet1/2': {'unknown_iface': 1}, 'Ethernet1/3': {'unknown_iface': 1}, 'Ethernet2/0': {'unknown_iface': 1}, 'Ethernet2/1': {'unknown_iface': 1}, 'Ethernet2/2': {'unknown_iface': 1}, 'Ethernet2/3': {'unknown_iface': 1}, 'Ethernet3/0': {'shutdown': 'no', 'vlans': [20], 'cdp': 'yes', 'dhcp_snoop': {'mode': 'untrust'}, 'arp_insp': {'mode': 'untrust'}, 'storm control': {'type': []}, 'port-security': {}, 'ipv6': {}, 'type': 'access'}, 'Ethernet3/1': {'shutdown': 'no', 'vlans': [20], 'cdp': 'yes', 'dhcp_snoop': {'mode': 'untrust'}, 'arp_insp': {'mode': 'untrust'}, 'storm control': {'type': []}, 'port-security': {}, 'ipv6': {}, 'type': 'access'}, 'Ethernet3/2': {'shutdown': 'no', 'vlans': [20], 'cdp': 'yes', 'dhcp_snoop': {'mode': 'untrust'}, 'arp_insp': {'mode': 'untrust'}, 'storm control': {'type': []}, 'port-security': {}, 'ipv6': {}, 'type': 'access'}, 'Ethernet3/3': {'shutdown': 'no', 'vlans': [20], 'cdp': 'yes', 'dhcp_snoop': {'mode': 'untrust'}, 'arp_insp': {'mode': 'untrust'}, 'storm control': {'type': []}, 'port-security': {}, 'ipv6': {}, 'type': 'access'}, 'Vlan1': {'shutdown': 'yes'}}
-srv={'Ethernet0/0': {'shutdown': 'no', 'vlans': [], 'cdp': 'yes', 'dhcp_snoop': {'mode': 'untrust'}, 'arp_insp': {'mode': 'untrust'}, 'storm control': {'type': []}, 'port-security': {}, 'ipv6': {}}, 'Ethernet0/1': {'shutdown': 'no', 'vlans': [], 'cdp': 'yes', 'dhcp_snoop': {'mode': 'untrust'}, 'arp_insp': {'mode': 'untrust'}, 'storm control': {'type': []}, 'port-security': {}, 'ipv6': {}}, 'Ethernet0/2': {'shutdown': 'no', 'vlans': [], 'cdp': 'yes', 'dhcp_snoop': {'mode': 'untrust'}, 'arp_insp': {'mode': 'untrust'}, 'storm control': {'type': []}, 'port-security': {}, 'ipv6': {}}, 'Ethernet0/3': {'shutdown': 'no', 'vlans': [], 'cdp': 'yes', 'dhcp_snoop': {'mode': 'untrust'}, 'arp_insp': {'mode': 'untrust'}, 'storm control': {'type': []}, 'port-security': {}, 'ipv6': {}}, 'Ethernet1/0': {'shutdown': 'no', 'vlans': [], 'cdp': 'yes', 'dhcp_snoop': {'mode': 'untrust'}, 'arp_insp': {'mode': 'untrust'}, 'storm control': {'type': []}, 'port-security': {}, 'ipv6': {}}, 'Ethernet1/1': {'shutdown': 'no', 'vlans': [], 'cdp': 'yes', 'dhcp_snoop': {'mode': 'untrust'}, 'arp_insp': {'mode': 'untrust'}, 'storm control': {'type': []}, 'port-security': {}, 'ipv6': {}}, 'Ethernet1/2': {'shutdown': 'no', 'vlans': [], 'cdp': 'yes', 'dhcp_snoop': {'mode': 'untrust'}, 'arp_insp': {'mode': 'untrust'}, 'storm control': {'type': []}, 'port-security': {}, 'ipv6': {}}, 'Ethernet1/3': {'shutdown': 'no', 'vlans': [30,40], 'cdp': 'yes', 'dhcp_snoop': {'mode': 'untrust'}, 'arp_insp': {'mode': 'untrust'}, 'storm control': {'type': []}, 'port-security': {}, 'ipv6': {}}, 'Ethernet2/0': {'shutdown': 'no', 'vlans': [], 'cdp': 'yes', 'dhcp_snoop': {'mode': 'untrust'}, 'arp_insp': {'mode': 'untrust'}, 'storm control': {'type': []}, 'port-security': {}, 'ipv6': {}}, 'Ethernet2/1': {'shutdown': 'no', 'vlans': [], 'cdp': 'yes', 'dhcp_snoop': {'mode': 'untrust'}, 'arp_insp': {'mode': 'untrust'}, 'storm control': {'type': []}, 'port-security': {}, 'ipv6': {}}, 'Ethernet2/2': {'shutdown': 'no', 'vlans': [], 'cdp': 'yes', 'dhcp_snoop': {'mode': 'untrust'}, 'arp_insp': {'mode': 'untrust'}, 'storm control': {'type': []}, 'port-security': {}, 'ipv6': {}}, 'Ethernet2/3': {'shutdown': 'no', 'vlans': [], 'cdp': 'yes', 'dhcp_snoop': {'mode': 'untrust'}, 'arp_insp': {'mode': 'untrust'}, 'storm control': {'type': []}, 'port-security': {}, 'ipv6': {}}, 'Ethernet3/0': {'shutdown': 'no', 'vlans': [40], 'cdp': 'yes', 'dhcp_snoop': {'mode': 'untrust'}, 'arp_insp': {'mode': 'untrust'}, 'storm control': {'type': []}, 'port-security': {}, 'ipv6': {}}, 'Ethernet3/1': {'shutdown': 'no', 'vlans': [], 'cdp': 'yes', 'dhcp_snoop': {'mode': 'untrust'}, 'arp_insp': {'mode': 'untrust'}, 'storm control': {'type': []}, 'port-security': {}, 'ipv6': {}}, 'Ethernet3/2': {'shutdown': 'no', 'vlans': [], 'cdp': 'yes', 'dhcp_snoop': {'mode': 'untrust'}, 'arp_insp': {'mode': 'untrust'}, 'storm control': {'type': []}, 'port-security': {}, 'ipv6': {}}, 'Ethernet3/3': {'shutdown': 'no', 'vlans': [], 'cdp': 'yes', 'dhcp_snoop': {'mode': 'untrust'}, 'arp_insp': {'mode': 'untrust'}, 'storm control': {'type': []}, 'port-security': {}, 'ipv6': {}}, 'Vlan1': {'shutdown': 'yes'}}
-mng={'Ethernet0/0': {'unknown_iface': 1}, 'Ethernet0/1': {'unknown_iface': 1}, 'Ethernet0/2': {'unknown_iface': 1}, 'Ethernet0/3': {'unknown_iface': 1}, 'Ethernet1/0': {'unknown_iface': 1}, 'Ethernet1/1': {'shutdown': 'no', 'vlans': [20, 30], 'cdp': 'yes', 'dhcp_snoop': {'mode': 'untrust'}, 'arp_insp': {'mode': 'untrust'}, 'storm control': {'type': []}, 'port-security': {}, 'ipv6': {}, 'type': 'trunk'}, 'Ethernet1/2': {'shutdown': 'no', 'vlans': [10, 30], 'cdp': 'yes', 'dhcp_snoop': {'mode': 'untrust'}, 'arp_insp': {'mode': 'untrust'}, 'storm control': {'type': []}, 'port-security': {}, 'ipv6': {}, 'type': 'trunk'}, 'Ethernet1/3': {'shutdown': 'no', 'vlans': [30, 40], 'cdp': 'yes', 'dhcp_snoop': {'mode': 'untrust'}, 'arp_insp': {'mode': 'untrust'}, 'storm control': {'type': []}, 'port-security': {}, 'ipv6': {}, 'type': 'trunk'}, 'Ethernet2/0': {'unknown_iface': 1}, 'Ethernet2/1': {'unknown_iface': 1}, 'Ethernet2/2': {'unknown_iface': 1}, 'Ethernet2/3': {'unknown_iface': 1}, 'Ethernet3/0': {'shutdown': 'no', 'vlans': [30], 'cdp': 'yes', 'dhcp_snoop': {'mode': 'untrust'}, 'arp_insp': {'mode': 'untrust'}, 'storm control': {'type': []}, 'port-security': {}, 'ipv6': {}, 'type': 'access'}, 'Ethernet3/1': {'shutdown': 'no', 'vlans': [30], 'cdp': 'yes', 'dhcp_snoop': {'mode': 'untrust'}, 'arp_insp': {'mode': 'untrust'}, 'storm control': {'type': []}, 'port-security': {}, 'ipv6': {}, 'type': 'access'}, 'Ethernet3/2': {'shutdown': 'no', 'vlans': [30], 'cdp': 'yes', 'dhcp_snoop': {'mode': 'untrust'}, 'arp_insp': {'mode': 'untrust'}, 'storm control': {'type': []}, 'port-security': {}, 'ipv6': {}, 'type': 'access'}, 'Ethernet3/3': {'shutdown': 'no', 'vlans': [30], 'cdp': 'yes', 'dhcp_snoop': {'mode': 'untrust'}, 'arp_insp': {'mode': 'untrust'}, 'storm control': {'type': []}, 'port-security': {}, 'ipv6': {}, 'type': 'access'}, 'Vlan1': {'shutdown': 'yes'}}
-msk={'Ethernet0/0': {'unknown_iface': 1}, 'Ethernet0/1': {'shutdown': 'no', 'vlans': [10, 20], 'cdp': 'yes', 'dhcp_snoop': {'mode': 'untrust'}, 'arp_insp': {'mode': 'untrust'}, 'storm control': {'type': []}, 'port-security': {}, 'ipv6': {}, 'type': 'trunk'}, 'Ethernet0/2': {'unknown_iface': 1}, 'Ethernet0/3': {'unknown_iface': 1}, 'Ethernet1/0': {'unknown_iface': 1}, 'Ethernet1/1': {'unknown_iface': 1}, 'Ethernet1/2': {'shutdown': 'no', 'vlans': [20], 'cdp': 'yes', 'dhcp_snoop': {'mode': 'untrust'}, 'arp_insp': {'mode': 'untrust'}, 'storm control': {'type': []}, 'port-security': {}, 'ipv6': {}, 'type': 'trunk'}, 'Ethernet1/3': {'unknown_iface': 1}, 'Ethernet2/0': {'unknown_iface': 1}, 'Ethernet2/1': {'unknown_iface': 1}, 'Ethernet2/2': {'unknown_iface': 1}, 'Ethernet2/3': {'unknown_iface': 1}, 'Ethernet3/0': {'shutdown': 'no', 'vlans': [10], 'cdp': 'yes', 'dhcp_snoop': {'mode': 'untrust'}, 'arp_insp': {'mode': 'untrust'}, 'storm control': {'type': []}, 'port-security': {}, 'ipv6': {}, 'type': 'access'}, 'Ethernet3/1': {'unknown_iface': 1}, 'Ethernet3/2': {'unknown_iface': 1}, 'Ethernet3/3': {'unknown_iface': 1}, 'Vlan1': {'shutdown': 'yes'}}
 
-sets=[]
-ifaces=[hr,srv,mng,msk]
-ifaces2=['hr','srv','mng','msk']
-k=-1
-for iface in ifaces:
-    dct={}
-    k+=1
-    for each in iface:
-        if 'vlans' in iface[each] and len(iface[each]['vlans'])>0:
-            dct.update({each:iface[each]['vlans']})
-    print(dct)
+def draw_plot(switches_dict):
 
-    for i in dct:
-        if len(dct[i])>1:
-            lst=dct[i]
-            for j in lst:
-                sets.append((ifaces2[k]+' '+i,j))
-        else:
-            sets.append((ifaces2[k]+' '+i,dct[i][0]))
+    sets = []
+    sets2 = []
+
+    for switch in switches_dict:
+        result_dict = {}
+
+        for iface in switches_dict[switch]:
+            if len(switches_dict[switch][iface]) > 0:
+                result_dict.update({iface:switches_dict[switch][iface]})
+        print(result_dict)
+
+        for iface_vlans in result_dict:
+            for vlan in result_dict[iface_vlans]:
+                sets.append((vlan, switch + ' ' + iface_vlans))
+    print('..............FULL....SETS.............')
     print(sets)
 
-# draw graph
-G=nx.Graph()
-elist=sets
-G.add_edges_from(elist)
-pos = nx.spring_layout(G)
-nx.draw(G, pos, font_size=16, with_labels=False)
-for p in pos:  # raise text positions
-    pos[p][1] += 0.07
-nx.draw_networkx_labels(G, pos)
+    # Filling set1 as RED nodes on graph and set2 as BLUE nodes
+    sets1 = sets.copy()
+    x = 0
+    for xxx in sets:
+        got_it = False
+        x += 1
+        fff = x
+        while fff < len(sets):
+            if xxx[0] == sets[fff][0]:
+                sets2.append(sets[fff])
+                sets1.remove(sets[fff])
+                got_it = True
+            fff += 1
+        if got_it:
+            sets2.append(sets[sets.index(xxx)])
+            sets1.remove(sets[sets.index(xxx)])
 
-plt.show()
+    print('..................SETS1.............')
+    print(sets1)
+    print('..................SETS2.............')
+    print(sets2)
+
+    # draw graph
+    G = nx.Graph()
+    G.add_edges_from(sets)
+    pos = nx.spring_layout(G)
+
+    print('..............................G NODES......................')
+    print(G.nodes)
+    print('..............................G EDGES......................')
+    print(G.edges)
+
+    # lst1 - list of sets1 nodes, lst2 - list of sets2 nodes
+    lst1 = []
+    for item in sets1:
+        lst1.append(item[0])
+    lst2 = []
+    for item in sets2:
+        lst2.append(item[0])
+
+    print('---------------------------LIST 1 AND LIST 2 --------------------')
+    print(lst1)
+    print(lst2)
+    print('------------------------------POS--------------------------------')
+    print(pos)
+
+    nx.draw_networkx_nodes(G, pos, nodelist=lst1, node_color="r", with_labels=False)
+    nx.draw_networkx_nodes(G, pos, nodelist=lst2, node_color="b", with_labels=False)
+
+    nx.draw_networkx_edges(G, pos, edge_color='black', font_size=16, with_labels=False)
+
+
+    # raise text positions
+    for p in pos:
+        pos[p][1] += 0.07
+    nx.draw_networkx_labels(G, pos)
+
+    # Save graph as png picture
+    #plt.savefig("network_map.png")
+
+    plt.show()
+
