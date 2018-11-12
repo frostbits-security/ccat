@@ -2,3 +2,7 @@ __pycache__
 example/*.conf
 out.txt
 out.html
+passwords.json
+usernames.json
+secrets.json
+clears.json
