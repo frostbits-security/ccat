@@ -28,6 +28,8 @@ Extended options:
 
 **--no-console-display** - output analysis results only in html files directory
 
+**--dump-creds** - dump usernames, passwords and hashes from configs
+
 ## Installation  
 
 `pip3 install -r requirements.txt`  
