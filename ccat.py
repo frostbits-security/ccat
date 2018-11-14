@@ -260,7 +260,7 @@ for item1 in dict_for_drawing_plot:
         print('____', item2, '---', dict_for_drawing_plot[item1][item2])
 
 # Draw gpaph
-graph.draw_plot(dict_for_drawing_plot)
+graph.draw_plot(dict_for_drawing_plot, vlanmap)
 
 # Do we really need scoring system ?
 #
