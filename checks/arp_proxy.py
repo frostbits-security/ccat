@@ -29,7 +29,7 @@ def _iface_check__proxy_check(iface_dct,scale):
 def iface_check(iface_dct, vlanmap_type):
 
     # If this network segment is TRUSTED
-    if vlanmap_type == 'TRUSTED':
+    if vlanmap_type == 'MANAGEMENT':
         return _iface_check__proxy_check(iface_dct, [4, 2])
 
     # Otherwise if network segment is CRITICAL or UNKNOWN or vlanmap is not defined

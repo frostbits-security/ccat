@@ -30,7 +30,7 @@ def determine(vlanmap, interface):
 
     # if interface vlans are not in vlanmap - vlanmap type will be set as UNKNOWN
     if not find:
-        result_dict['vlanmap type'] = [3, 'UNKNOWN']
+        result_dict['vlanmap type'] = [3, 'OTHER']
 
 
     # If interface has at least 1 critical vlan - it's vlanmap type will be set as CRITICAL, if 0 critical vlans, but
@@ -38,15 +38,15 @@ def determine(vlanmap, interface):
     # will be set as TRUSTED
     else:
         if vlanmap_check['critical']:
-            result_dict['vlanmap type'] = [3, 'CRITICAL']
+            result_dict['vlanmap type'] = [3, 'DMZ']
         elif vlanmap_check['unknown']:
-            result_dict['vlanmap type'] = [3, 'UNKNOWN']
+            result_dict['vlanmap type'] = [3, 'OTHER']
         elif vlanmap_check['trusted']:
-            result_dict['vlanmap type'] = [3, 'TRUSTED']
+            result_dict['vlanmap type'] = [3, 'MANAGEMENT']
 
     # if 1 trunk interface has critical and trusted vlans - it may be unsecure for network segment so its warning type
         if vlanmap_check['critical'] and vlanmap_check['trusted']:
-            result_dict['vlanmap warning'] = [1, 'Trusted and Critical vlans on interface', 'It may be a potential threat']
+            result_dict['vlanmap warning'] = [1, 'Management and DMZ vlans on interface', 'It may be a potential threat']
 
 
     return result_dict

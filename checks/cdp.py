@@ -18,7 +18,7 @@ def iface_check(iface_dct, vlanmap_type,flag):
     # If CDP isn`t disabled at global
     if flag!=1:
 # If this network segment is TRUSTED - enabled cdp is not a red type of threat, it will be colored in orange
-        if vlanmap_type == 'TRUSTED':
+        if vlanmap_type == 'MANAGEMENT':
             _iface_check__cdp_check(result,[1,2],iface_dct)
 
     # Otherwise if network segment is CRITICAL or UNKNOWN or vlanmap is not defined - enabled cdp is a red type of threat

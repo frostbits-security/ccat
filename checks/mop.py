@@ -26,7 +26,7 @@ def check(iface_dct, vlanmap_type, iface):
     result = {}
 
 # If this network segment is TRUSTED - enabled mop is not a red type of threat, it will be colored in orange
-    if vlanmap_type == 'TRUSTED':
+    if vlanmap_type == 'MANAGEMENT':
         mop_check(result, [1, 2], iface_dct, iface)
 
 # Otherwise if network segment is CRITICAL or UNKNOWN or vlanmap is not defined - enabled mop is a red type of threat

@@ -80,7 +80,7 @@ for filename in filenames[0]:
         print(interfaces)
 
     if not no_console_display:
-        print('\n\n--------------------RESULTS FOR:', config_name[1:] + '--------------------')
+        print('\n\n-------------------- RESULTS FOR: {} --------------------'.format(config_name[1:]))
 
     # prepare results dictionary
     result_dict = {}

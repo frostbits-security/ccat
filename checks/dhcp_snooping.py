@@ -38,7 +38,7 @@ def check_iface(iface_params, vlanmap_type, allinterf, enabled):
             else:
                 result_dict['DHCP snooping']['rate limit'] = [1, 'Not set', 'Needed to prevent DHCP starvation']
         # check if trusted interface is marked as trusted in vlamap
-        elif ((mode == 'trust') and not (vlanmap_type == 'TRUSTED')):
+        elif ((mode == 'trust') and not (vlanmap_type == 'MANAGEMENT')):
             result_dict['DHCP snooping']['vlans'] = [0, 'Interface set as trusted, but vlanmap is different',
                                                      'This interface is not trusted according to vlanmap, but marked as trusted. Unauthorized DHCP server can work here']
         else:
