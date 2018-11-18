@@ -81,8 +81,8 @@ def draw_plot(switches_dict, vlanmap=False):
 
     if not vlanmap:
         # Draw nodes
-        legend_edge_node = nx.draw_networkx_nodes(G, pos, nodelist=edge_nodes_list,    node_shape='*',  node_color="#ffff80")
-        legend_cent_node = nx.draw_networkx_nodes(G, pos, nodelist=central_nodes_list, node_shape='o',  node_color="#ff80ff")
+        legend_edge_node = nx.draw_networkx_nodes(G, pos, node_size=500, nodelist=edge_nodes_list,    node_shape='*',  node_color="#ffff80")
+        legend_cent_node = nx.draw_networkx_nodes(G, pos, node_size=500, nodelist=central_nodes_list, node_shape='o',  node_color="#ff80ff")
 
         # Draw edges (connections)
         legend_conn_int  = nx.draw_networkx_edges(G, pos, edge_color='black', font_size=16, style='dotted')
@@ -102,12 +102,12 @@ def draw_plot(switches_dict, vlanmap=False):
         others_edge    = list(set(edge_nodes_list)    - set(management_edge)    - set(dmz_edge))
 
         # Draw nodes
-        legend_dmz_central        = nx.draw_networkx_nodes(G, pos, nodelist=dmz_central,        node_shape='o', node_color="#ff8080")
-        legend_dmz_edge           = nx.draw_networkx_nodes(G, pos, nodelist=dmz_edge,           node_shape='*', node_color="#ff8080")
-        legend_others_central     = nx.draw_networkx_nodes(G, pos, nodelist=others_central,     node_shape='o', node_color="#80ff80")
-        legend_others_edge        = nx.draw_networkx_nodes(G, pos, nodelist=others_edge,        node_shape='*', node_color="#80ff80")
-        legend_management_central = nx.draw_networkx_nodes(G, pos, nodelist=management_central, node_shape='o', node_color="#8080ff")
-        legend_management_edge    = nx.draw_networkx_nodes(G, pos, nodelist=management_edge,    node_shape='*', node_color="#8080ff")
+        legend_dmz_central        = nx.draw_networkx_nodes(G, pos, node_size=500, nodelist=dmz_central,        node_shape='o', node_color="#ff8080")
+        legend_dmz_edge           = nx.draw_networkx_nodes(G, pos, node_size=500, nodelist=dmz_edge,           node_shape='*', node_color="#ff8080")
+        legend_others_central     = nx.draw_networkx_nodes(G, pos, node_size=500, nodelist=others_central,     node_shape='o', node_color="#80ff80")
+        legend_others_edge        = nx.draw_networkx_nodes(G, pos, node_size=500, nodelist=others_edge,        node_shape='*', node_color="#80ff80")
+        legend_management_central = nx.draw_networkx_nodes(G, pos, node_size=500, nodelist=management_central, node_shape='o', node_color="#8080ff")
+        legend_management_edge    = nx.draw_networkx_nodes(G, pos, node_size=500, nodelist=management_edge,    node_shape='*', node_color="#8080ff")
 
         # Draw edges (connections)
         legend_conn_int = nx.draw_networkx_edges(G, pos, edge_color='black', font_size=16, style='dotted')
@@ -126,7 +126,7 @@ def draw_plot(switches_dict, vlanmap=False):
                     routes = nx.all_shortest_paths(G, source=dmz_vlan, target=management_vlan)
 
                     # ALL paths in graph, don't even try it with central nodes number > 10
-                    # routes = nx.all_simple_paths(G, source=dmz_vlan, target=other_vlan)
+                    #routes = nx.all_simple_paths(G, source=dmz_vlan, target=management_vlan)
 
                     # This method is working, but doesn't color paths, may be later...
                     # for path in map(nx.utils.pairwise, routes):
@@ -146,7 +146,7 @@ def draw_plot(switches_dict, vlanmap=False):
     print(vlam_labels)
 
     # FOR INTERACTIVE All labels
-    nx.draw_networkx_labels(G, pos, font_size=10)
+    nx.draw_networkx_labels(G, pos, font_size=12)
 
     # FOR PNG only vlan nums
     #nx.draw_networkx_labels(G, pos, labels=vlam_labels, font_size=10)
@@ -172,7 +172,7 @@ def draw_plot(switches_dict, vlanmap=False):
     plt.tight_layout()
 
     # Save graph as png picture, 1000 dpi may be too high value, try different
-    #plt.savefig("network_map.png", dpi=1000)
+    plt.savefig("network_map.png", dpi=800)
 
     # Interactive mode
     plt.show()
