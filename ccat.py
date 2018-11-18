@@ -6,6 +6,7 @@ import progressbar
 import display
 import interface_type
 import checks
+import harvester
 from checks import *
 
 # get filenames from args
@@ -47,6 +48,10 @@ if no_console_display:
         progressbar.Bar(left='[', marker='=', right=']'),  # Прогресс
         progressbar.SimpleProgress(),
     ]).start()
+
+# creds harvester
+if (args.args.dump_creds):
+    harvester.harvest(filenames[0])
 
 # processing configs one by one
 for filename in filenames[0]:

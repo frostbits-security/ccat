@@ -3,6 +3,10 @@ Cisco Config Anaysis Tool
 
 This tool is designed to analyze the configuration files of Cisco devices. The [list of checks](https://github.com/cisco-config-analysis-tool/ccat/wiki/List-of-the-checks) is based on the Cisco Guide to Harden Cisco IOS Devices.
 
+## Installation  
+
+`pip3 install -r requirements.txt` 
+
 ## Usage  
 The simplest way to use:
 `python3 ccat.py configuration_file`
@@ -28,6 +32,5 @@ Extended options:
 
 **--no-console-display** - output analysis results only in html files directory
 
-## Installation  
-
-`pip3 install -r requirements.txt`  
+**--dump-creds** - dump usernames, passwords and hashes from configs
+ 
