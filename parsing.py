@@ -603,7 +603,7 @@ def vlanmap_parse(filename):
         res = []
         try:
             res.append(vlanmap['dmz'])         # critical
-            res.append(vlanmap['others'])      # unknown
+            res.append(vlanmap['other'])      # unknown
             res.append(vlanmap['management'])  # trusted
             cnt = 0
             for zone in res:

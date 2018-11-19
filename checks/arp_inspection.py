@@ -41,7 +41,7 @@ def check_iface(iface_params, vlanmap_type, allinterf, enabled):
                 result_dict['ARP inspection'] = {}
             mode = iface_arp['mode']
 
-            if ((mode == 'trust') and  not(vlanmap_type=='TRUSTED')):
+            if ((mode == 'trust') and  not(vlanmap_type=='MANAGEMENT')):
                 result_dict[i]['ARP inspection']['vlans'] = [0,
                                                                  'Interface set as trusted, but vlanmap is different',
                                                                  'This interface is not trusted according to vlanmap, but marked as trusted. ARP spoofing is possible.']
