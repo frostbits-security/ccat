@@ -3,7 +3,18 @@ import matplotlib.pyplot as plt
 import re
 import os
 
-def draw_plot(switches_dict, vlanmap=False):
+
+def get_legend(legend_full_item_list, legend_full_value_list):
+    legend_item_list = []
+    legend_value_list = []
+    for legend_item in legend_full_item_list:
+        if legend_item is not None:
+            legend_item_list.append(legend_item)
+            legend_value_list.append(legend_full_value_list[legend_full_item_list.index(legend_item)])
+    return legend_item_list, legend_value_list
+
+
+def draw_plot(switches_dict, graph_path, vlanmap=False):
 
     # Fill list Sets in the next format: [(vlan_num, 'dev_name_int'),(...)]
     sets = []
@@ -14,8 +25,7 @@ def draw_plot(switches_dict, vlanmap=False):
                 # Make short name of interface
                 iface_short = re.sub('[a-z]', '', iface)
                 result_dict.update({iface_short: switches_dict[switch][iface]})
-        print('..............RESULT DICT.............')
-        print(result_dict)
+
         for iface_vlans in result_dict:
             for vlan in result_dict[iface_vlans]:
                 # Make short name of switch
@@ -24,7 +34,7 @@ def draw_plot(switches_dict, vlanmap=False):
 
     # Fill 2 lists with central and edges nodes
     central_nodes_list = []
-    edge_nodes_list = []
+    edge_nodes_list    = []
     for node_pair in sets:
         found = False
         if node_pair[0] in central_nodes_list:
@@ -39,17 +49,7 @@ def draw_plot(switches_dict, vlanmap=False):
         if found is False:
             edge_nodes_list.append(node_pair[0])
 
-    # Debug output
-    print('.........................SETS...................')
-    print(sets)
-    print('..............CENTRAL NODES LIST.............')
-    print(central_nodes_list)
-    print('..............EDGE NODES LIST.............')
-    print(edge_nodes_list)
-    print('--------------IN CASE IF WE HAVE SAME VLANS IN 2 LISTS THE LIST BELOW WONT BE EMPTY--------------')
-    print([i for i in central_nodes_list if i in edge_nodes_list])
-
-    # # For PDF format, otherwise internal error will occur
+    # For PDF format, otherwise internal error will occur (future feature)
     # plt.rcParams['pdf.fonttype'] = 42
     # plt.rcParams['font.family'] = 'Calibri'
 
@@ -69,32 +69,37 @@ def draw_plot(switches_dict, vlanmap=False):
                 break
         if found == False:
             remove_list.append(node_pair[1])
-    print('..........................................REMOVE LIST.............')
-    print(remove_list)
     G.remove_nodes_from(remove_list)
 
-    # K is the optimal distance between nodes
+    # get items position, where K is the optimal distance between nodes
     pos = nx.spring_layout(G, k=0.2)
 
-    # Increase plot size, 16:9 may lag, try different
+    # Define plot size
     plt.figure(figsize=(16,9))
 
     if not vlanmap:
         # Draw nodes
-        legend_edge_node = nx.draw_networkx_nodes(G, pos, node_size=500, nodelist=edge_nodes_list,    node_shape='*',  node_color="#ffff80")
-        legend_cent_node = nx.draw_networkx_nodes(G, pos, node_size=500, nodelist=central_nodes_list, node_shape='o',  node_color="#ff80ff")
+        nx.draw_networkx_nodes(G, pos, node_size=0, node_color='white')
+        legend_edge_node = nx.draw_networkx_nodes(G, pos, nodelist=edge_nodes_list,    node_shape='*',  node_color="#ffff80")
+        legend_cent_node = nx.draw_networkx_nodes(G, pos, nodelist=central_nodes_list, node_shape='o',  node_color="#ff80ff")
 
         # Draw edges (connections)
-        legend_conn_int  = nx.draw_networkx_edges(G, pos, edge_color='black', font_size=16, style='dotted')
+        legend_conn_int  = nx.draw_networkx_edges(G, pos, edge_color='black', style='dotted')
 
+        # Building legend without errors
+        legend_full_item_list  = [legend_edge_node, legend_cent_node, legend_conn_int]
+        legend_full_value_list = ['Single vlans', 'Multiple vlans', 'Connected interface']
 
-    print('----------------------VLANMAP------------------')
-    print(vlanmap)
+        legend_item_list, legend_value_list = get_legend(legend_full_item_list,legend_full_value_list)
 
-    if vlanmap:
+        plt.legend(legend_item_list,
+                   legend_value_list,
+                   loc=1, framealpha=0.5, fontsize='small', markerscale=0.5, edgecolor='Black')
 
-        dmz_central    = list(set(vlanmap[0]) & set(central_nodes_list))
-        dmz_edge       = list(set(vlanmap[0]) & set(edge_nodes_list))
+    else:
+        # Get nodes lists
+        dmz_central        = list(set(vlanmap[0]) & set(central_nodes_list))
+        dmz_edge           = list(set(vlanmap[0]) & set(edge_nodes_list))
         management_central = list(set(vlanmap[2]) & set(central_nodes_list))
         management_edge    = list(set(vlanmap[2]) & set(edge_nodes_list))
 
@@ -102,16 +107,17 @@ def draw_plot(switches_dict, vlanmap=False):
         others_edge    = list(set(edge_nodes_list)    - set(management_edge)    - set(dmz_edge))
 
         # Draw nodes
-        legend_dmz_central        = nx.draw_networkx_nodes(G, pos, node_size=500, nodelist=dmz_central,        node_shape='o', node_color="#ff8080")
-        legend_dmz_edge           = nx.draw_networkx_nodes(G, pos, node_size=500, nodelist=dmz_edge,           node_shape='*', node_color="#ff8080")
-        legend_others_central     = nx.draw_networkx_nodes(G, pos, node_size=500, nodelist=others_central,     node_shape='o', node_color="#80ff80")
-        legend_others_edge        = nx.draw_networkx_nodes(G, pos, node_size=500, nodelist=others_edge,        node_shape='*', node_color="#80ff80")
-        legend_management_central = nx.draw_networkx_nodes(G, pos, node_size=500, nodelist=management_central, node_shape='o', node_color="#8080ff")
-        legend_management_edge    = nx.draw_networkx_nodes(G, pos, node_size=500, nodelist=management_edge,    node_shape='*', node_color="#8080ff")
+        nx.draw_networkx_nodes(G, pos, node_size=0, node_color='white')
+        legend_dmz_central        = nx.draw_networkx_nodes(G, pos, nodelist=dmz_central,        node_shape='o', node_color="#ff8080")
+        legend_dmz_edge           = nx.draw_networkx_nodes(G, pos, nodelist=dmz_edge,           node_shape='*', node_color="#ff8080")
+        legend_management_central = nx.draw_networkx_nodes(G, pos, nodelist=management_central, node_shape='o', node_color="#8080ff")
+        legend_management_edge    = nx.draw_networkx_nodes(G, pos, nodelist=management_edge,    node_shape='*', node_color="#8080ff")
+        legend_others_central     = nx.draw_networkx_nodes(G, pos, nodelist=others_central,     node_shape='o', node_color="#80ff80")
+        legend_others_edge        = nx.draw_networkx_nodes(G, pos, nodelist=others_edge,        node_shape='*', node_color="#80ff80")
 
         # Draw edges (connections)
-        legend_conn_int = nx.draw_networkx_edges(G, pos, edge_color='black', font_size=16, style='dotted')
-        legend_conn_alert = []
+        legend_conn_int = nx.draw_networkx_edges(G, pos, edge_color='black', style='dotted')
+        legend_conn_alert = None
 
         # Draw dangerous connections between "dmz" and "others"
         for dmz_vlan in vlanmap[0]:
@@ -123,10 +129,11 @@ def draw_plot(switches_dict, vlanmap=False):
                     continue
 
                 if path_between_nodes:
+                    # All shortest paths in graph
                     routes = nx.all_shortest_paths(G, source=dmz_vlan, target=management_vlan)
 
-                    # ALL paths in graph, don't even try it with central nodes number > 10
-                    #routes = nx.all_simple_paths(G, source=dmz_vlan, target=management_vlan)
+                    # ALL paths in graph, don't even try it with connected to each other central nodes number > 10
+                    # routes = nx.all_simple_paths(G, source=dmz_vlan, target=management_vlan)
 
                     # This method is working, but doesn't color paths, may be later...
                     # for path in map(nx.utils.pairwise, routes):
@@ -137,42 +144,42 @@ def draw_plot(switches_dict, vlanmap=False):
                         route_edges = [(path[n], path[n + 1]) for n in range(len(path) - 1)]
                         legend_conn_alert = nx.draw_networkx_edges(G, pos, edgelist=route_edges, edge_color='red', style='dotted')
 
-    # FOR PNG Draw labels
-    vlam_labels = {}
-    for key in pos:
-        if type(key) is int:
-            vlam_labels.update({key:key})
-    print('..........................................POS222222222.............')
-    print(vlam_labels)
+        # Building legend without errors
+        legend_full_item_list  = [legend_dmz_central, legend_dmz_edge, legend_management_central, legend_management_edge,
+                                  legend_others_central, legend_others_edge, legend_conn_int, legend_conn_alert]
+        legend_full_value_list = ['DMZ multiple vlan', 'DMZ single vlan', 'Management multiple vlan',
+                                  'Management single vlan', 'Other multiple vlan', 'Other single vlan',
+                                  'Connected interface', 'Dangerous connection']
 
-    # FOR INTERACTIVE All labels
-    nx.draw_networkx_labels(G, pos, font_size=12)
+        legend_item_list, legend_value_list = get_legend(legend_full_item_list,legend_full_value_list)
 
-    # FOR PNG only vlan nums
-    #nx.draw_networkx_labels(G, pos, labels=vlam_labels, font_size=10)
-
+        plt.legend(legend_item_list,
+                   legend_value_list,
+                   loc=1, framealpha=0.5, fontsize='small', markerscale=0.5, edgecolor='Black')
 
     # Delete X and Y symbols and values on graph
     plt.xticks([])
     plt.yticks([])
 
-    # Plot's legend
-    if not vlanmap:
-        plt.legend((legend_edge_node, legend_cent_node, legend_conn_int),
-                   ('Single vlans', 'Multiple vlans', 'Connected interface'),
-                   loc=1, framealpha=0.5, fontsize='small', markerscale=0.5,edgecolor='Black')
-
-    if vlanmap:
-        plt.legend((legend_dmz_central, legend_dmz_edge, legend_management_central, legend_management_edge, legend_others_central, legend_others_edge, legend_conn_int, legend_conn_alert),
-                   ('DMZ multiple vlan', 'DMZ single vlan', 'Management multiple vlan', 'Management single vlan', 'Other multiple vlan', 'Other single vlan', 'Connected interface', 'Dangerous connection'),
-                   loc=1, framealpha=0.5, fontsize='small', markerscale=0.5,edgecolor='Black')
-
-
     # Delete space between plot and window edge
     plt.tight_layout()
 
-    # Save graph as png picture, 1000 dpi may be too high value, try different
-    plt.savefig("network_map.png", dpi=800)
+    # Save graph as png picture
+    if graph_path:
+        vlam_labels = {}
+        for key in pos:
+            if type(key) is int:
+                vlam_labels.update({key: key})
+
+        # Draw only vlan numbers
+        nx.draw_networkx_labels(G, pos, labels=vlam_labels, font_size=10)
+
+        # 800 dpi may be too high value, try different
+        plt.savefig(graph_path+".png", dpi=800)
 
     # Interactive mode
-    plt.show()
+    else:
+        # Draw all labels
+        nx.draw_networkx_labels(G, pos, font_size=12)
+
+        plt.show()

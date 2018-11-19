@@ -253,14 +253,9 @@ for filename in filenames[0]:
 if no_console_display:
     bar.finish()
 
-# Debug output with structure of dictionary for drawing
-for item1 in dict_for_drawing_plot:
-    print(item1)
-    for item2 in dict_for_drawing_plot[item1]:
-        print('____', item2, '---', dict_for_drawing_plot[item1][item2])
-
-# Draw gpaph
-graph.draw_plot(dict_for_drawing_plot, vlanmap)
+# Draw gpaph if
+if args.args.graph != 0:
+    graph.draw_plot(dict_for_drawing_plot, args.args.graph, vlanmap)
 
 # Do we really need scoring system ?
 #
