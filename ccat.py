@@ -253,7 +253,7 @@ for filename in filenames[0]:
 if no_console_display:
     bar.finish()
 
-# Draw gpaph if
+# Draw gpaph if the key was defined
 if args.args.graph != 0:
     graph.draw_plot(dict_for_drawing_plot, args.args.graph, vlanmap)
 
