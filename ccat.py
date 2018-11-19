@@ -235,6 +235,10 @@ for filename in filenames[0]:
         else:
             result_dict[iface] = {'Unused Interface': [0, 'ENABLED', 'An interface that is not used must be disabled']}
 
+    if (args.args.debug):
+        print("\n\n[DEBUG] results:")
+        print(result_dict)
+
     # processing results
     display.display_results(result_dict, html_file, no_console_display)
 
