@@ -32,7 +32,7 @@ def iface_check(iface_dct,flag, vlanmap_type):
     result = {}
 
 # If this network segment is TRUSTED
-    if vlanmap_type == 'TRUSTED':
+    if vlanmap_type == 'MANAGEMENT':
         _iface_check__stp_check(iface_dct,flag,result,[1,2])
 
 # Otherwise if network segment is CRITICAL or UNKNOWN or vlanmap is not defined

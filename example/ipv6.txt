@@ -52,7 +52,9 @@ spanning-tree extend system-id
 vlan internal allocation policy ascending
 !         
 ip tcp synwait-time 5
-!         
+!
+ip arp inspection vlan 1
+ip arp inspection vlan 3         
 !         
 !         
 !         
@@ -68,12 +70,18 @@ ip tcp synwait-time 5
 interface Port-channel1
  ipv6 nd raguard attach-policy ROUTER
  ipv6 source-guard attach-policy SG
+ switchport access vlan 1
+ switchport mode access
+ ip arp inspection trust
 !         
 interface Ethernet0/0
- shutdown
+ switchport access vlan 3
+ switchport mode access
+ ip arp inspection trust
 !         
 interface Ethernet0/1
- shutdown
+ switchport access vlan 8
+ switchport mode access
 !         
 interface Ethernet0/2
  shutdown

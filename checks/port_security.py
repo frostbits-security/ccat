@@ -48,7 +48,7 @@ def check(iface_dct, vlanmap_type, max_mac=10):
     result = {}
 
     # If this network segment is TRUSTED - enabled cdp is not a red type of threat, it will be colored in orange
-    if vlanmap_type == 'TRUSTED':
+    if vlanmap_type == 'MANAGEMENT':
         port_sec_check(iface_dct, max_mac, result, [1, 1, 2])
 
     # Otherwise if network segment is CRITICAL or UNKNOWN or vlanmap is not defined - enabled cdp is a red type of threat

@@ -602,9 +602,9 @@ def vlanmap_parse(filename):
         vlanmap = load(open(filename))
         res = []
         try:
-            res.append(vlanmap['dmz'])        # critical
-            res.append(vlanmap['others'])     # unknown
-            res.append(vlanmap['management']) # trusted
+            res.append(vlanmap['dmz'])         # critical
+            res.append(vlanmap['other'])      # unknown
+            res.append(vlanmap['management'])  # trusted
             cnt = 0
             for zone in res:
                 for i in zone:

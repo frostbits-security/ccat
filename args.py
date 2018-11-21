@@ -53,10 +53,9 @@ def getfilenames():
     parser.add_argument("--storm_level", type=float, help="to set up appropriate level for storm-control (by default value=80)")
     parser.add_argument("--max_number_mac", type=int, help="to set up maximum number of mac-addresses for port-security (by default value=10)")
     parser.add_argument("--debug", action='store_true', help="enable debug output")
-
+    parser.add_argument("--dump-creds", action='store_true', help="enable credentials harvesting")
     graph_group = parser.add_argument_group('Network graph')
     graph_group.add_argument("--graph", type=str, nargs='?', default=0, help="left the argument empty to get into interactive mode or define a file name for graph output in png extension")
-
     args = parser.parse_args()
     if not(args.config):
         print ('Usage example:\n  ccat  smth/config_folder -vl smth/vlanmap_folder -v\n\nFor more details try --help')

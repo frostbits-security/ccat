@@ -105,7 +105,7 @@ def _check___storm_check(iface_dct, storm_level, scale, dct):
 def check(iface_dct, vlanmap_type, storm_level=80):
     result = {}
     # If this network segment is TRUSTED - enabled cdp is not a red type of threat, it will be colored in orange
-    if vlanmap_type == 'TRUSTED':
+    if vlanmap_type == 'MANAGEMENT':
         _check___storm_check(iface_dct, storm_level, [1, 1, 2], result)
 
     # Otherwise if network segment is CRITICAL or UNKNOWN or vlanmap is not defined - enabled cdp is a red type of threat

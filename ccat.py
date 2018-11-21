@@ -7,6 +7,7 @@ import display
 import interface_type
 import checks
 import graph
+import harvester
 from checks import *
 
 # get filenames from args
@@ -51,6 +52,9 @@ if no_console_display:
 
 # Creating dictionary for drawing graph
 dict_for_drawing_plot = {}
+# creds harvester
+if (args.args.dump_creds):
+    harvester.harvest(filenames[0])
 
 # processing configs one by one
 for filename in filenames[0]:
@@ -79,7 +83,7 @@ for filename in filenames[0]:
         print(interfaces)
 
     if not no_console_display:
-        print('\n\n--------------------RESULTS FOR:', config_name[1:] + '--------------------')
+        print('\n\n-------------------- RESULTS FOR: {} --------------------'.format(config_name[1:]))
 
     # prepare results dictionary
     result_dict = {}
@@ -240,6 +244,10 @@ for filename in filenames[0]:
 
         else:
             result_dict[iface] = {'Unused Interface': [0, 'ENABLED', 'An interface that is not used must be disabled']}
+
+    if (args.args.debug):
+        print("\n\n[DEBUG] results:")
+        print(result_dict)
 
     # processing results
     display.display_results(result_dict, html_file, no_console_display)
