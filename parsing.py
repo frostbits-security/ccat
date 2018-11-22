@@ -457,7 +457,6 @@ def _interfaceParse___iface_attributes(config, check_disabled):
                     if '-' in unit:
                         range_units = unit.split('-')
                         range_list = [i for i in range(int(range_units[0]), int(range_units[1]) + 1)]
-                        vlan_add.remove(unit)
                         iface_dict['vlans'].extend(range_list)
                     else:
                         iface_dict['vlans'].append(int(unit))
