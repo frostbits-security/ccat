@@ -87,9 +87,8 @@ def display_results(dictionary,html_file, no_console_display):
                 html.write('<tr><td>&nbsp;</td></tr>\n')
             # Html file ending
             html.write('</table>\n</body>\n</html>')
-    else:
+    elif not no_console_display:
         for key in dictionary:
             full_name = ''
-            if not no_console_display:
-                print('\n', bcolors.BLUE + key + bcolors.END)
+            print('\n', bcolors.BLUE + key + bcolors.END)
             display_options(dictionary[key], full_name, html_file, no_console_display)
