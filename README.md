@@ -16,13 +16,13 @@ Windows:
 
 Extended options:
 
-`python3 ccat.py config_directory -vl vlmap.txt -o result_html_files_directory --storm_level 40.0 --max_number_mac 100  --disabled-interfaces --no-console-display --graph network_map` 
+`python3 ccat.py config_directory -vlanmap vlmap.txt -output result_html_files_directory --storm_level 40.0 --max_number_mac 100  --disabled-interfaces --no-console-display --graph network_map` 
 
-**config_directory** - path to directory with configuration files
+**configs** - path to the configuration file or directory with configuration files
 
-**-vl** - path to [vlanmap file](https://github.com/cisco-config-analysis-tool/ccat/wiki/Vlanmap-file)
+**-vlanmap** - path to [vlanmap file](https://github.com/cisco-config-analysis-tool/ccat/wiki/Vlanmap-file)
 
-**-o** - path to output html files directory
+**-output** - path to output html files directory
 
 **--storm_level** - appropriate level for storm-control (by default value = 80)
 

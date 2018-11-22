@@ -19,10 +19,10 @@ vlanmap = parsing.vlanmap_parse(filenames.pop(0))
 # variables for html output option
 html_directory = None
 html_file = None
-config_directory = args.args.config
+config_directory = args.args.configs
 # Create directory for html files output or check its existence
-if args.args.o:
-    html_directory = args.args.o
+if args.args.output:
+    html_directory = args.args.output
     try:
         os.makedirs(html_directory, exist_ok=True)
     except OSError:
