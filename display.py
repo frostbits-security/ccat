@@ -90,5 +90,6 @@ def display_results(dictionary,html_file, no_console_display):
     else:
         for key in dictionary:
             full_name = ''
-            print('\n', bcolors.BLUE + key + bcolors.END)
+            if not no_console_display:
+                print('\n', bcolors.BLUE + key + bcolors.END)
             display_options(dictionary[key], full_name, html_file, no_console_display)

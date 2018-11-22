@@ -43,7 +43,7 @@ def getfilenames():
     global args
     parser = argparse.ArgumentParser(formatter_class=argparse.RawDescriptionHelpFormatter,
                                      description="Cisco Configuration Analysis Tool",
-                                     epilog='Usage example:\n  ccat  smth/config_folder -vl smth/vlanmap_folder -v')
+                                     epilog='Usage example:\n  ccat  smth/config_folder -vl smth/vlanmap_file')
     parser.add_argument("config", type=str, nargs='?', default=0, help="full path to the configuration file or folder with config(s)")
     parser.add_argument("-vl", type=str, help="path to vlanmap (file that determine how critical is certain vlan, you can find example in 'example' folder)")
     parser.add_argument("-o", type=str, help="path to output html files directory")
@@ -58,7 +58,7 @@ def getfilenames():
     graph_group.add_argument("--graph", type=str, nargs='?', default=0, help="left the argument empty to get into interactive mode or define a file name for graph output in png extension")
     args = parser.parse_args()
     if not(args.config):
-        print ('Usage example:\n  ccat  smth/config_folder -vl smth/vlanmap_folder -v\n\nFor more details try --help')
+        print ('Usage example:\n  ccat  smth/config_folder -vl smth/vlanmap_file\n\nFor more details try --help')
         exit()
     if args.no_console_display and not args.o and args.graph == 0:
         print('\nYou should define html files directory with -o key OR use --graph key to use this options\n\nFor more details try --help')
