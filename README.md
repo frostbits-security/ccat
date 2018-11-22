@@ -16,7 +16,7 @@ Windows:
 
 Extended options:
 
-`python3 ccat.py config_directory -vl vlmap.txt -o result_html_files_directory --storm_level 40.0 --max_number_mac 100  --disabled-interfaces --no-console-display` 
+`python3 ccat.py config_directory -vl vlmap.txt -o result_html_files_directory --storm_level 40.0 --max_number_mac 100  --disabled-interfaces --no-console-display --graph network_map` 
 
 **config_directory** - path to directory with configuration files
 
@@ -30,7 +30,9 @@ Extended options:
 
 **--disabled-interfaces** - check interfaces even if they are turned off
 
-**--no-console-display** - output analysis results only in html files directory
+**--no-console-display** - output analysis results in html files directory or into network graph
 
 **--dump-creds** - dump usernames, passwords and hashes from configs
+ 
+**--graph** - builds network map of VLANs (you may left the argument empty to get into interactive mode or define a file name for graph output in png extension)
  
