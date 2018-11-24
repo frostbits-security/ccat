@@ -81,6 +81,8 @@ for filename in filenames[0]:
         print(global_params)
         print("\n\n[DEBUG] iface:")
         print(interfaces)
+        print("\n\n[DEBUG] vlanmap:")
+        print(vlanmap)
 
     if not no_console_display:
         print('\n\n-------------------- RESULTS FOR: {} --------------------'.format(config_name[1:]))

@@ -489,6 +489,10 @@ def _interfaceParse___iface_attributes(config, check_disabled):
             try:
                 arp_insp = parse_arp_insp.parseString(option).asList()[-1]
                 iface_dict['arp_insp'] = parsing_checks.ip_iface.__ifaceAttributes___ip_parse(arp_insp, iface_dict['arp_insp'])
+                # making a str:str instead of str:list
+                # see issue #5
+                if'mode' in iface_dict['arp_insp']:
+                    iface_dict['arp_insp']['mode']=iface_dict['arp_insp']['mode'][0]
                 continue
             except ParseException:
                 pass
