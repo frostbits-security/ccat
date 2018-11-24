@@ -85,7 +85,7 @@ for filename in filenames[0]:
         print(vlanmap)
 
     if not no_console_display:
-        print('\n\n-------------------- RESULTS FOR: {} --------------------'.format(config_name[1:]))
+        print('\n\n-------------------- RESULTS FOR: {} --------------------'.format(config_name))
 
     # prepare results dictionary
     result_dict = {}

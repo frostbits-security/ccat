@@ -26,7 +26,7 @@ def _getargs___arg_parser(config, vlanmap):
         result.append(0)
     try:
         if os.path.isdir(config):
-            config_lst = [config + '/' + i for i in os.listdir(config)]
+            config_lst = [config + i for i in os.listdir(config)]
             if vlanmap in config_lst:
                 config_lst.remove(vlanmap)
             result.append(config_lst)
