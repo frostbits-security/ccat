@@ -29,7 +29,7 @@ def draw_plot(switches_dict, graph_path, vlanmap=False):
         for iface_vlans in result_dict:
             for vlan in result_dict[iface_vlans]:
                 # Make short name of switch
-                switch_short = (os.path.splitext(switch)[0])[1:]
+                switch_short = os.path.splitext(switch)[0]
                 sets.append((vlan, switch_short + ' ' + iface_vlans))
 
     # Fill 2 lists with central and edges nodes
