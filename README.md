@@ -1,5 +1,10 @@
-# CCAT
-Cisco Config Anaysis Tool
+<h1 align="center">
+  <br>
+  <img src="https://avatars0.githubusercontent.com/u/41387281?s=400&u=f23a3da3a0d9412564b58645e05c958183476cce&v=4" alt="CCAT" width="200"></a>
+  <br>
+  Cisco Config Anaysis Tool
+  <br>
+</h1>
 
 This tool is designed to analyze the configuration files of Cisco devices. The [list of checks](https://github.com/cisco-config-analysis-tool/ccat/wiki/List-of-the-checks) is based on the [Cisco Guide to Harden Cisco IOS Devices](https://www.cisco.com/c/en/us/support/docs/ip/access-lists/13608-21.html).
 
