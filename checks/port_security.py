@@ -11,7 +11,9 @@ def port_sec_check(iface_dct, max_mac, result, scale):
         port_sec_dct = iface_dct['port-security']
 
         if 'maximum' in port_sec_dct:
-            if int(port_sec_dct['maximum'][0]) > max_mac:
+            ps_max_num = (port_sec_dct['maximum'][0]).split()
+            ps_max_num = (ps_max_num[0])
+            if int(ps_max_num) > max_mac:
                 result.update({'Maximum for mac-address port-security': [scale[0], port_sec_dct['maximum'][0],
                                                                          "Maximum for mac-address port-security should be less than {}".format(
                                                                              str(max_mac))]})
