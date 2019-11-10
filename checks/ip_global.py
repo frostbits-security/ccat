@@ -56,7 +56,9 @@ def check(global_params):
 
     # version dependent services
     if 'version' in global_params:
-        if float(global_params['version']) >= 12.1:
+        version_major, version_minor, version_build = global_params['version'].partition('.')
+        version = version_major + version_minor + version_build.replace('.', '')
+        if float(version) >= 12.1:
             if 'finger'   in global_params['ip']['active_service']:
                 results_dict['IP options']['service']['finger']   = [0, 'ENABLED', 'Disable it to prevent user to view other active users']
             else:
