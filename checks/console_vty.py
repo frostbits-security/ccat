@@ -42,7 +42,7 @@ def check(global_params):
                 elif global_params['line'][line]['transp_in'] == 'none':
                     results_dict['Lines'][line]['inbound protocol'] = [2, 'NONE']
                 else:
-                    results_dict['Lines'][line]['inbound protocol'] = [1, 'UNSECURE', 'You may want to turn ssh only connection on or disable it']
+                    results_dict['Lines'][line]['inbound protocol'] = [1, 'INSECURE', 'You may want to turn ssh only connection on or disable it']
 
         if 'transp_out'       in global_params['line'][line]:
             if   global_params['line'][line]['transp_out'] == 'ssh':
@@ -50,7 +50,7 @@ def check(global_params):
             elif global_params['line'][line]['transp_out'] == 'none':
                 results_dict['Lines'][line]['outbound protocol']    = [2, 'NONE']
             else:
-                results_dict['Lines'][line]['outbound protocol']    = [1, 'UNSECURE', 'You may want to turn ssh only connection on or disable it']
+                results_dict['Lines'][line]['outbound protocol']    = [1, 'INSECURE', 'You may want to turn ssh only connection on or disable it']
 
 
     return results_dict

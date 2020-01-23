@@ -9,7 +9,7 @@ def check(global_params):
 
 
 # users section
-    # admin count in system, more than 2 is unsecured by default
+    # admin count in system, more than 2 is insecure by default
     admin_count = 0
     for user in global_params['users']:
 

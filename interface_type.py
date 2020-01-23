@@ -44,7 +44,7 @@ def determine(vlanmap, interface):
         elif vlanmap_check['management']:
             result_dict['vlanmap type'] = [3, 'MANAGEMENT']#trusted
 
-    # if 1 trunk interface has critical and trusted vlans - it may be unsecure for network segment so its warning type
+    # if 1 trunk interface has critical and trusted vlans - it may be insecure for network segment so its warning type
         if vlanmap_check['dmz'] and vlanmap_check['management']:
             result_dict['vlanmap warning'] = [1, 'Management and DMZ vlans on interface', 'It may be a potential threat']
 

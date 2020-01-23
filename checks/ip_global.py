@@ -68,7 +68,7 @@ def check(global_params):
 # web server section
     if 'type' in global_params['ip']['http']:
         if global_params['ip']['http']['type'] == 'http':
-            results_dict['IP options']['WEB server']['type'] = [0, 'HTTP', 'Disable it to prevent unsecure connection. You may turn on secure server with "ip http secure-server" command']
+            results_dict['IP options']['WEB server']['type'] = [0, 'HTTP', 'Disable it to prevent insecure connection. You may turn on secure server with "ip http secure-server" command']
         else:
             results_dict['IP options']['WEB server']['type'] = [2, 'HTTPS']
     else:
