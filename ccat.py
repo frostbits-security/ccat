@@ -97,6 +97,7 @@ for filename in filenames[0]:
     result_dict.update(checks.console_vty.check(global_params))
     result_dict.update(checks.lldp.check(global_params))
     result_dict.update(checks.aaa.check(global_params))
+    result_dict.update(checks.ntp.check(global_params))
 
     result_cdp, cdp_flag = checks.cdp.global_check(global_params)
     if result_cdp:
