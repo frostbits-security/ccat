@@ -39,13 +39,12 @@ parse_lldp                  = Suppress('lldp ')                        + restOfL
 parse_username              = Suppress('username ')                    + restOfLine
 parse_aaa                   = Suppress('aaa ')                         + restOfLine
 parse_stp                   = Suppress('spanning-tree ')               + restOfLine
-# parse_vtp                   = Suppress('vtp ')                         + restOfLine
+# parse_vtp                 = Suppress('vtp ')                         + restOfLine
 parse_line                  = Suppress('line ')                        + restOfLine
 parse_ip_ssh                = Suppress('ip ssh ')                      + restOfLine
 parse_arp_proxy             = Suppress('ip arp proxy ')                + restOfLine
 parse_vstack                = Suppress('no') + 'vstack'
-
-
+parse_ntp_servers           = Suppress('ntp server ')                  + restOfLine
 
 parse_enable_password = Suppress('enable') + MatchFirst(['secret', 'password']) + Optional(Word(nums) + Suppress(White(exact=1))) + Suppress(restOfLine)
 parse_ip_dhcp         = NotAny(White()) + Suppress('ip dhcp snooping') + Optional(Suppress('vlan') + Word(nums) + ZeroOrMore(Suppress(',') + Word(nums)))
@@ -103,6 +102,7 @@ def global_parse(config):
     # global aaa_authorization
     global aaa_accounting
     # global parse_vtp
+    global parse_ntp_servers
 
     count_authen, count_author, count_acc = 1, 1, 1
 
@@ -331,6 +331,14 @@ def global_parse(config):
 
         try:
             iface_global['arp_proxy'] = parse_arp_proxy.parseString(line).asList()[-1]
+            continue
+        except ParseException:
+            pass
+
+        try:
+            iface_global.setdefault('ntp_servers', [])
+            iface_global['ntp_servers'].append(
+                parse_ntp_servers.parseString(line).asList()[0])
             continue
         except ParseException:
             pass
