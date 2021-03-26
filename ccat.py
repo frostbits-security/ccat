@@ -60,7 +60,7 @@ if (args.args.dump_creds):
 for filename in filenames[0]:
 
     # Define config file name
-    config_name = filename.partition(config_directory)[2]
+    config_name = filename.partition(config_directory)[1]
 
     # Create output html file full path if needed
     if html_directory:
