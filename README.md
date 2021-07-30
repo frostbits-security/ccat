@@ -1,6 +1,6 @@
 <h1 align="center">
   <br>
-  <img src="https://avatars0.githubusercontent.com/u/41387281?s=400&u=f23a3da3a0d9412564b58645e05c958183476cce&v=4" alt="CCAT" width="200"></a>
+  <img src="./ccat.png" alt="CCAT" width="200"></a>
   <br>
   Cisco Config Analysis Tool 
   <br>
