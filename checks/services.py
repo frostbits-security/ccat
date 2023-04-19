@@ -58,11 +58,13 @@ def check(global_params):
             else:
                 results_dict['Services']['finger']        = [0, 'ENABLED', 'Disable it to prevent user to view other active users']
 
-        if float(version) >= 12.2:
+        elif float(version) < 16.12:
             if 'vstack' in global_params['disable_service']:
                 results_dict['Services']['smart install'] = [2, 'DISABLED']
             else:
                 results_dict['Services']['smart install'] = [0, 'ENABLED', 'Turn it off or block 4786 port (if "vstack" option unavailable) to disable smart install configuration']
+        else:
+            results_dict['Services']['smart install'] = [2, 'DISABLED']
 
         # TCP and UDP small services are enabled by default on Cisco IOS software Release 11.2 and earlier. These commands
         # are disabled by default on Cisco IOS software Software Versions 11.3 and later.
