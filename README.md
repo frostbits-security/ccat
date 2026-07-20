@@ -6,7 +6,9 @@
   <br>
 </h1>
 
-[![Blackhat Arsenal 2018](https://rawgit.com/toolswatch/badges/master/arsenal/europe/2018.svg)](http://www.toolswatch.org/2018/09/black-hat-arsenal-europe-2018-lineup-announced/)  
+[![License: GPL-3.0](https://img.shields.io/badge/License-GPL%203.0-green.svg)](https://opensource.org/licenses/GPL-3.0)
+[![Black Hat Arsenal EU 2018](https://img.shields.io/badge/Black%20Hat%20Arsenal-EU%202018-white.svg)](https://blackhat.com/eu-18/arsenal/schedule/#ccat-cisco-config-analysis-tool-12603)
+
 This tool is designed to analyze the configuration files of Cisco devices. The [list of checks](https://github.com/cisco-config-analysis-tool/ccat/wiki/List-of-the-checks) is based on the [Cisco Guide to Harden Cisco IOS Devices](https://www.cisco.com/c/en/us/support/docs/ip/access-lists/13608-21.html).
 
 ## Installation  
